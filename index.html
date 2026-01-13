@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Arufkuy Store — Digital Goods</title>
+  <meta name="description" content="Arufkuy Store menyediakan digital goods dengan proses cepat dan aman. Dukungan pelanggan responsif." />
+  <meta name="theme-color" content="#0b1220" />
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          boxShadow: {
+            glow: "0 0 0 1px rgba(148,163,184,.12), 0 12px 40px rgba(2,6,23,.55)"
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Smooth scroll */
+    html { scroll-behavior: smooth; }
+    /* Subtle background grid */
+    .grid-bg {
+      background-image:
+        radial-gradient(circle at 1px 1px, rgba(148,163,184,.14) 1px, transparent 0);
+      background-size: 26px 26px;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-slate-950 text-slate-100">
+  <!-- Top gradient / ambient -->
+  <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+    <div class="absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-indigo-500/20 blur-3xl"></div>
+    <div class="absolute top-40 right-[-140px] h-[380px] w-[380px] rounded-full bg-cyan-500/15 blur-3xl"></div>
+    <div class="absolute bottom-[-160px] left-[-160px] h-[420px] w-[420px] rounded-full bg-fuchsia-500/10 blur-3xl"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 border-b border-white/10 bg-slate-950/70 backdrop-blur">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+      <a href="#" class="flex items-center gap-3">
+        <div class="grid h-10 w-10 place-items-center rounded-xl bg-white/5 shadow-glow">
+          <span class="text-lg font-bold text-indigo-300">A</span>
+        </div>
+        <div class="leading-tight">
+          <p class="text-sm font-semibold tracking-wide">Arufkuy Store</p>
+          <p class="text-xs text-slate-400">Digital Goods • Fast Delivery</p>
+        </div>
+      </a>
+
+      <nav class="hidden items-center gap-6 text-sm text-slate-300 md:flex">
+        <a href="#products" class="hover:text-white">Produk</a>
+        <a href="#how" class="hover:text-white">Cara Order</a>
+        <a href="#faq" class="hover:text-white">FAQ</a>
+        <a href="#contact" class="hover:text-white">Kontak</a>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <a href="#products"
+           class="hidden rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10 md:inline-flex">
+          Lihat Produk
+        </a>
+        <a href="#contact"
+           class="inline-flex items-center gap-2 rounded-xl bg-indigo-500 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-400">
+          Hubungi
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <main class="grid-bg">
+    <section class="mx-auto max-w-6xl px-4 py-16 md:py-24">
+      <div class="grid items-center gap-10 md:grid-cols-2">
+        <div>
+          <p class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs text-slate-300">
+            <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+            Proses cepat • Aman • Support responsif
+          </p>
+
+          <h1 class="mt-5 text-4xl font-bold leading-tight tracking-tight md:text-5xl">
+            Digital goods <span class="text-indigo-300">modern</span> dengan proses <span class="text-indigo-300">rapi</span>.
+          </h1>
+
+          <p class="mt-4 text-base leading-relaxed text-slate-300">
+            Arufkuy Store menyediakan produk digital dengan informasi jelas, pembayaran praktis,
+            dan pengiriman sesuai ketentuan produk. Cocok untuk kebutuhan harian maupun koleksi.
+          </p>
+
+          <div class="mt-7 flex flex-col gap-3 sm:flex-row">
+            <a href="#products"
+               class="inline-flex items-center justify-center gap-2 rounded-2xl bg-indigo-500 px-6 py-3 text-sm font-semibold text-white hover:bg-indigo-400 shadow-glow">
+              Jelajahi Produk
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </a>
+            <a href="#how"
+               class="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-slate-200 hover:bg-white/10">
+              Cara Order
+            </a>
+          </div>
+
+          <div class="mt-8 grid grid-cols-3 gap-3 text-center text-xs text-slate-300 sm:max-w-md">
+            <div class="rounded-2xl border border-white/10 bg-white/5 px-3 py-4">
+              <p class="text-lg font-bold text-white">24/7</p>
+              <p class="mt-1 text-slate-400">Monitoring</p>
+            </div>
+            <div class="rounded-2xl border border-white/10 bg-white/5 px-3 py-4">
+              <p class="text-lg font-bold text-white">Fast</p>
+              <p class="mt-1 text-slate-400">Delivery</p>
+            </div>
+            <div class="rounded-2xl border border-white/10 bg-white/5 px-3 py-4">
+              <p class="text-lg font-bold text-white">Secure</p>
+              <p class="mt-1 text-slate-400">Payment</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right card -->
+        <div class="relative">
+          <div class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-glow">
+            <div class="flex items-center justify-between">
+              <p class="text-sm font-semibold text-slate-200">Status Layanan</p>
+              <span class="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-semibold text-emerald-200">
+                Online
+              </span>
+            </div>
+
+            <div class="mt-5 space-y-3">
+              <div class="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
+                <p class="text-xs text-slate-400">Website</p>
+                <p class="mt-1 font-semibold">store.arufkuy.me</p>
+              </div>
+              <div class="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
+                <p class="text-xs text-slate-400">Payment API</p>
+                <p class="mt-1 font-semibold">payment.arufkuy.me</p>
+              </div>
+              <div class="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
+                <p class="text-xs text-slate-400">Metode Pembayaran</p>
+                <p class="mt-1 font-semibold">Bank Transfer • E-Wallet • QRIS (via Gateway)</p>
+              </div>
+            </div>
+
+            <div class="mt-6 rounded-2xl border border-white/10 bg-slate-950/40 p-4">
+              <p class="text-sm font-semibold">Catatan</p>
+              <p class="mt-2 text-sm text-slate-300 leading-relaxed">
+                Ini adalah halaman informasi dan katalog. Transaksi diproses sesuai ketentuan produk dan kebijakan toko.
+              </p>
+            </div>
+          </div>
+
+          <div class="absolute -bottom-8 -left-8 hidden h-24 w-24 rounded-3xl bg-indigo-500/15 blur-2xl md:block"></div>
+          <div class="absolute -top-10 -right-10 hidden h-28 w-28 rounded-3xl bg-cyan-500/10 blur-2xl md:block"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="mx-auto max-w-6xl px-4 pb-10">
+      <div class="grid gap-4 md:grid-cols-3">
+        <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
+          <p class="text-sm font-semibold">Transparan</p>
+          <p class="mt-2 text-sm text-slate-300">
+            Detail produk, ketentuan, dan informasi pengiriman ditampilkan jelas sebelum order.
+          </p>
+        </div>
+        <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
+          <p class="text-sm font-semibold">Pembayaran Praktis</p>
+          <p class="mt-2 text-sm text-slate-300">
+            Mendukung berbagai metode pembayaran melalui payment gateway (bank/e-wallet/QRIS).
+          </p>
+        </div>
+        <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
+          <p class="text-sm font-semibold">Support Responsif</p>
+          <p class="mt-2 text-sm text-slate-300">
+            Bantuan cepat untuk kendala transaksi sesuai prosedur dan bukti yang valid.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Products -->
+    <section id="products" class="mx-auto max-w-6xl px-4 py-16">
+      <div class="flex items-end justify-between gap-4">
+        <div>
+          <h2 class="text-2xl font-bold tracking-tight md:text-3xl">Produk Populer</h2>
+          <p class="mt-2 text-sm text-slate-300">Contoh katalog (dummy). Ganti sesuai produk kamu.</p>
+        </div>
+
+        <div class="hidden md:flex items-center gap-2 text-xs text-slate-400">
+          <span class="rounded-full bg-white/5 px-3 py-2 border border-white/10">Stok: tergantung ketersediaan</span>
+          <span class="rounded-full bg-white/5 px-3 py-2 border border-white/10">Pengiriman: cepat</span>
+        </div>
+      </div>
+
+      <div class="mt-8 grid gap-5 md:grid-cols-3">
+        <!-- Card -->
+        <article class="rounded-3xl border border-white/10 bg-white/5 p-6 hover:bg-white/10 transition">
+          <div class="flex items-start justify-between">
+            <h3 class="font-semibold">Digital Product A</h3>
+            <span class="rounded-full bg-indigo-500/15 px-3 py-1 text-xs font-semibold text-indigo-200">Instant</span>
+          </div>
+          <p class="mt-2 text-sm text-slate-300">
+            Deskripsi singkat produk. Tulis yang jelas dan tidak misleading.
+          </p>
+          <div class="mt-4 flex items-center justify-between">
+            <p class="text-lg font-bold">Rp 25.000</p>
+            <a href="#contact" class="rounded-xl bg-indigo-500 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-400">
+              Order
+            </a>
+          </div>
+          <ul class="mt-4 space-y-2 text-xs text-slate-400">
+            <li>• Garansi sesuai kebijakan</li>
+            <li>• Bukti diperlukan jika klaim</li>
+            <li>• 1x replacement (opsional)</li>
+          </ul>
+        </article>
+
+        <article class="rounded-3xl border border-white/10 bg-white/5 p-6 hover:bg-white/10 transition">
+          <div class="flex items-start justify-between">
+            <h3 class="font-semibold">Digital Product B</h3>
+            <span class="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-200">Fast</span>
+          </div>
+          <p class="mt-2 text-sm text-slate-300">
+            Deskripsi singkat produk. Tulis ketentuan penting (akses, durasi, dsb).
+          </p>
+          <div class="mt-4 flex items-center justify-between">
+            <p class="text-lg font-bold">Rp 49.000</p>
+            <a href="#contact" class="rounded-xl bg-indigo-500 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-400">
+              Order
+            </a>
+          </div>
+          <ul class="mt-4 space-y-2 text-xs text-slate-400">
+            <li>• Proses setelah pembayaran terkonfirmasi</li>
+            <li>• Pengiriman via email/DM</li>
+            <li>• Support jika kendala</li>
+          </ul>
+        </article>
+
+        <article class="rounded-3xl border border-white/10 bg-white/5 p-6 hover:bg-white/10 transition">
+          <div class="flex items-start justify-between">
+            <h3 class="font-semibold">Digital Product C</h3>
+            <span class="rounded-full bg-cyan-500/15 px-3 py-1 text-xs font-semibold text-cyan-200">Best</span>
+          </div>
+          <p class="mt-2 text-sm text-slate-300">
+            Deskripsi singkat produk. Jelaskan batasan penggunaan & kebijakan.
+          </p>
+          <div class="mt-4 flex items-center justify-between">
+            <p class="text-lg font-bold">Rp 99.000</p>
+            <a href="#contact" class="rounded-xl bg-indigo-500 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-400">
+              Order
+            </a>
+          </div>
+          <ul class="mt-4 space-y-2 text-xs text-slate-400">
+            <li>• Detail dikirim setelah paid</li>
+            <li>• Pastikan email/ID benar</li>
+            <li>• Tidak menerima refund</li>
+          </ul>
+        </article>
+      </div>
+
+      <div class="mt-8 rounded-3xl border border-white/10 bg-slate-950/40 p-6 text-sm text-slate-300">
+        <p class="font-semibold text-white">Catatan transparansi</p>
+        <p class="mt-2">
+          Pastikan kamu membaca detail produk sebelum order. Setelah pembelian dianggap setuju dengan kebijakan toko.
+        </p>
+      </div>
+    </section>
+
+    <!-- How to order -->
+    <section id="how" class="mx-auto max-w-6xl px-4 py-16">
+      <div class="grid gap-10 md:grid-cols-2">
+        <div>
+          <h2 class="text-2xl font-bold tracking-tight md:text-3xl">Cara Order</h2>
+          <p class="mt-2 text-sm text-slate-300">Alur sederhana untuk demo transaksi merchant.</p>
+
+          <ol class="mt-6 space-y-4">
+            <li class="flex gap-3 rounded-3xl border border-white/10 bg-white/5 p-5">
+              <div class="grid h-9 w-9 flex-none place-items-center rounded-xl bg-indigo-500/20 text-indigo-200 font-bold">1</div>
+              <div>
+                <p class="font-semibold">Pilih produk</p>
+                <p class="mt-1 text-sm text-slate-300">Pilih produk dari katalog dan cek detail & ketentuan.</p>
+              </div>
+            </li>
+            <li class="flex gap-3 rounded-3xl border border-white/10 bg-white/5 p-5">
+              <div class="grid h-9 w-9 flex-none place-items-center rounded-xl bg-indigo-500/20 text-indigo-200 font-bold">2</div>
+              <div>
+                <p class="font-semibold">Lakukan pembayaran</p>
+                <p class="mt-1 text-sm text-slate-300">Bayar via payment gateway (bank/e-wallet/QRIS).</p>
+              </div>
+            </li>
+            <li class="flex gap-3 rounded-3xl border border-white/10 bg-white/5 p-5">
+              <div class="grid h-9 w-9 flex-none place-items-center rounded-xl bg-indigo-500/20 text-indigo-200 font-bold">3</div>
+              <div>
+                <p class="font-semibold">Status terkonfirmasi</p>
+                <p class="mt-1 text-sm text-slate-300">Sistem menerima callback pembayaran & memproses pesanan.</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <div class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-glow">
+          <p class="text-sm font-semibold">Info Demo</p>
+          <p class="mt-2 text-sm text-slate-300 leading-relaxed">
+            Website ini dapat digunakan sebagai halaman demo integrasi pembayaran. Untuk kebutuhan verifikasi,
+            halaman ini bersifat informatif dan dapat dikembangkan menjadi toko penuh.
+          </p>
+
+          <div class="mt-5 space-y-3 text-sm">
+            <div class="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
+              <p class="text-xs text-slate-400">Callback Endpoint</p>
+              <p class="mt-1 font-semibold">https://payment.arufkuy.me/tripay/callback</p>
+            </div>
+            <div class="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
+              <p class="text-xs text-slate-400">Return URL (opsional)</p>
+              <p class="mt-1 font-semibold">https://store.arufkuy.me/success</p>
+              <p class="mt-1 font-semibold">https://store.arufkuy.me/failed</p>
+            </div>
+          </div>
+
+          <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+            <a href="#faq" class="inline-flex w-full items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 hover:bg-white/10">
+              Lihat FAQ
+            </a>
+            <a href="#contact" class="inline-flex w-full items-center justify-center rounded-2xl bg-indigo-500 px-5 py-3 text-sm font-semibold text-white hover:bg-indigo-400">
+              Kontak Support
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="mx-auto max-w-6xl px-4 py-16">
+      <h2 class="text-2xl font-bold tracking-tight md:text-3xl">FAQ</h2>
+      <p class="mt-2 text-sm text-slate-300">Pertanyaan umum seputar order & kebijakan.</p>
+
+      <div class="mt-8 grid gap-4 md:grid-cols-2">
+        <details class="rounded-3xl border border-white/10 bg-white/5 p-6">
+          <summary class="cursor-pointer font-semibold">Apakah website ini bisa statis?</summary>
+          <p class="mt-3 text-sm text-slate-300">
+            Bisa. Untuk tahap verifikasi merchant, landing page statis yang rapi dan informatif sudah cukup.
+          </p>
+        </details>
+
+        <details class="rounded-3xl border border-white/10 bg-white/5 p-6">
+          <summary class="cursor-pointer font-semibold">Apakah perlu login untuk demo?</summary>
+          <p class="mt-3 text-sm text-slate-300">
+            Tidak perlu. Field login hanya diisi jika website kamu memang memerlukan akun untuk diakses.
+          </p>
+        </details>
+
+        <details class="rounded-3xl border border-white/10 bg-white/5 p-6">
+          <summary class="cursor-pointer font-semibold">Refund bisa?</summary>
+          <p class="mt-3 text-sm text-slate-300">
+            Kebijakan refund mengikuti ketentuan toko dan tipe produk. Pastikan detail produk dibaca sebelum membeli.
+          </p>
+        </details>
+
+        <details class="rounded-3xl border border-white/10 bg-white/5 p-6">
+          <summary class="cursor-pointer font-semibold">Kapan produk dikirim?</summary>
+          <p class="mt-3 text-sm text-slate-300">
+            Umumnya setelah pembayaran terkonfirmasi. Estimasi bergantung pada jenis produk dan jam operasional.
+          </p>
+        </details>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="mx-auto max-w-6xl px-4 py-16">
+      <div class="rounded-3xl border border-white/10 bg-white/5 p-8 md:p-10 shadow-glow">
+        <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 class="text-2xl font-bold tracking-tight md:text-3xl">Kontak</h2>
+            <p class="mt-2 text-sm text-slate-300">
+              Untuk pertanyaan dan dukungan, hubungi kontak di bawah.
+            </p>
+          </div>
+
+          <div class="flex flex-col gap-3 sm:flex-row">
+            <!-- Ganti link ini sesuai punyamu -->
+            <a href="mailto:admin@arufkuy.me"
+               class="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-slate-200 hover:bg-white/10">
+              Email: admin@arufkuy.me
+            </a>
+            <a href="#"
+               class="inline-flex items-center justify-center rounded-2xl bg-indigo-500 px-6 py-3 text-sm font-semibold text-white hover:bg-indigo-400">
+              WhatsApp / DM
+            </a>
+          </div>
+        </div>
+
+        <div class="mt-8 grid gap-4 md:grid-cols-3 text-sm text-slate-300">
+          <div class="rounded-3xl border border-white/10 bg-slate-950/40 p-6">
+            <p class="font-semibold text-white">Jam Operasional</p>
+            <p class="mt-2">Senin–Minggu</p>
+            <p class="text-slate-400">09:00 – 23:00 WIB</p>
+          </div>
+          <div class="rounded-3xl border border-white/10 bg-slate-950/40 p-6">
+            <p class="font-semibold text-white">Kebijakan</p>
+            <p class="mt-2 text-slate-300">No refund (umumnya)</p>
+            <p class="text-slate-400">Replacement sesuai ketentuan</p>
+          </div>
+          <div class="rounded-3xl border border-white/10 bg-slate-950/40 p-6">
+            <p class="font-semibold text-white">Transaksi</p>
+            <p class="mt-2">Transfer / E-Wallet / QRIS</p>
+            <p class="text-slate-400">via payment gateway</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 bg-slate-950/70">
+      <div class="mx-auto max-w-6xl px-4 py-10">
+        <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div class="text-sm text-slate-400">
+            <p class="font-semibold text-slate-200">Arufkuy Store</p>
+            <p class="mt-1">© <span id="year"></span> • All rights reserved.</p>
+          </div>
+
+          <div class="flex flex-wrap gap-3 text-sm">
+            <a class="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-slate-300 hover:bg-white/10" href="#products">Produk</a>
+            <a class="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-slate-300 hover:bg-white/10" href="#how">Cara Order</a>
+            <a class="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-slate-300 hover:bg-white/10" href="#faq">FAQ</a>
+            <a class="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-slate-300 hover:bg-white/10" href="#contact">Kontak</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
