@@ -65,10 +65,10 @@
       </a>
 
       <nav class="hidden items-center gap-6 text-sm text-slate-300 md:flex">
-        <a href="#products" class="hover:text-white transition">Produk</a>
-        <a href="#how" class="hover:text-white transition">Cara Order</a>
-        <a href="#faq" class="hover:text-white transition">FAQ</a>
-        <a href="#contact" class="hover:text-white transition">Kontak</a>
+        <a href="index.html#products" class="hover:text-white transition">Produk</a>
+        <a href="order-guide.html.html" class="hover:text-white transition">Cara Order</a>
+        <a href="help-center.html" class="hover:text-white transition">FAQ</a>
+        <a href="contact.html.html" class="hover:text-white transition">Kontak</a>
       </nav>
 
       <div class="flex items-center gap-3">
@@ -142,7 +142,7 @@
             </svg>
             Produk
           </a>
-          <a href="#how" onclick="closeMobileMenu()"
+          <a href="order-guide.html" onclick="closeMobileMenu()"
             class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-200 hover:bg-white/10 transition">
             <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -151,7 +151,7 @@
             </svg>
             Cara Order
           </a>
-          <a href="#faq" onclick="closeMobileMenu()"
+          <a href="help-center.html" onclick="closeMobileMenu()"
             class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-200 hover:bg-white/10 transition">
             <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -160,7 +160,7 @@
             </svg>
             FAQ
           </a>
-          <a href="#contact" onclick="closeMobileMenu()"
+          <a href="contact.html" onclick="closeMobileMenu()"
             class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-200 hover:bg-white/10 transition">
             <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -295,7 +295,8 @@
             <div class="mt-6 rounded-2xl border border-white/10 bg-slate-950/40 p-4">
               <p class="text-sm font-semibold">Catatan</p>
               <p class="mt-2 text-sm text-slate-300 leading-relaxed">
-                Nikmati transaksi cepat dan aman bersama Arufkuy Digital Store, solusi terpercaya untuk produk digital Anda.
+                Nikmati transaksi cepat dan aman bersama Arufkuy Digital Store, solusi terpercaya untuk produk digital
+                Anda.
               </p>
             </div>
           </div>
@@ -320,6 +321,20 @@
         </div>
       </div>
 
+      <!-- Search & Filter -->
+      <div class="mt-6 flex flex-col md:flex-row gap-4">
+        <div class="relative flex-1">
+          <svg class="w-5 h-5 text-slate-400 absolute left-3 top-3.5" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <input type="text" id="product-search" placeholder="Cari produk..."
+            class="w-full pl-10 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none transition">
+        </div>
+        <div id="filter-tags" class="flex flex-wrap gap-2"></div>
+      </div>
+
       <div id="products-grid" class="mt-8 grid gap-5 md:grid-cols-3">
         <!-- Loading State -->
         <div class="col-span-full text-center py-10 text-slate-400 animate-pulse">
@@ -337,20 +352,26 @@
             <p class="mt-1">© <span id="year"></span> • All rights reserved.</p>
           </div>
           <div class="flex items-center gap-5">
-            <a href="#" class="text-slate-400 hover:text-white transition">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-discord" viewBox="0 0 16 16">
-  <path d="M13.545 2.907a13.2 13.2 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.2 12.2 0 0 0-3.658 0 8 8 0 0 0-.412-.833.05.05 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.04.04 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032q.003.022.021.037a13.3 13.3 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019q.463-.63.818-1.329a.05.05 0 0 0-.01-.059l-.018-.011a9 9 0 0 1-1.248-.595.05.05 0 0 1-.02-.066l.015-.019q.127-.095.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .053.007q.121.1.248.195a.05.05 0 0 1-.004.085 8 8 0 0 1-1.249.594.05.05 0 0 0-.03.03.05.05 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.2 13.2 0 0 0 4.001-2.02.05.05 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.03.03 0 0 0-.02-.019m-8.198 7.307c-.789 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612m5.316 0c-.788 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612"/>
-</svg>
-          </a>
-          <a href="#" class="text-slate-400 hover:text-white transition">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-instagram" viewBox="0 0 16 16">
-  <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334"/>
-</svg>
-          </a>
-          <a href="#" class="text-slate-400 hover:text-white transition">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-tiktok" viewBox="0 0 16 16">
-  <path d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3z"/>
-</svg>
+            <a href="https://discord.gg/3sDGqtZBcW" class="text-slate-400 hover:text-white transition">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-discord"
+                viewBox="0 0 16 16">
+                <path
+                  d="M13.545 2.907a13.2 13.2 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.2 12.2 0 0 0-3.658 0 8 8 0 0 0-.412-.833.05.05 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.04.04 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032q.003.022.021.037a13.3 13.3 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019q.463-.63.818-1.329a.05.05 0 0 0-.01-.059l-.018-.011a9 9 0 0 1-1.248-.595.05.05 0 0 1-.02-.066l.015-.019q.127-.095.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .053.007q.121.1.248.195a.05.05 0 0 1-.004.085 8 8 0 0 1-1.249.594.05.05 0 0 0-.03.03.05.05 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.2 13.2 0 0 0 4.001-2.02.05.05 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.03.03 0 0 0-.02-.019m-8.198 7.307c-.789 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612m5.316 0c-.788 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612" />
+              </svg>
+            </a>
+            <a href="https://www.instagram.com/arufkuystore" class="text-slate-400 hover:text-white transition">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-instagram"
+                viewBox="0 0 16 16">
+                <path
+                  d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334" />
+              </svg>
+            </a>
+            <a href="https://www.tiktok.com/@arufkuy.digital.store" class="text-slate-400 hover:text-white transition">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-tiktok"
+                viewBox="0 0 16 16">
+                <path
+                  d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3z" />
+              </svg>
             </a>
           </div>
         </div>
@@ -427,6 +448,20 @@
       const productsGrid = document.getElementById("products-grid");
 
       try {
+        // Load sections first (with fallback if permissions denied)
+        let sections = [];
+        try {
+          const sectionsSnapshot = await getDocs(collection(db, "sections"));
+          sections = sectionsSnapshot.docs
+            .map(doc => ({ id: doc.id, ...doc.data() }))
+            .filter(s => s.enabled !== false)
+            .sort((a, b) => (a.order || 0) - (b.order || 0));
+        } catch (sectionError) {
+          console.warn("Could not load sections, displaying products without grouping:", sectionError.message);
+          // Continue with empty sections array - products will display without section headers
+        }
+
+        // Load all products
         const querySnapshot = await getDocs(collection(db, "products"));
 
         if (querySnapshot.empty) {
@@ -434,15 +469,38 @@
           return;
         }
 
-        productsGrid.innerHTML = "";
+        // Group products by section
+        const productsBySection = {};
+        const productsWithoutSection = [];
 
         querySnapshot.forEach((doc) => {
-          const data = doc.data();
+          const data = { id: doc.id, ...doc.data() };
+          const sectionId = data.sectionId;
 
-          // --- PRICE LOGIC ---
-          // --- PRICE LOGIC ---
+          if (sectionId) {
+            if (!productsBySection[sectionId]) {
+              productsBySection[sectionId] = [];
+            }
+            productsBySection[sectionId].push(data);
+          } else {
+            productsWithoutSection.push(data);
+          }
+        });
+
+        // Sort products within each section by orderInSection
+        Object.keys(productsBySection).forEach(sectionId => {
+          productsBySection[sectionId].sort((a, b) => (a.orderInSection || 0) - (b.orderInSection || 0));
+        });
+
+        // Sort products without section by orderInSection
+        productsWithoutSection.sort((a, b) => (a.orderInSection || 0) - (b.orderInSection || 0));
+
+        // Helper function to generate product card HTML
+        function generateProductCard(product) {
+          const data = product;
+
+          // Price logic
           let priceHtml = '';
-
           if (data.hasVariants && Array.isArray(data.variants) && data.variants.length > 0) {
             const prices = data.variants.map(v => v.price).sort((a, b) => a - b);
             const minPrice = prices[0];
@@ -454,7 +512,6 @@
               priceHtml = `<p class="text-lg font-bold text-white">${formatPrice(minPrice)} - ${formatPrice(maxPrice)}</p>`;
             }
           } else {
-            // Simple Product
             priceHtml = `<p class="text-lg font-bold text-white">${formatPrice(data.price)}</p>`;
             if (data.original_price && data.original_price > data.price) {
               priceHtml = `
@@ -465,7 +522,6 @@
                `;
             }
           }
-
 
           const imgHtml = data.image
             ? `<div class="aspect-video w-full rounded-2xl bg-slate-900 overflow-hidden mb-4"><img src="${data.image}" class="h-full w-full object-cover"></div>`
@@ -485,6 +541,7 @@
           } else {
             stockCount = Array.isArray(data.stockItems) ? data.stockItems.length : 0;
           }
+
           let stockHtml = '';
           if (stockCount === 0) {
             stockHtml = `<span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-700/50 text-slate-500">Sold Out</span>`;
@@ -505,8 +562,8 @@
             </div>
           `;
 
-          const card = `
-            <a href="detail-product.html?id=${doc.id}" class="block rounded-3xl border border-white/10 bg-white/5 p-5 hover:bg-white/10 transition-all duration-300 hover:border-white/20 hover:-translate-y-1 group">
+          return `
+            <a href="detail-product.html?id=${product.id}" class="block rounded-3xl border border-white/10 bg-white/5 p-5 hover:bg-white/10 transition-all duration-300 hover:border-white/20 hover:-translate-y-1 group">
               <div class="flex flex-col h-full">
                 ${imgHtml}
                 ${topInfoHtml}
@@ -517,8 +574,47 @@
               </div>
             </a>
           `;
-          productsGrid.innerHTML += card;
+        }
+
+        // Render products grouped by section
+        productsGrid.innerHTML = "";
+
+        // Render each section with its products
+        sections.forEach(section => {
+          const productsInSection = productsBySection[section.id];
+          if (!productsInSection || productsInSection.length === 0) return;
+
+          // Section header
+          const sectionHeader = `
+            <div class="col-span-full mt-8 mb-4">
+              <h2 class="text-2xl md:text-3xl font-bold text-white mb-2">${section.name}</h2>
+              ${section.description ? `<p class="text-sm text-slate-400">${section.description}</p>` : ''}
+            </div>
+          `;
+
+          productsGrid.innerHTML += sectionHeader;
+
+          // Render products in this section
+          productsInSection.forEach(product => {
+            productsGrid.innerHTML += generateProductCard(product);
+          });
         });
+
+        // Render products without section
+        if (productsWithoutSection.length > 0) {
+          const unsectionedHeader = `
+            <div class="col-span-full mt-8 mb-4">
+              <h2 class="text-2xl md:text-3xl font-bold text-white mb-2">Lainnya</h2>
+              <p class="text-sm text-slate-400">Produk lainnya yang tersedia</p>
+            </div>
+          `;
+
+          productsGrid.innerHTML += unsectionedHeader;
+
+          productsWithoutSection.forEach(product => {
+            productsGrid.innerHTML += generateProductCard(product);
+          });
+        }
 
       } catch (error) {
         console.error("Error loading products:", error);
@@ -529,6 +625,940 @@
     async function init() {
       await fetchAndUpdateExchangeRate();
       loadProducts();
+      loadPopupSystem();
+      initSearchFilter();
+      initThemeEngine();
+    }
+
+    // ========== POPUP SYSTEM ==========
+    let currentPopupId = null;
+
+    async function loadPopupSystem() {
+      try {
+        const { query, where, orderBy } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+        const popupsSnapshot = await getDocs(query(collection(db, "popups"), where("isActive", "==", true), orderBy("priority", "asc")));
+
+        if (popupsSnapshot.empty) return;
+
+        const popupDoc = popupsSnapshot.docs[0];
+        const popup = popupDoc.data();
+        currentPopupId = popupDoc.id;
+
+        // Check date range
+        if (popup.startDate || popup.endDate) {
+          const now = new Date();
+          if (popup.startDate && new Date(popup.startDate) > now) return;
+          if (popup.endDate && new Date(popup.endDate) < now) return;
+        }
+
+        // Check frequency
+        const dismissedKey = `popup_${currentPopupId}_dismissed`;
+        const lastShownKey = `popup_${currentPopupId}_lastShown`;
+
+        if (popup.frequency === 'once' && localStorage.getItem(dismissedKey)) return;
+        if (popup.frequency === 'session' && sessionStorage.getItem(dismissedKey)) return;
+
+        if (popup.frequency === 'daily') {
+          const lastShown = localStorage.getItem(lastShownKey);
+          if (lastShown && new Date(parseInt(lastShown)).toDateString() === new Date().toDateString()) return;
+        }
+
+        // Show popup after delay
+        setTimeout(() => showPopup(popup), 1500);
+
+        // Track display
+        if (popup.frequency === 'daily') {
+          localStorage.setItem(lastShownKey, Date.now().toString());
+        } else if (popup.frequency === 'session') {
+          sessionStorage.setItem(dismissedKey, 'true');
+        }
+      } catch (error) {
+        console.error('Popup system error:', error);
+      }
+    }
+
+    function showPopup(popup) {
+      const typeConfig = {
+        coupon: {
+          icon: '🎁',
+          gradient: 'from-emerald-500 via-cyan-500 to-teal-500',
+          glowGradient: 'from-emerald-500/40 via-cyan-500/30 to-teal-500/40',
+          accentColor: 'emerald',
+          label: '✨ KODE PROMO'
+        },
+        announcement: {
+          icon: '📢',
+          gradient: 'from-indigo-500 via-purple-500 to-pink-500',
+          glowGradient: 'from-indigo-500/40 via-purple-500/30 to-pink-500/40',
+          accentColor: 'indigo',
+          label: '📣 PENGUMUMAN'
+        },
+        warning: {
+          icon: '⚠️',
+          gradient: 'from-amber-500 via-orange-500 to-red-500',
+          glowGradient: 'from-amber-500/40 via-orange-500/30 to-red-500/40',
+          accentColor: 'amber',
+          label: '⚠️ PERHATIAN'
+        },
+        info: {
+          icon: 'ℹ️',
+          gradient: 'from-cyan-500 via-blue-500 to-indigo-500',
+          glowGradient: 'from-cyan-500/40 via-blue-500/30 to-indigo-500/40',
+          accentColor: 'cyan',
+          label: '💡 INFORMASI'
+        }
+      };
+
+      const config = typeConfig[popup.type] || typeConfig.info;
+
+      // Get coupon code from database or extract from content
+      let couponCode = popup.couponCode || '';
+      let cleanContent = popup.content;
+
+      // Fallback: extract from content if not in database (format: [CODE] or KODE: CODE)
+      if (popup.type === 'coupon' && !couponCode) {
+        const codeMatch = popup.content.match(/\[([A-Z0-9]+)\]|KODE:\s*([A-Z0-9]+)/i);
+        if (codeMatch) {
+          couponCode = codeMatch[1] || codeMatch[2];
+          cleanContent = popup.content.replace(/\[([A-Z0-9]+)\]|KODE:\s*([A-Z0-9]+)/gi, '').trim();
+        }
+      }
+
+      // Generate type-specific content section
+      let contentSection = '';
+
+      if (popup.type === 'coupon') {
+        contentSection = `
+          <!-- Coupon Code Box -->
+          <div class="relative my-6">
+            <div class="absolute inset-0 bg-gradient-to-r ${config.gradient} rounded-2xl blur opacity-30"></div>
+            <div class="relative bg-slate-950/80 border-2 border-dashed border-emerald-500/50 rounded-2xl p-5 overflow-hidden">
+              <!-- Decorative circles -->
+              <div class="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-slate-900 rounded-full"></div>
+              <div class="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-slate-900 rounded-full"></div>
+              
+              <p class="text-xs text-emerald-400 font-semibold text-center mb-2 uppercase tracking-widest">Kode Kupon</p>
+              <div class="flex items-center justify-center gap-2 md:gap-3">
+                <span id="coupon-code-text" class="text-base sm:text-xl md:text-2xl lg:text-3xl font-black bg-gradient-to-r ${config.gradient} bg-clip-text text-transparent tracking-wider break-all">
+                  ${couponCode || 'PROMO2026'}
+                </span>
+                <button onclick="copyCouponCode()" id="copy-coupon-btn"
+                  class="p-2 md:p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all duration-300 group flex-shrink-0">
+                  <svg id="copy-icon" class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                  </svg>
+                  <svg id="check-icon" class="w-4 h-4 md:w-5 md:h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </button>
+              </div>
+              <p id="copy-feedback" class="text-xs text-center mt-2 text-slate-500 h-4"></p>
+            </div>
+          </div>
+          ${cleanContent ? `<p class="text-slate-400 text-sm text-center leading-relaxed">${cleanContent}</p>` : ''}
+        `;
+      } else if (popup.type === 'warning') {
+        contentSection = `
+          <!-- Warning Box -->
+          <div class="relative my-5">
+            <div class="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10 border border-amber-500/30 rounded-2xl p-5">
+              <div class="flex gap-4">
+                <div class="flex-shrink-0">
+                  <div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="text-slate-300 text-sm leading-relaxed whitespace-pre-line">${popup.content}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (popup.type === 'announcement') {
+        contentSection = `
+          <!-- Announcement Box -->
+          <div class="relative my-5">
+            <div class="absolute inset-0 bg-gradient-to-r ${config.glowGradient} rounded-2xl blur-lg"></div>
+            <div class="relative bg-slate-800/50 border border-indigo-500/30 rounded-2xl p-5">
+              <div class="text-slate-300 text-sm leading-relaxed whitespace-pre-line text-center">${popup.content}</div>
+            </div>
+          </div>
+        `;
+      } else {
+        contentSection = `
+          <!-- Info Box -->
+          <div class="my-5 bg-white/5 border border-white/10 rounded-2xl p-5">
+            <div class="text-slate-300 text-sm leading-relaxed whitespace-pre-line text-center">${popup.content}</div>
+          </div>
+        `;
+      }
+
+      const popupHtml = `
+        <div id="info-popup" class="fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-4 popup-overlay">
+          <div class="absolute inset-0 bg-slate-950/85 backdrop-blur-md popup-backdrop" onclick="closePopup()"></div>
+          
+          <div class="relative w-full max-w-sm md:max-w-md popup-card">
+            <!-- Animated Glow -->
+            <div class="absolute -inset-1.5 bg-gradient-to-r ${config.glowGradient} rounded-[30px] blur-2xl opacity-70 animate-glow"></div>
+            
+            <!-- Main Card -->
+            <div class="relative rounded-3xl border border-white/10 bg-slate-900/95 backdrop-blur-xl overflow-hidden shadow-2xl">
+              <!-- Header Bar -->
+              <div class="h-1.5 bg-gradient-to-r ${config.gradient}"></div>
+              
+              <!-- Close Button -->
+              <button onclick="closePopup()" 
+                class="absolute top-3 md:top-4 right-3 md:right-4 w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-red-500/20 hover:border-red-500/30 transition-all duration-300 group z-10">
+                <svg class="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+              
+              <!-- Content -->
+              <div class="p-5 md:p-7">
+                <!-- Icon with Glow -->
+                <div class="flex justify-center mb-4">
+                  <div class="relative">
+                    <div class="absolute inset-0 bg-gradient-to-r ${config.gradient} rounded-full blur-xl opacity-50"></div>
+                    <div class="relative text-4xl md:text-5xl animate-bounce-slow drop-shadow-2xl">${config.icon}</div>
+                  </div>
+                </div>
+                
+                <!-- Label Badge -->
+                <div class="flex justify-center mb-4">
+                  <span class="px-4 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r ${config.gradient} text-white shadow-lg">
+                    ${config.label}
+                  </span>
+                </div>
+                
+                <!-- Title -->
+                <h2 class="text-xl md:text-2xl font-black text-center mb-2 text-white">
+                  ${popup.title}
+                </h2>
+                
+                <!-- Decorative Line -->
+                <div class="flex items-center gap-3 my-4">
+                  <div class="flex-1 h-px bg-gradient-to-r from-transparent via-${config.accentColor}-500/50 to-transparent"></div>
+                  <div class="flex gap-1">
+                    <div class="w-1 h-1 rounded-full bg-${config.accentColor}-400"></div>
+                    <div class="w-2 h-1 rounded-full bg-${config.accentColor}-400"></div>
+                    <div class="w-1 h-1 rounded-full bg-${config.accentColor}-400"></div>
+                  </div>
+                  <div class="flex-1 h-px bg-gradient-to-r from-transparent via-${config.accentColor}-500/50 to-transparent"></div>
+                </div>
+                
+                ${contentSection}
+                
+                <!-- Action Button -->
+                <button onclick="closePopup()" 
+                  class="w-full mt-5 py-4 rounded-2xl bg-gradient-to-r ${config.gradient} text-white font-bold text-sm shadow-lg hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-300 active:scale-95">
+                  ${popup.type === 'coupon' ? 'Belanja Sekarang' : popup.type === 'warning' ? 'Saya Mengerti' : 'Tutup'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <style>
+          @keyframes popup-in {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+          }
+          @keyframes backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+          @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+          @keyframes glow { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.8; } }
+          .popup-card { animation: popup-in 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+          .popup-backdrop { animation: backdrop-in 0.3s ease-out; }
+          .popup-overlay { animation: backdrop-in 0.2s ease-out; }
+          .animate-bounce-slow { animation: bounce-slow 2s infinite ease-in-out; }
+          .animate-glow { animation: glow 3s infinite ease-in-out; }
+        </style>
+      `;
+      document.body.insertAdjacentHTML('beforeend', popupHtml);
+    }
+
+    window.copyCouponCode = function () {
+      const codeText = document.getElementById('coupon-code-text').innerText.trim();
+      navigator.clipboard.writeText(codeText).then(() => {
+        const copyIcon = document.getElementById('copy-icon');
+        const checkIcon = document.getElementById('check-icon');
+        const feedback = document.getElementById('copy-feedback');
+        const btn = document.getElementById('copy-coupon-btn');
+
+        copyIcon.classList.add('hidden');
+        checkIcon.classList.remove('hidden');
+        btn.classList.add('bg-emerald-500', 'text-white');
+        feedback.textContent = '✓ Berhasil disalin!';
+        feedback.classList.remove('text-slate-500');
+        feedback.classList.add('text-emerald-400');
+
+        setTimeout(() => {
+          copyIcon.classList.remove('hidden');
+          checkIcon.classList.add('hidden');
+          btn.classList.remove('bg-emerald-500', 'text-white');
+          feedback.textContent = '';
+          feedback.classList.add('text-slate-500');
+          feedback.classList.remove('text-emerald-400');
+        }, 2000);
+      });
+    };
+
+    window.closePopup = function () {
+      const popup = document.getElementById('info-popup');
+      if (popup) popup.remove();
+      if (currentPopupId) {
+        localStorage.setItem(`popup_${currentPopupId}_dismissed`, 'true');
+      }
+    };
+
+    // ========== SEARCH & FILTER SYSTEM ==========
+    let allProducts = [];
+    let activeFilters = [];
+
+    function initSearchFilter() {
+      const searchInput = document.getElementById('product-search');
+      if (searchInput) {
+        searchInput.addEventListener('input', filterProducts);
+      }
+    }
+
+    function generateFilterTags() {
+      const tags = new Set();
+      allProducts.forEach(p => {
+        if (p.tag) p.tag.split(',').forEach(t => tags.add(t.trim()));
+      });
+
+      const container = document.getElementById('filter-tags');
+      if (!container) return;
+
+      container.innerHTML = '';
+      tags.forEach(tag => {
+        if (!tag || tag === 'Normal') return;
+        const btn = document.createElement('button');
+        btn.className = 'px-3 py-1.5 rounded-full text-xs border border-white/20 bg-white/5 hover:bg-white/10 transition';
+        btn.textContent = tag;
+        btn.dataset.tag = tag;
+        btn.onclick = () => toggleFilter(tag);
+        container.appendChild(btn);
+      });
+    }
+
+    window.toggleFilter = function (tag) {
+      const btn = document.querySelector(`[data-tag="${tag}"]`);
+      if (!btn) return;
+
+      if (activeFilters.includes(tag)) {
+        activeFilters = activeFilters.filter(t => t !== tag);
+        btn.classList.remove('bg-indigo-500', 'border-indigo-500', 'text-white');
+        btn.classList.add('bg-white/5', 'border-white/20');
+      } else {
+        activeFilters.push(tag);
+        btn.classList.add('bg-indigo-500', 'border-indigo-500', 'text-white');
+        btn.classList.remove('bg-white/5', 'border-white/20');
+      }
+      filterProducts();
+    };
+
+    function filterProducts() {
+      const searchInput = document.getElementById('product-search');
+      const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+
+      let filtered = allProducts;
+
+      if (searchTerm) {
+        filtered = filtered.filter(p =>
+          p.name.toLowerCase().includes(searchTerm) ||
+          (p.description && p.description.toLowerCase().includes(searchTerm)) ||
+          (p.tag && p.tag.toLowerCase().includes(searchTerm))
+        );
+      }
+
+      if (activeFilters.length > 0) {
+        filtered = filtered.filter(p => {
+          const productTags = p.tag ? p.tag.split(',').map(t => t.trim()) : [];
+          return activeFilters.some(f => productTags.includes(f));
+        });
+      }
+
+      renderFilteredProducts(filtered);
+    }
+
+    function renderFilteredProducts(products) {
+      const productsGrid = document.getElementById('products-grid');
+      productsGrid.innerHTML = '';
+
+      if (products.length === 0) {
+        productsGrid.innerHTML = '<div class="col-span-full text-center py-10 text-slate-400">Tidak ada produk ditemukan.</div>';
+        return;
+      }
+
+      products.sort((a, b) => (a.order || 0) - (b.order || 0)).forEach(data => {
+        productsGrid.innerHTML += renderProductCard(data);
+      });
+    }
+
+    function renderProductCard(data) {
+      const imgHtml = data.image
+        ? `<div class="aspect-video overflow-hidden rounded-2xl bg-white/5 mb-3"><img src="${data.image}" alt="${data.name}" class="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500"></div>`
+        : `<div class="aspect-video rounded-2xl bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 mb-3 flex items-center justify-center"><svg class="w-12 h-12 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>`;
+
+      let tagsContent = '';
+      if (data.tag) {
+        data.tag.split(',').forEach(tag => {
+          const t = tag.trim();
+          if (t && t !== 'Normal') {
+            tagsContent += `<span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400">${t}</span>`;
+          }
+        });
+      }
+
+      let stockCount = 0;
+      if (data.hasVariants && Array.isArray(data.variants)) {
+        stockCount = data.variants.reduce((acc, v) => acc + (v.stockItems ? v.stockItems.length : 0), 0);
+      } else {
+        stockCount = Array.isArray(data.stockItems) ? data.stockItems.length : 0;
+      }
+
+      let stockHtml = stockCount === 0 ? '<span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-700/50 text-slate-500">Sold Out</span>'
+        : stockCount <= 5 ? `<span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-red-500/10 text-red-400">${stockCount} left</span>`
+          : stockCount <= 10 ? `<span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400">${stockCount} left</span>`
+            : '<span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400">In Stock</span>';
+
+      let priceHtml = '';
+      if (data.hasVariants && Array.isArray(data.variants)) {
+        const prices = data.variants.map(v => v.price).sort((a, b) => a - b);
+        if (prices.length > 0) priceHtml = `<p class="text-xl font-bold">Rp ${new Intl.NumberFormat("id-ID").format(prices[0])}+</p>`;
+      } else {
+        priceHtml = `<p class="text-xl font-bold">Rp ${new Intl.NumberFormat("id-ID").format(data.price)}</p>`;
+      }
+
+      return `
+        <a href="detail-product.html?id=${data.id}" class="block rounded-3xl border border-white/10 bg-white/5 p-5 hover:bg-white/10 transition-all duration-300 hover:border-white/20 hover:-translate-y-1 group">
+          <div class="flex flex-col h-full">
+            ${imgHtml}
+            <div class="mb-2 flex justify-between items-start gap-2">
+              <div class="flex flex-wrap gap-2">${tagsContent}</div>
+              ${stockHtml}
+            </div>
+            <h3 class="font-semibold text-lg group-hover:text-indigo-300 transition mt-1">${data.name}</h3>
+            <div class="mt-4 pt-4 border-t border-white/5">${priceHtml}</div>
+          </div>
+        </a>
+      `;
+    }
+
+    // ========== THEME ENGINE ==========
+    async function initThemeEngine() {
+      try {
+        const { query, where, orderBy, getDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+
+        const themesSnapshot = await getDocs(collection(db, "themes"));
+        if (themesSnapshot.empty) return;
+
+        let activeTheme = null;
+        const now = new Date();
+
+        themesSnapshot.forEach(themeDoc => {
+          const theme = themeDoc.data();
+
+          // Check auto mode (date based)
+          if (theme.activationMode === 'auto' && theme.startDate && theme.endDate) {
+            const start = new Date(theme.startDate);
+            const end = new Date(theme.endDate);
+            if (now >= start && now <= end) {
+              activeTheme = theme;
+            }
+          }
+
+          // Check manual mode
+          if (theme.isActive) {
+            activeTheme = theme;
+          }
+        });
+
+        if (activeTheme && activeTheme.particle && activeTheme.particle !== 'none') {
+          initParticles(activeTheme.particle, { primary: activeTheme.primaryColor, accent: activeTheme.secondaryColor });
+        }
+      } catch (error) {
+        console.error('Theme engine error:', error);
+      }
+    }
+
+    function initParticles(type, colors) {
+      if (!type || type === 'none') return;
+
+      const canvas = document.createElement('canvas');
+      canvas.id = 'theme-particles';
+      canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;';
+      document.body.appendChild(canvas);
+
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      // Responsive scaling based on screen size
+      const isMobile = window.innerWidth < 768;
+      const scaleFactor = isMobile ? 0.5 : 1; // 50% smaller on mobile
+      const densityFactor = isMobile ? 0.6 : 1; // 40% fewer particles on mobile
+
+      const particles = [];
+      let baseCount = type === 'lanterns' ? 25 : type === 'leaves' ? 40 : 50;
+      const maxParticles = Math.floor(baseCount * densityFactor);
+
+      for (let i = 0; i < maxParticles; i++) {
+        particles.push(createParticle(type, canvas, colors, scaleFactor));
+      }
+
+      let time = 0;
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        time += 0.01;
+
+        particles.forEach((p, i) => {
+          // Movement with sway
+          p.y += p.speed;
+          p.x += Math.sin(time + p.swayOffset) * p.sway;
+          p.rotation += p.rotationSpeed;
+          p.twinkle = 0.7 + Math.sin(time * 3 + p.twinkleOffset) * 0.3;
+
+          if (p.y > canvas.height + 50) {
+            particles[i] = createParticle(type, canvas, colors, scaleFactor);
+            particles[i].y = -50;
+          }
+
+          ctx.save();
+          ctx.globalAlpha = p.opacity * p.twinkle;
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rotation);
+
+          if (type === 'snow') {
+            drawSnowflake(ctx, p.size, colors?.primary || '#fff');
+          } else if (type === 'stars') {
+            drawGlowingStar(ctx, p.size, colors?.primary || '#FFD700');
+          } else if (type === 'hearts') {
+            drawBeautifulHeart(ctx, p.size, colors?.primary || '#FF6B6B');
+          } else if (type === 'leaves') {
+            drawAutumnLeaf(ctx, p.size, p.leafColor);
+          } else if (type === 'lanterns') {
+            drawLantern(ctx, p.size, colors?.accent || '#FFD700', colors?.primary || '#FF4500');
+          } else if (type === 'crescent') {
+            drawCrescentMoon(ctx, p.size, colors?.primary || '#FFD700');
+          } else if (type === 'ketupat') {
+            drawKetupat(ctx, p.size, colors?.primary || '#228B22', colors?.accent || '#90EE90');
+          } else if (type === 'confetti') {
+            drawConfetti(ctx, p.size, p.confettiColor);
+          }
+
+          ctx.restore();
+        });
+
+        requestAnimationFrame(animate);
+      }
+
+      animate();
+
+      window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      });
+    }
+
+    function createParticle(type, canvas, colors, scaleFactor = 1) {
+      const leafColors = ['#D2691E', '#8B4513', '#CD853F', '#B8860B', '#DAA520', '#FF8C00', '#FF6347'];
+      const confettiColors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE'];
+
+      let speed, size;
+      switch (type) {
+        case 'lanterns': speed = Math.random() * 0.5 + 0.3; size = Math.random() * 15 + 20; break;
+        case 'crescent': speed = Math.random() * 0.8 + 0.4; size = Math.random() * 12 + 15; break;
+        case 'ketupat': speed = Math.random() * 1 + 0.5; size = Math.random() * 10 + 12; break;
+        case 'confetti': speed = Math.random() * 2 + 1; size = Math.random() * 6 + 4; break;
+        case 'snow': speed = Math.random() * 1.2 + 0.4; size = Math.random() * 8 + 4; break;
+        case 'leaves': speed = Math.random() * 1.5 + 0.5; size = Math.random() * 12 + 8; break;
+        default: speed = Math.random() * 1.5 + 0.5; size = Math.random() * 10 + 6;
+      }
+
+      // Apply responsive scaling
+      size = size * scaleFactor;
+
+      return {
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height - canvas.height,
+        speed,
+        size,
+        opacity: Math.random() * 0.4 + 0.5,
+        sway: type === 'leaves' || type === 'confetti' ? Math.random() * 2 + 1 : Math.random() * 0.8,
+        swayOffset: Math.random() * Math.PI * 2,
+        rotation: Math.random() * Math.PI * 2,
+        rotationSpeed: type === 'leaves' || type === 'confetti' ? (Math.random() - 0.5) * 0.08 : (Math.random() - 0.5) * 0.02,
+        twinkle: 1,
+        twinkleOffset: Math.random() * Math.PI * 2,
+        leafColor: leafColors[Math.floor(Math.random() * leafColors.length)],
+        confettiColor: confettiColors[Math.floor(Math.random() * confettiColors.length)]
+      };
+    }
+
+    // ❄️ Snowflake
+    function drawSnowflake(ctx, size, color) {
+      ctx.strokeStyle = color;
+      ctx.fillStyle = color;
+      ctx.lineWidth = size / 8;
+      ctx.lineCap = 'round';
+
+      for (let i = 0; i < 6; i++) {
+        ctx.save();
+        ctx.rotate((i * Math.PI) / 3);
+
+        // Main branch
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, -size);
+        ctx.stroke();
+
+        // Side branches
+        ctx.beginPath();
+        ctx.moveTo(0, -size * 0.4);
+        ctx.lineTo(-size * 0.25, -size * 0.6);
+        ctx.moveTo(0, -size * 0.4);
+        ctx.lineTo(size * 0.25, -size * 0.6);
+        ctx.moveTo(0, -size * 0.7);
+        ctx.lineTo(-size * 0.15, -size * 0.85);
+        ctx.moveTo(0, -size * 0.7);
+        ctx.lineTo(size * 0.15, -size * 0.85);
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      // Center dot
+      ctx.beginPath();
+      ctx.arc(0, 0, size / 6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // ⭐ Glowing Star
+    function drawGlowingStar(ctx, size, color) {
+      // Outer glow
+      const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 2);
+      gradient.addColorStop(0, color);
+      gradient.addColorStop(0.3, color + '80');
+      gradient.addColorStop(1, 'transparent');
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(0, 0, size * 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Star shape
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      for (let i = 0; i < 5; i++) {
+        const outerAngle = (i * 4 * Math.PI) / 5 - Math.PI / 2;
+        const innerAngle = outerAngle + Math.PI / 5;
+        const outerX = Math.cos(outerAngle) * size;
+        const outerY = Math.sin(outerAngle) * size;
+        const innerX = Math.cos(innerAngle) * (size * 0.4);
+        const innerY = Math.sin(innerAngle) * (size * 0.4);
+
+        if (i === 0) ctx.moveTo(outerX, outerY);
+        else ctx.lineTo(outerX, outerY);
+        ctx.lineTo(innerX, innerY);
+      }
+      ctx.closePath();
+      ctx.fill();
+
+      // Sparkle lines
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1;
+      ctx.globalAlpha = 0.5;
+      for (let i = 0; i < 4; i++) {
+        ctx.save();
+        ctx.rotate((i * Math.PI) / 2);
+        ctx.beginPath();
+        ctx.moveTo(0, -size * 1.3);
+        ctx.lineTo(0, -size * 1.8);
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    // ❤️ Beautiful Heart
+    function drawBeautifulHeart(ctx, size, color) {
+      const gradient = ctx.createRadialGradient(-size * 0.3, -size * 0.3, 0, 0, 0, size * 2);
+      gradient.addColorStop(0, '#FF9999');
+      gradient.addColorStop(0.5, color);
+      gradient.addColorStop(1, '#CC0000');
+
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.moveTo(0, size * 0.3);
+      ctx.bezierCurveTo(-size * 0.1, 0, -size * 0.5, -size * 0.3, -size * 0.5, -size * 0.5);
+      ctx.bezierCurveTo(-size * 0.5, -size * 0.8, -size * 0.25, -size, 0, -size * 0.7);
+      ctx.bezierCurveTo(size * 0.25, -size, size * 0.5, -size * 0.8, size * 0.5, -size * 0.5);
+      ctx.bezierCurveTo(size * 0.5, -size * 0.3, size * 0.1, 0, 0, size * 0.3);
+      ctx.fill();
+
+      // Shine effect
+      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.beginPath();
+      ctx.ellipse(-size * 0.2, -size * 0.5, size * 0.1, size * 0.15, -Math.PI / 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // 🍂 Autumn Leaf
+    function drawAutumnLeaf(ctx, size, color) {
+      ctx.fillStyle = color;
+      ctx.strokeStyle = '#5D4037';
+      ctx.lineWidth = 1;
+
+      // Leaf shape
+      ctx.beginPath();
+      ctx.moveTo(0, size);
+      ctx.bezierCurveTo(-size * 0.3, size * 0.7, -size * 0.7, size * 0.3, -size * 0.5, 0);
+      ctx.bezierCurveTo(-size * 0.6, -size * 0.3, -size * 0.3, -size * 0.5, 0, -size * 0.8);
+      ctx.bezierCurveTo(size * 0.3, -size * 0.5, size * 0.6, -size * 0.3, size * 0.5, 0);
+      ctx.bezierCurveTo(size * 0.7, size * 0.3, size * 0.3, size * 0.7, 0, size);
+      ctx.fill();
+      ctx.stroke();
+
+      // Stem
+      ctx.strokeStyle = '#3E2723';
+      ctx.lineWidth = size / 10;
+      ctx.beginPath();
+      ctx.moveTo(0, size);
+      ctx.lineTo(0, size * 1.5);
+      ctx.stroke();
+
+      // Veins
+      ctx.strokeStyle = '#5D4037';
+      ctx.lineWidth = size / 15;
+      ctx.beginPath();
+      ctx.moveTo(0, size);
+      ctx.lineTo(0, -size * 0.6);
+      ctx.moveTo(0, size * 0.3);
+      ctx.lineTo(-size * 0.3, 0);
+      ctx.moveTo(0, size * 0.3);
+      ctx.lineTo(size * 0.3, 0);
+      ctx.moveTo(0, -size * 0.2);
+      ctx.lineTo(-size * 0.25, -size * 0.4);
+      ctx.moveTo(0, -size * 0.2);
+      ctx.lineTo(size * 0.25, -size * 0.4);
+      ctx.stroke();
+    }
+
+    // 🏮 Lantern (Ramadan/Eid/Chinese New Year)
+    function drawLantern(ctx, size, goldColor, redColor) {
+      // Glow effect
+      const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 2);
+      glow.addColorStop(0, goldColor + '60');
+      glow.addColorStop(0.5, goldColor + '20');
+      glow.addColorStop(1, 'transparent');
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(0, 0, size * 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // String
+      ctx.strokeStyle = '#8B4513';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, -size * 1.5);
+      ctx.lineTo(0, -size * 0.8);
+      ctx.stroke();
+
+      // Top cap
+      ctx.fillStyle = goldColor;
+      ctx.beginPath();
+      ctx.ellipse(0, -size * 0.7, size * 0.4, size * 0.15, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Main body
+      const bodyGradient = ctx.createLinearGradient(-size * 0.5, 0, size * 0.5, 0);
+      bodyGradient.addColorStop(0, '#8B0000');
+      bodyGradient.addColorStop(0.3, redColor);
+      bodyGradient.addColorStop(0.7, redColor);
+      bodyGradient.addColorStop(1, '#8B0000');
+      ctx.fillStyle = bodyGradient;
+
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.3, -size * 0.6);
+      ctx.bezierCurveTo(-size * 0.6, -size * 0.3, -size * 0.6, size * 0.3, -size * 0.3, size * 0.6);
+      ctx.lineTo(size * 0.3, size * 0.6);
+      ctx.bezierCurveTo(size * 0.6, size * 0.3, size * 0.6, -size * 0.3, size * 0.3, -size * 0.6);
+      ctx.closePath();
+      ctx.fill();
+
+      // Decorative lines
+      ctx.strokeStyle = goldColor;
+      ctx.lineWidth = 1.5;
+      for (let i = -2; i <= 2; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * size * 0.15, -size * 0.5);
+        ctx.bezierCurveTo(i * size * 0.18, 0, i * size * 0.18, 0, i * size * 0.15, size * 0.5);
+        ctx.stroke();
+      }
+
+      // Bottom cap
+      ctx.fillStyle = goldColor;
+      ctx.beginPath();
+      ctx.ellipse(0, size * 0.6, size * 0.35, size * 0.12, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Tassel
+      ctx.strokeStyle = goldColor;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, size * 0.7);
+      ctx.lineTo(0, size * 1.2);
+      ctx.stroke();
+
+      for (let i = -2; i <= 2; i++) {
+        ctx.beginPath();
+        ctx.moveTo(0, size * 1.2);
+        ctx.lineTo(i * size * 0.08, size * 1.5);
+        ctx.stroke();
+      }
+
+      // Inner glow
+      ctx.fillStyle = 'rgba(255, 200, 100, 0.3)';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, size * 0.25, size * 0.4, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // 🌙 Crescent Moon (Ramadan)
+    function drawCrescentMoon(ctx, size, color) {
+      // Outer glow
+      const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 1.5);
+      glow.addColorStop(0, color + '80');
+      glow.addColorStop(0.5, color + '30');
+      glow.addColorStop(1, 'transparent');
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(0, 0, size * 1.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Crescent shape
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(0, 0, size, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Cut out inner circle for crescent
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath();
+      ctx.arc(size * 0.35, -size * 0.1, size * 0.75, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+
+      // Star next to moon
+      ctx.fillStyle = color;
+      const starX = -size * 0.8;
+      const starY = -size * 0.3;
+      const starSize = size * 0.25;
+      ctx.beginPath();
+      for (let i = 0; i < 5; i++) {
+        const outerAngle = (i * 4 * Math.PI) / 5 - Math.PI / 2;
+        const innerAngle = outerAngle + Math.PI / 5;
+        const outerPx = starX + Math.cos(outerAngle) * starSize;
+        const outerPy = starY + Math.sin(outerAngle) * starSize;
+        const innerPx = starX + Math.cos(innerAngle) * (starSize * 0.4);
+        const innerPy = starY + Math.sin(innerAngle) * (starSize * 0.4);
+        if (i === 0) ctx.moveTo(outerPx, outerPy);
+        else ctx.lineTo(outerPx, outerPy);
+        ctx.lineTo(innerPx, innerPy);
+      }
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // 🧧 Ketupat (Eid/Lebaran)
+    function drawKetupat(ctx, size, greenColor, lightGreenColor) {
+      // Diamond shape
+      const gradient = ctx.createLinearGradient(-size, 0, size, 0);
+      gradient.addColorStop(0, '#1B5E20');
+      gradient.addColorStop(0.3, greenColor);
+      gradient.addColorStop(0.7, lightGreenColor);
+      gradient.addColorStop(1, '#1B5E20');
+
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.moveTo(0, -size);
+      ctx.lineTo(size * 0.7, 0);
+      ctx.lineTo(0, size);
+      ctx.lineTo(-size * 0.7, 0);
+      ctx.closePath();
+      ctx.fill();
+
+      // Weave pattern
+      ctx.strokeStyle = '#2E7D32';
+      ctx.lineWidth = 1;
+
+      // Horizontal weave lines
+      for (let i = -0.6; i <= 0.6; i += 0.3) {
+        ctx.beginPath();
+        ctx.moveTo(-size * 0.5, size * i);
+        ctx.lineTo(size * 0.5, size * i);
+        ctx.stroke();
+      }
+
+      // Diagonal weave lines
+      for (let i = -0.5; i <= 0.5; i += 0.25) {
+        ctx.beginPath();
+        ctx.moveTo(size * i, -size * 0.8);
+        ctx.lineTo(size * (i + 0.3), size * 0.8);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(size * i, -size * 0.8);
+        ctx.lineTo(size * (i - 0.3), size * 0.8);
+        ctx.stroke();
+      }
+
+      // Hanging rope
+      ctx.strokeStyle = '#5D4037';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, -size);
+      ctx.lineTo(0, -size * 1.4);
+      ctx.stroke();
+
+      // Top loop
+      ctx.beginPath();
+      ctx.arc(0, -size * 1.5, size * 0.1, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // 🎊 Confetti
+    function drawConfetti(ctx, size, color) {
+      ctx.fillStyle = color;
+
+      // Random shape type
+      const shapeType = Math.floor(Math.random() * 3);
+
+      if (shapeType === 0) {
+        // Rectangle ribbon
+        ctx.fillRect(-size / 2, -size, size, size * 2);
+      } else if (shapeType === 1) {
+        // Circle
+        ctx.beginPath();
+        ctx.arc(0, 0, size, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        // Squiggly ribbon
+        ctx.beginPath();
+        ctx.moveTo(-size, -size);
+        ctx.bezierCurveTo(-size / 2, 0, size / 2, 0, size, size);
+        ctx.lineTo(size, size + size / 3);
+        ctx.bezierCurveTo(size / 2, size / 3, -size / 2, size / 3, -size, -size + size / 3);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // Shine
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.fillRect(-size / 4, -size / 2, size / 4, size / 2);
     }
 
     init();
@@ -536,4 +1566,3 @@
 </body>
 
 </html>
-

@@ -113,6 +113,31 @@
           </svg>
           Manajemen Kupon
         </button>
+        <button onclick="switchTab('sections')" id="nav-sections"
+          class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all group">
+          <svg class="w-5 h-5 opacity-75 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16">
+            </path>
+          </svg>
+          Katalog Section
+        </button>
+        <button onclick="switchTab('popups')" id="nav-popups"
+          class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all group">
+          <svg class="w-5 h-5 opacity-75 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+          </svg>
+          Popup Info
+        </button>
+        <button onclick="switchTab('themes')" id="nav-themes"
+          class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all group">
+          <svg class="w-5 h-5 opacity-75 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+            </path>
+          </svg>
+          Tema Hari Besar
+        </button>
       </nav>
 
       <!-- Bottom Actions -->
@@ -361,6 +386,110 @@
         </div>
       </div>
 
+      <!-- Sections Tab -->
+      <div id="tab-sections" class="tab-content hidden animate-fade-in">
+        <div class="flex justify-between items-center mb-6">
+          <p class="text-sm text-slate-400">Kelola section katalog produk.</p>
+          <button onclick="openSectionModal('add')"
+            class="p-2.5 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white transition flex items-center gap-2 text-sm font-bold shadow-lg shadow-indigo-500/20">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Tambah Section
+          </button>
+        </div>
+
+        <div class="overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-xl">
+          <table class="w-full text-left text-sm text-slate-300">
+            <thead class="bg-white/5 text-xs uppercase text-slate-400 font-semibold tracking-wider">
+              <tr>
+                <th class="px-6 py-4">Order</th>
+                <th class="px-6 py-4">Nama Section</th>
+                <th class="px-6 py-4">Deskripsi</th>
+                <th class="px-6 py-4">Status</th>
+                <th class="px-6 py-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="sections-table-body" class="divide-y divide-white/5">
+              <!-- Section rows will be injected here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Popups Tab -->
+      <div id="tab-popups" class="tab-content hidden animate-fade-in">
+        <div class="flex justify-between items-center mb-6">
+          <p class="text-sm text-slate-400">Kelola popup informasi, kupon, dan pengumuman.</p>
+          <button onclick="openPopupModal('add')"
+            class="p-2.5 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white transition flex items-center gap-2 text-sm font-bold shadow-lg shadow-indigo-500/20">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Tambah Popup
+          </button>
+        </div>
+
+        <div class="overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-xl">
+          <table class="w-full text-left text-sm text-slate-300">
+            <thead class="bg-white/5 text-xs uppercase text-slate-400 font-semibold tracking-wider">
+              <tr>
+                <th class="px-6 py-4">Judul</th>
+                <th class="px-6 py-4">Tipe</th>
+                <th class="px-6 py-4">Frekuensi</th>
+                <th class="px-6 py-4">Status</th>
+                <th class="px-6 py-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="popups-table-body" class="divide-y divide-white/5">
+              <!-- Popup rows will be injected here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Themes Tab -->
+      <div id="tab-themes" class="tab-content hidden animate-fade-in">
+        <div class="flex justify-between items-center mb-6">
+          <div>
+            <p class="text-sm text-slate-400">Kelola tema hari besar dengan efek partikel otomatis.</p>
+            <div class="mt-2 flex items-center gap-3">
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="theme-auto-mode" class="sr-only peer" onchange="toggleThemeMode()">
+                <div
+                  class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500">
+                </div>
+              </label>
+              <span class="text-xs text-slate-300" id="theme-mode-label">Mode: Manual</span>
+            </div>
+          </div>
+          <button onclick="openThemeModal('add')"
+            class="p-2.5 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white transition flex items-center gap-2 text-sm font-bold shadow-lg shadow-indigo-500/20">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Tambah Tema
+          </button>
+        </div>
+
+        <div class="overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-xl">
+          <table class="w-full text-left text-sm text-slate-300">
+            <thead class="bg-white/5 text-xs uppercase text-slate-400 font-semibold tracking-wider">
+              <tr>
+                <th class="px-6 py-4">Nama Tema</th>
+                <th class="px-6 py-4">Periode</th>
+                <th class="px-6 py-4">Efek Partikel</th>
+                <th class="px-6 py-4">Status</th>
+                <th class="px-6 py-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="themes-table-body" class="divide-y divide-white/5">
+              <!-- Theme rows will be injected here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </main>
   </div>
 
@@ -439,6 +568,202 @@
     </div>
   </div>
 
+  <!-- Section Modal -->
+  <div id="section-modal"
+    class="fixed inset-0 z-[90] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div class="w-full max-w-md rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-glow">
+      <div class="flex justify-between items-center mb-6">
+        <h3 id="section-modal-title" class="text-xl font-bold">Tambah Section</h3>
+        <button onclick="closeSectionModal()" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <form id="section-form" class="space-y-4">
+        <input type="hidden" id="section-id">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Nama Section</label>
+          <input type="text" id="section-name" required
+            class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none placeholder:text-slate-600"
+            placeholder="Contoh: Akun Premium">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Deskripsi</label>
+          <textarea id="section-desc" rows="2"
+            class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none placeholder:text-slate-600 resize-none"
+            placeholder="Deskripsi singkat section..."></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Urutan Tampil</label>
+          <input type="number" id="section-order" value="0"
+            class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none"
+            placeholder="0">
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="checkbox" id="section-enabled" class="w-4 h-4 rounded border-gray-300 text-indigo-600" checked>
+          <label for="section-enabled" class="text-sm text-slate-300">Aktif</label>
+        </div>
+        <div class="flex justify-end gap-3 pt-4">
+          <button type="button" onclick="closeSectionModal()"
+            class="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-slate-300 hover:bg-white/5">Batal</button>
+          <button type="submit"
+            class="rounded-xl bg-indigo-500 px-6 py-2 text-sm font-semibold text-white hover:bg-indigo-400">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Popup Modal -->
+  <div id="popup-modal"
+    class="fixed inset-0 z-[90] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div
+      class="w-full max-w-lg rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-glow max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h3 id="popup-modal-title" class="text-xl font-bold">Tambah Popup</h3>
+        <button onclick="closePopupModal()" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <form id="popup-form" class="space-y-4">
+        <input type="hidden" id="popup-id">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Judul Popup</label>
+          <input type="text" id="popup-title" required
+            class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none placeholder:text-slate-600"
+            placeholder="Contoh: Dapatkan Diskon 10%">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Konten Popup</label>
+          <textarea id="popup-content" rows="4" required
+            class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none placeholder:text-slate-600 resize-none"
+            placeholder="Gunakan kode PROMO10 saat pembayaran..."></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Tipe</label>
+            <select id="popup-type" onchange="toggleCouponField()"
+              class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
+              <option value="coupon">🎁 Kupon</option>
+              <option value="announcement">📢 Pengumuman</option>
+              <option value="warning">⚠️ Peringatan</option>
+              <option value="info">ℹ️ Informasi</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Frekuensi</label>
+            <select id="popup-frequency"
+              class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
+              <option value="always">Selalu Tampil</option>
+              <option value="daily">Sekali per Hari</option>
+              <option value="session">Per Session</option>
+              <option value="once">Sekali Saja</option>
+            </select>
+          </div>
+        </div>
+        <!-- Coupon Code Field (shown when type is coupon) -->
+        <div id="coupon-code-field" class="block">
+          <label class="block text-xs font-medium text-emerald-400 mb-1">🎟️ Kode Kupon</label>
+          <input type="text" id="popup-coupon-code"
+            class="w-full rounded-xl border-2 border-dashed border-emerald-500/50 bg-slate-950/50 px-4 py-3 text-sm text-emerald-400 font-bold uppercase tracking-widest focus:border-emerald-500 focus:outline-none placeholder:text-slate-600 placeholder:font-normal placeholder:normal-case"
+            placeholder="Contoh: DISKON10">
+          <p class="text-xs text-slate-500 mt-1">Kode ini akan ditampilkan dengan style khusus dan bisa di-copy</p>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Tanggal Mulai (Optional)</label>
+            <input type="date" id="popup-start-date"
+              class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Tanggal Selesai (Optional)</label>
+            <input type="date" id="popup-end-date"
+              class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Prioritas</label>
+          <input type="number" id="popup-priority" value="0"
+            class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none"
+            placeholder="0 = paling tinggi">
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="checkbox" id="popup-active" class="w-4 h-4 rounded border-gray-300 text-indigo-600" checked>
+          <label for="popup-active" class="text-sm text-slate-300">Aktif</label>
+        </div>
+        <div class="flex justify-end gap-3 pt-4">
+          <button type="button" onclick="closePopupModal()"
+            class="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-slate-300 hover:bg-white/5">Batal</button>
+          <button type="submit"
+            class="rounded-xl bg-indigo-500 px-6 py-2 text-sm font-semibold text-white hover:bg-indigo-400">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Theme Modal -->
+  <div id="theme-modal"
+    class="fixed inset-0 z-[90] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div class="w-full max-w-md rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-glow">
+      <div class="flex justify-between items-center mb-6">
+        <h3 id="theme-modal-title" class="text-xl font-bold">Tambah Tema</h3>
+        <button onclick="closeThemeModal()" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <form id="theme-form" class="space-y-4">
+        <input type="hidden" id="theme-id">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Nama Tema</label>
+          <input type="text" id="theme-name" required
+            class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none placeholder:text-slate-600"
+            placeholder="Contoh: Natal 2026">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Tanggal Mulai</label>
+            <input type="date" id="theme-start" required
+              class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Tanggal Selesai</label>
+            <input type="date" id="theme-end" required
+              class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Efek Partikel</label>
+          <select id="theme-particle"
+            class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
+            <option value="none">Tidak Ada</option>
+            <option value="snow">❄️ Salju (Natal/Winter)</option>
+            <option value="stars">⭐ Bintang (Tahun Baru)</option>
+            <option value="hearts">❤️ Hati (Valentine)</option>
+            <option value="leaves">🍂 Daun (Autumn)</option>
+            <option value="lanterns">🏮 Lentera (Imlek/Chinese New Year)</option>
+            <option value="crescent">🌙 Bulan Sabit (Ramadan)</option>
+            <option value="ketupat">🧧 Ketupat (Idul Fitri/Lebaran)</option>
+            <option value="confetti">🎊 Confetti (Perayaan/Ulang Tahun)</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Warna Utama</label>
+            <input type="color" id="theme-primary-color" value="#6366f1"
+              class="w-full h-10 rounded-xl border border-white/10 bg-slate-950/50 px-2 cursor-pointer">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Warna Sekunder</label>
+            <input type="color" id="theme-secondary-color" value="#06b6d4"
+              class="w-full h-10 rounded-xl border border-white/10 bg-slate-950/50 px-2 cursor-pointer">
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="checkbox" id="theme-active" class="w-4 h-4 rounded border-gray-300 text-indigo-600" checked>
+          <label for="theme-active" class="text-sm text-slate-300">Aktif (mode manual)</label>
+        </div>
+        <div class="flex justify-end gap-3 pt-4">
+          <button type="button" onclick="closeThemeModal()"
+            class="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-slate-300 hover:bg-white/5">Batal</button>
+          <button type="submit"
+            class="rounded-xl bg-indigo-500 px-6 py-2 text-sm font-semibold text-white hover:bg-indigo-400">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Modal Form Produk -->
   <div id="product-modal"
     class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
@@ -494,6 +819,28 @@
               <input type="text" id="prod-tag" placeholder="Tag (e.g. Promo, Best Seller)"
                 class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none placeholder:text-slate-600">
             </div>
+          </div>
+        </div>
+
+        <div class="h-px bg-white/10 my-4"></div>
+
+        <!-- Section & Order -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Section Katalog</label>
+            <select id="prod-section"
+              class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
+              <option value="">-- Pilih Section --</option>
+              <!-- Sections will be loaded dynamically -->
+            </select>
+            <p class="text-xs text-slate-500 mt-1">Optional: untuk grouping produk</p>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Urutan Tampil</label>
+            <input type="number" id="prod-order" value="0"
+              class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none"
+              placeholder="0">
+            <p class="text-xs text-slate-500 mt-1">Angka kecil tampil lebih dulu</p>
           </div>
         </div>
 
@@ -667,6 +1014,183 @@
     </div>
   </div>
 
+  <!-- Section Modal -->
+  <div id="section-modal"
+    class="fixed inset-0 z-[90] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div class="w-full max-w-lg rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-glow">
+      <div class="flex justify-between items-center mb-6">
+        <h3 id="section-modal-title" class="text-xl font-bold">Tambah Section</h3>
+        <button onclick="closeSectionModal()" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <form id="section-form" class="space-y-4">
+        <input type="hidden" id="section-id">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Nama Section</label>
+          <input type="text" id="section-name" required
+            class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none"
+            placeholder="Contoh: Game Populer">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Deskripsi</label>
+          <textarea id="section-desc" rows="2"
+            class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none resize-none"
+            placeholder="Deskripsi singkat section..."></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Urutan</label>
+          <input type="number" id="section-order" value="0"
+            class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none"
+            placeholder="0">
+          <p class="text-xs text-slate-500 mt-1">Angka kecil akan tampil lebih dulu</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="checkbox" id="section-active" checked
+            class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+          <label for="section-active" class="text-sm text-slate-300">Aktif</label>
+        </div>
+        <div class="flex justify-end gap-3 pt-4">
+          <button type="button" onclick="closeSectionModal()"
+            class="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-slate-300 hover:bg-white/5">Batal</button>
+          <button type="submit"
+            class="rounded-xl bg-indigo-500 px-6 py-2 text-sm font-semibold text-white hover:bg-indigo-400">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Popup Modal -->
+  <div id="popup-info-modal"
+    class="fixed inset-0 z-[90] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div
+      class="w-full max-w-lg rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-glow max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h3 id="popup-modal-title" class="text-xl font-bold">Tambah Popup</h3>
+        <button onclick="closePopupModal()" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <form id="popup-form" class="space-y-4">
+        <input type="hidden" id="popup-id">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Judul Popup</label>
+          <input type="text" id="popup-title" required
+            class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none"
+            placeholder="Contoh: Dapatkan Diskon 10%">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Konten</label>
+          <textarea id="popup-content" rows="4" required
+            class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none resize-none"
+            placeholder="Tulis konten popup di sini...&#10;&#10;Gunakan kode: PROMO10&#10;Minimal pembelian Rp 15.000"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Tipe</label>
+            <select id="popup-type"
+              class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
+              <option value="coupon">Kupon</option>
+              <option value="announcement">Pengumuman</option>
+              <option value="info">Informasi</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Frekuensi</label>
+            <select id="popup-frequency"
+              class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
+              <option value="always">Setiap Kunjungan</option>
+              <option value="daily">Sekali Sehari</option>
+              <option value="once">Sekali Saja</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Warna Tema (Optional)</label>
+          <input type="color" id="popup-color" value="#6366f1"
+            class="w-full h-12 rounded-xl border border-white/10 bg-slate-950/50 cursor-pointer">
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="checkbox" id="popup-active" checked
+            class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+          <label for="popup-active" class="text-sm text-slate-300">Aktif</label>
+        </div>
+        <div class="flex justify-end gap-3 pt-4">
+          <button type="button" onclick="closePopupModal()"
+            class="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-slate-300 hover:bg-white/5">Batal</button>
+          <button type="submit"
+            class="rounded-xl bg-indigo-500 px-6 py-2 text-sm font-semibold text-white hover:bg-indigo-400">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Theme Modal -->
+  <div id="theme-modal"
+    class="fixed inset-0 z-[90] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div
+      class="w-full max-w-lg rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-glow max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h3 id="theme-modal-title" class="text-xl font-bold">Tambah Tema</h3>
+        <button onclick="closeThemeModal()" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <form id="theme-form" class="space-y-4">
+        <input type="hidden" id="theme-id">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Nama Tema</label>
+          <input type="text" id="theme-name" required
+            class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none"
+            placeholder="Contoh: Ramadan 2026">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Tanggal Mulai</label>
+            <input type="date" id="theme-start" required
+              class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Tanggal Selesai</label>
+            <input type="date" id="theme-end" required
+              class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Efek Partikel</label>
+          <select id="theme-particle"
+            class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
+            <option value="none">Tidak Ada</option>
+            <option value="snow">Salju (Snowflakes)</option>
+            <option value="fireworks">Kembang Api</option>
+            <option value="lanterns">Lentera Terbang</option>
+            <option value="stars">Bintang Jatuh</option>
+            <option value="hearts">Hati</option>
+            <option value="leaves">Daun Gugur</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Warna Utama</label>
+            <input type="color" id="theme-primary-color" value="#6366f1"
+              class="w-full h-12 rounded-xl border border-white/10 bg-slate-950/50 cursor-pointer">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Warna Sekunder</label>
+            <input type="color" id="theme-secondary-color" value="#06b6d4"
+              class="w-full h-12 rounded-xl border border-white/10 bg-slate-950/50 cursor-pointer">
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="checkbox" id="theme-active"
+            class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+          <label for="theme-active" class="text-sm text-slate-300">Aktifkan Secara Manual</label>
+          <span class="text-[10px] text-slate-500">(Jika mode manual)</span>
+        </div>
+        <div class="flex justify-end gap-3 pt-4">
+          <button type="button" onclick="closeThemeModal"
+            class="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-slate-300 hover:bg-white/5">Batal</button>
+          <button type="submit"
+            class="rounded-xl bg-indigo-500 px-6 py-2 text-sm font-semibold text-white hover:bg-indigo-400">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Toast Notification Container -->
   <div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
 
@@ -795,7 +1319,10 @@
         'products': { title: 'Manajemen Produk', desc: 'Kelola daftar produk dan stok barang.' },
         'orders': { title: 'Pesanan Masuk', desc: 'Kelola pesanan yang masuk dari pelanggan.' },
         'history': { title: 'Riwayat Transaksi', desc: 'Arsip penjualan yang telah selesai.' },
-        'coupons': { title: 'Manajemen Kupon', desc: 'Buat dan kelola kode promo.' }
+        'coupons': { title: 'Manajemen Kupon', desc: 'Buat dan kelola kode promo.' },
+        'sections': { title: 'Katalog Section', desc: 'Kelola section dan urutan produk.' },
+        'popups': { title: 'Popup Informasi', desc: 'Kelola popup kupon dan pengumuman.' },
+        'themes': { title: 'Tema Hari Besar', desc: 'Kelola tema dan efek partikel otomatis.' }
       };
 
       if (titles[tabName]) {
@@ -809,6 +1336,9 @@
       if (tabName === 'orders') loadOrders();
       if (tabName === 'history') loadHistory();
       if (tabName === 'coupons') loadCoupons();
+      if (tabName === 'sections') loadSections();
+      if (tabName === 'popups') loadPopups();
+      if (tabName === 'themes') loadThemes();
 
       // Close sidebar on mobile
       if (window.innerWidth < 768) {
@@ -1489,12 +2019,17 @@
         }
 
         // Base Data
+        const sectionId = document.getElementById("prod-section").value;
+        const orderInSection = parseInt(document.getElementById("prod-order").value) || 0;
+
         let productData = {
           name,
           description: desc,
           tag,
           image: finalImage,
           hasVariants: isVariableProduct,
+          sectionId: sectionId || null,
+          orderInSection: orderInSection,
           updatedAt: serverTimestamp()
         };
 
@@ -1532,6 +2067,30 @@
 
     // --- HELPERS & MODALS ---
 
+    // Load Sections into Dropdown
+    async function loadSectionsDropdown() {
+      const selectEl = document.getElementById("prod-section");
+      if (!selectEl) return;
+
+      try {
+        const sectionsSnapshot = await getDocs(collection(db, "sections"));
+        const sections = sectionsSnapshot.docs
+          .map(doc => ({ id: doc.id, ...doc.data() }))
+          .filter(s => s.enabled !== false)
+          .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+        selectEl.innerHTML = '<option value="">-- Pilih Section --</option>';
+        sections.forEach(section => {
+          const opt = document.createElement('option');
+          opt.value = section.id;
+          opt.textContent = section.name;
+          selectEl.appendChild(opt);
+        });
+      } catch (err) {
+        console.error("Error loading sections:", err);
+      }
+    }
+
     window.openModal = (mode) => {
       if (mode === 'add') {
         document.getElementById("modal-title").innerText = "Tambah Produk";
@@ -1549,6 +2108,7 @@
       }
       // Mode edit handled by editProduct separately
 
+      loadSectionsDropdown(); // Populate section dropdown
       renderStockList(); // For simple
       toggleVariantMode();
       renderVariants(); // For variable
@@ -1581,6 +2141,10 @@
         document.getElementById("preview-img").classList.remove("hidden");
         document.getElementById("preview-placeholder").classList.add("hidden");
       }
+
+      // Section & Order
+      document.getElementById("prod-section").value = product.sectionId || "";
+      document.getElementById("prod-order").value = product.orderInSection || 0;
 
       // Check Mode
       isVariableProduct = !!product.hasVariants;
@@ -1751,6 +2315,590 @@
         closeTransactionModal();
       } catch (err) {
         alert("Gagal: " + err);
+      }
+    });
+
+    // ===============================================
+    // SECTIONS MANAGEMENT
+    // ===============================================
+    window.loadSections = () => {
+      const tableBody = document.getElementById("sections-table-body");
+      onSnapshot(query(collection(db, "catalogSections"), orderBy("order", "asc")), (snapshot) => {
+        tableBody.innerHTML = "";
+        if (snapshot.empty) {
+          tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-4 text-center text-slate-500">Belum ada section.</td></tr>`;
+          return;
+        }
+
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          const isActive = data.isActive
+            ? '<span class="text-emerald-400 text-xs">Aktif</span>'
+            : '<span class="text-red-400 text-xs">Nonaktif</span>';
+
+          const row = `
+            <tr class="hover:bg-white/5 transition">
+              <td class="px-6 py-4 font-mono text-slate-400">${data.order}</td>
+              <td class="px-6 py-4 font-bold text-white">${data.name}</td>
+              <td class="px-6 py-4 text-sm text-slate-400">${data.description || '-'}</td>
+              <td class="px-6 py-4">${isActive}</td>
+              <td class="px-6 py-4 text-right space-x-2">
+                <button onclick="editSection('${doc.id}')" class="text-slate-400 hover:text-indigo-400 text-xs border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/5 transition">Edit</button>
+                <button onclick="deleteSection('${doc.id}')" class="text-slate-400 hover:text-red-400 text-xs border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/5 transition">Hapus</button>
+              </td>
+            </tr>
+          `;
+          tableBody.innerHTML += row;
+        });
+      });
+    };
+
+    window.openSectionModal = (mode) => {
+      const modal = document.getElementById("section-modal");
+      if (mode !== 'edit') {
+        document.getElementById("section-form").reset();
+        document.getElementById("section-id").value = "";
+        document.getElementById("section-modal-title").innerText = "Tambah Section";
+      }
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    };
+
+    window.closeSectionModal = () => {
+      const modal = document.getElementById("section-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    };
+
+    window.editSection = async (id) => {
+      const docSnap = await getDoc(doc(db, "catalogSections", id));
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        document.getElementById("section-id").value = id;
+        document.getElementById("section-name").value = data.name;
+        document.getElementById("section-desc").value = data.description || "";
+        document.getElementById("section-order").value = data.order;
+        document.getElementById("section-enabled").checked = data.isActive;
+        document.getElementById("section-modal-title").innerText = "Edit Section";
+        openSectionModal('edit');
+      }
+    };
+
+    window.deleteSection = async (id) => {
+      if (confirm("Hapus section ini? Produk dalam section tidak akan dihapus.")) {
+        try {
+          await deleteDoc(doc(db, "catalogSections", id));
+          showToast("Section berhasil dihapus", "success");
+        } catch (err) {
+          showToast("Gagal hapus: " + err.message, "error");
+        }
+      }
+    };
+
+    document.getElementById("section-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("section-id").value;
+      const name = document.getElementById("section-name").value.trim();
+      const description = document.getElementById("section-desc").value.trim();
+      const order = parseInt(document.getElementById("section-order").value);
+      const isActive = document.getElementById("section-active").checked;
+
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Menyimpan...';
+
+      try {
+        const payload = {
+          name,
+          description,
+          order,
+          isActive,
+          updatedAt: serverTimestamp()
+        };
+
+        if (id) {
+          await updateDoc(doc(db, "catalogSections", id), payload);
+          showToast("Section berhasil diupdate", "success");
+        } else {
+          payload.createdAt = serverTimestamp();
+          await addDoc(collection(db, "catalogSections"), payload);
+          showToast("Section berhasil dibuat", "success");
+        }
+        closeSectionModal();
+      } catch (err) {
+        showToast("Gagal menyimpan: " + err.message, "error");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    });
+
+    // ===============================================
+    // POPUPS MANAGEMENT
+    // ===============================================
+    window.loadPopups = () => {
+      const tableBody = document.getElementById("popups-table-body");
+      onSnapshot(collection(db, "popups"), (snapshot) => {
+        tableBody.innerHTML = "";
+        if (snapshot.empty) {
+          tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-4 text-center text-slate-500">Belum ada popup.</td></tr>`;
+          return;
+        }
+
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          const isActive = data.isActive
+            ? '<span class="text-emerald-400 text-xs">Aktif</span>'
+            : '<span class="text-red-400 text-xs">Nonaktif</span>';
+
+          const typeLabels = {
+            coupon: 'Kupon',
+            announcement: 'Pengumuman',
+            info: 'Informasi'
+          };
+
+          const freqLabels = {
+            always: 'Setiap Visit',
+            daily: 'Harian',
+            once: 'Sekali'
+          };
+
+          const row = `
+            <tr class="hover:bg-white/5 transition">
+              <td class="px-6 py-4 font-bold text-white">${data.title}</td>
+              <td class="px-6 py-4 text-xs"><span class="bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded">${typeLabels[data.type]}</span></td>
+              <td class="px-6 py-4 text-xs text-slate-400">${freqLabels[data.frequency]}</td>
+              <td class="px-6 py-4">${isActive}</td>
+              <td class="px-6 py-4 text-right space-x-2">
+                <button onclick="editPopup('${doc.id}')" class="text-slate-400 hover:text-indigo-400 text-xs border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/5 transition">Edit</button>
+                <button onclick="deletePopup('${doc.id}')" class="text-slate-400 hover:text-red-400 text-xs border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/5 transition">Hapus</button>
+              </td>
+            </tr>
+          `;
+          tableBody.innerHTML += row;
+        });
+      });
+    };
+
+    window.openPopupModal = (mode) => {
+      const modal = document.getElementById("popup-modal");
+      if (mode !== 'edit') {
+        document.getElementById("popup-form").reset();
+        document.getElementById("popup-id").value = "";
+        document.getElementById("popup-modal-title").innerText = "Tambah Popup";
+        toggleCouponField();
+      }
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    };
+
+    window.toggleCouponField = function () {
+      const type = document.getElementById("popup-type").value;
+      const couponField = document.getElementById("coupon-code-field");
+      if (type === 'coupon') {
+        couponField.classList.remove("hidden");
+        couponField.classList.add("block");
+      } else {
+        couponField.classList.add("hidden");
+        couponField.classList.remove("block");
+      }
+    };
+
+    window.closePopupModal = () => {
+      const modal = document.getElementById("popup-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    };
+
+    window.editPopup = async (id) => {
+      const docSnap = await getDoc(doc(db, "popups", id));
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        document.getElementById("popup-id").value = id;
+        document.getElementById("popup-title").value = data.title || "";
+        document.getElementById("popup-content").value = data.content || "";
+        document.getElementById("popup-type").value = data.type || "info";
+        document.getElementById("popup-frequency").value = data.frequency || "always";
+        document.getElementById("popup-start-date").value = data.startDate || "";
+        document.getElementById("popup-end-date").value = data.endDate || "";
+        document.getElementById("popup-priority").value = data.priority || 0;
+        document.getElementById("popup-coupon-code").value = data.couponCode || "";
+        document.getElementById("popup-active").checked = data.isActive;
+        document.getElementById("popup-modal-title").innerText = "Edit Popup";
+        toggleCouponField();
+        openPopupModal('edit');
+      }
+    };
+
+    window.deletePopup = async (id) => {
+      if (confirm("Hapus popup ini?")) {
+        try {
+          await deleteDoc(doc(db, "popups", id));
+          showToast("Popup berhasil dihapus", "success");
+        } catch (err) {
+          showToast("Gagal hapus: " + err.message, "error");
+        }
+      }
+    };
+
+    document.getElementById("popup-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("popup-id").value;
+      const title = document.getElementById("popup-title").value.trim();
+      const content = document.getElementById("popup-content").value.trim();
+      const type = document.getElementById("popup-type").value;
+      const frequency = document.getElementById("popup-frequency").value;
+      const startDate = document.getElementById("popup-start-date").value;
+      const endDate = document.getElementById("popup-end-date").value;
+      const priority = parseInt(document.getElementById("popup-priority").value) || 0;
+      const couponCode = document.getElementById("popup-coupon-code").value.trim().toUpperCase();
+      const isActive = document.getElementById("popup-active").checked;
+
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Menyimpan...';
+
+      try {
+        const payload = {
+          title,
+          content,
+          type,
+          frequency,
+          startDate: startDate || null,
+          endDate: endDate || null,
+          priority,
+          couponCode: type === 'coupon' ? couponCode : null,
+          isActive,
+          updatedAt: serverTimestamp()
+        };
+
+        if (id) {
+          await updateDoc(doc(db, "popups", id), payload);
+          showToast("Popup berhasil diupdate", "success");
+        } else {
+          payload.createdAt = serverTimestamp();
+          await addDoc(collection(db, "popups"), payload);
+          showToast("Popup berhasil dibuat", "success");
+        }
+        closePopupModal();
+      } catch (err) {
+        showToast("Gagal menyimpan: " + err.message, "error");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    });
+
+    // ===============================================
+    // THEMES MANAGEMENT
+    // ===============================================
+    window.loadThemes = async () => {
+      const tableBody = document.getElementById("themes-table-body");
+
+      // Load theme mode
+      const settingsDoc = await getDoc(doc(db, "settings", "themeConfig"));
+      if (settingsDoc.exists()) {
+        const autoMode = settingsDoc.data().autoMode || false;
+        document.getElementById("theme-auto-mode").checked = autoMode;
+        document.getElementById("theme-mode-label").innerText = autoMode ? "Mode: Auto" : "Mode: Manual";
+      }
+
+      onSnapshot(query(collection(db, "themes"), orderBy("startDate", "asc")), (snapshot) => {
+        tableBody.innerHTML = "";
+        if (snapshot.empty) {
+          tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-4 text-center text-slate-500">Belum ada tema.</td></tr>`;
+          return;
+        }
+
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          const isActive = data.isActive
+            ? '<span class="text-emerald-400 text-xs">Aktif</span>'
+            : '<span class="text-slate-400 text-xs">Nonaktif</span>';
+
+          const startDate = data.startDate ? new Date(data.startDate.toDate()).toLocaleDateString('id-ID') : '-';
+          const endDate = data.endDate ? new Date(data.endDate.toDate()).toLocaleDateString('id-ID') : '-';
+
+          const particleLabels = {
+            none: 'Tidak Ada',
+            snow: 'Salju',
+            fireworks: 'Kembang Api',
+            lanterns: 'Lentera',
+            stars: 'Bintang',
+            hearts: 'Hati',
+            leaves: 'Daun'
+          };
+
+          const row = `
+            <tr class="hover:bg-white/5 transition">
+              <td class="px-6 py-4 font-bold text-white">${data.name}</td>
+              <td class="px-6 py-4 text-xs text-slate-400">${startDate} - ${endDate}</td>
+              <td class="px-6 py-4 text-xs"><span class="bg-cyan-500/20 text-cyan-300 px-2 py-1 rounded">${particleLabels[data.particle]}</span></td>
+              <td class="px-6 py-4">${isActive}</td>
+              <td class="px-6 py-4 text-right space-x-2">
+                <button onclick="editTheme('${doc.id}')" class="text-slate-400 hover:text-indigo-400 text-xs border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/5 transition">Edit</button>
+                <button onclick="deleteTheme('${doc.id}')" class="text-slate-400 hover:text-red-400 text-xs border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/5 transition">Hapus</button>
+              </td>
+            </tr>
+          `;
+          tableBody.innerHTML += row;
+        });
+      });
+    };
+
+    window.toggleThemeMode = async () => {
+      const isAuto = document.getElementById("theme-auto-mode").checked;
+      document.getElementById("theme-mode-label").innerText = isAuto ? "Mode: Auto" : "Mode: Manual";
+
+      try {
+        await setDoc(doc(db, "settings", "themeConfig"), {
+          autoMode: isAuto,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+        showToast(`Mode tema diubah ke: ${isAuto ? 'Auto' : 'Manual'}`, "success");
+      } catch (err) {
+        showToast("Gagal: " + err.message, "error");
+      }
+    };
+
+    window.openThemeModal = (mode) => {
+      const modal = document.getElementById("theme-modal");
+      if (mode !== 'edit') {
+        document.getElementById("theme-form").reset();
+        document.getElementById("theme-id").value = "";
+        document.getElementById("theme-modal-title").innerText = "Tambah Tema";
+      }
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    };
+
+    window.closeThemeModal = () => {
+      const modal = document.getElementById("theme-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    };
+
+    window.editTheme = async (id) => {
+      const docSnap = await getDoc(doc(db, "themes", id));
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        document.getElementById("theme-id").value = id;
+        document.getElementById("theme-name").value = data.name;
+
+        const startDate = data.startDate ? new Date(data.startDate.toDate()).toISOString().split('T')[0] : '';
+        const endDate = data.endDate ? new Date(data.endDate.toDate()).toISOString().split('T')[0] : '';
+
+        document.getElementById("theme-start").value = startDate;
+        document.getElementById("theme-end").value = endDate;
+        document.getElementById("theme-particle").value = data.particle || "none";
+        document.getElementById("theme-primary-color").value = data.primaryColor || "#6366f1";
+        document.getElementById("theme-secondary-color").value = data.secondaryColor || "#06b6d4";
+        document.getElementById("theme-active").checked = data.isActive || false;
+        document.getElementById("theme-modal-title").innerText = "Edit Tema";
+        openThemeModal('edit');
+      }
+    };
+
+    window.deleteTheme = async (id) => {
+      if (confirm("Hapus tema ini?")) {
+        try {
+          await deleteDoc(doc(db, "themes", id));
+          showToast("Tema berhasil dihapus", "success");
+        } catch (err) {
+          showToast("Gagal hapus: " + err.message, "error");
+        }
+      }
+    };
+
+    document.getElementById("theme-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("theme-id").value;
+      const name = document.getElementById("theme-name").value.trim();
+      const startDate = new Date(document.getElementById("theme-start").value);
+      const endDate = new Date(document.getElementById("theme-end").value);
+      const particle = document.getElementById("theme-particle").value;
+      const primaryColor = document.getElementById("theme-primary-color").value;
+      const secondaryColor = document.getElementById("theme-secondary-color").value;
+      const isActive = document.getElementById("theme-active").checked;
+
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Menyimpan...';
+
+      try {
+        const payload = {
+          name,
+          startDate,
+          endDate,
+          particle,
+          primaryColor,
+          secondaryColor,
+          isActive,
+          updatedAt: serverTimestamp()
+        };
+
+        if (id) {
+          await updateDoc(doc(db, "themes", id), payload);
+          showToast("Tema berhasil diupdate", "success");
+        } else {
+          payload.createdAt = serverTimestamp();
+          await addDoc(collection(db, "themes"), payload);
+          showToast("Tema berhasil dibuat", "success");
+        }
+        closeThemeModal();
+      } catch (err) {
+        showToast("Gagal menyimpan: " + err.message, "error");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    });
+
+    // =============================================
+    // SECTION MANAGEMENT
+    // =============================================
+
+    window.loadSections = () => {
+      onSnapshot(collection(db, "sections"), (snapshot) => {
+        const tbody = document.getElementById("sections-table-body");
+        if (!tbody) return;
+
+        if (snapshot.empty) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="5" class="px-6 py-8 text-center text-slate-500">
+                Belum ada section. Klik "Tambah Section" untuk mulai.
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        const sections = snapshot.docs
+          .map(doc => ({ id: doc.id, ...doc.data() }))
+          .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+        tbody.innerHTML = sections.map(section => {
+          const statusBadge = section.enabled
+            ? `<span class="px-2 py-1 rounded-md bg-emerald-500/20 text-emerald-300 text-xs font-medium">Aktif</span>`
+            : `<span class="px-2 py-1 rounded-md bg-slate-500/20 text-slate-400 text-xs font-medium">Nonaktif</span>`;
+
+          return `
+            <tr class="hover:bg-white/5 transition">
+              <td class="px-6 py-4 text-sm text-slate-300">${section.order || 0}</td>
+              <td class="px-6 py-4">
+                <p class="font-semibold text-white">${section.name || '-'}</p>
+              </td>
+              <td class="px-6 py-4 text-sm text-slate-400">${section.description || '-'}</td>
+              <td class="px-6 py-4">${statusBadge}</td>
+              <td class="px-6 py-4 text-right space-x-2">
+                <button onclick="editSection('${section.id}')"
+                  class="px-3 py-1.5 rounded-lg bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30 text-xs font-medium transition">
+                  Edit
+                </button>
+                <button onclick="deleteSection('${section.id}')"
+                  class="px-3 py-1.5 rounded-lg bg-red-500/20 text-red-300 hover:bg-red-500/30 text-xs font-medium transition">
+                  Hapus
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      });
+    };
+
+    window.openSectionModal = (mode) => {
+      const modal = document.getElementById("section-modal");
+      if (mode !== 'edit') {
+        document.getElementById("section-form").reset();
+        document.getElementById("section-id").value = "";
+        document.getElementById("section-modal-title").innerText = "Tambah Section";
+      }
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    };
+
+    window.closeSectionModal = () => {
+      const modal = document.getElementById("section-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    };
+
+    window.editSection = async (id) => {
+      const docSnap = await getDoc(doc(db, "sections", id));
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        document.getElementById("section-id").value = id;
+        document.getElementById("section-name").value = data.name || '';
+        document.getElementById("section-desc").value = data.description || '';
+        document.getElementById("section-order").value = data.order || 0;
+        document.getElementById("section-enabled").checked = data.enabled !== false;
+        document.getElementById("section-modal-title").innerText = "Edit Section";
+        openSectionModal('edit');
+      }
+    };
+
+    window.deleteSection = async (id) => {
+      if (confirm("Hapus section ini? Produk di section ini tidak akan terhapus, hanya tidak ter-assign ke section.")) {
+        try {
+          await deleteDoc(doc(db, "sections", id));
+          showToast("Section berhasil dihapus", "success");
+        } catch (err) {
+          showToast("Gagal hapus: " + err.message, "error");
+        }
+      }
+    };
+
+    document.getElementById("section-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("section-id").value;
+      const name = document.getElementById("section-name").value.trim();
+      const description = document.getElementById("section-desc").value.trim();
+      const order = parseInt(document.getElementById("section-order").value) || 0;
+      const enabled = document.getElementById("section-enabled").checked;
+
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Menyimpan...';
+
+      try {
+        const payload = {
+          name,
+          description,
+          order,
+          enabled,
+          updatedAt: serverTimestamp()
+        };
+
+        if (id) {
+          try {
+            await updateDoc(doc(db, "sections", id), payload);
+            showToast("Section berhasil diupdate", "success");
+          } catch (updateErr) {
+            // If document doesn't exist (e.g., from old catalogSections collection), create new
+            if (updateErr.code === 'not-found') {
+              payload.createdAt = serverTimestamp();
+              await addDoc(collection(db, "sections"), payload);
+              showToast("Section berhasil dibuat ulang (data lama di-migrate)", "success");
+            } else {
+              throw updateErr;
+            }
+          }
+        } else {
+          payload.createdAt = serverTimestamp();
+          await addDoc(collection(db, "sections"), payload);
+          showToast("Section berhasil dibuat", "success");
+        }
+        closeSectionModal();
+      } catch (err) {
+        showToast("Gagal menyimpan: " + err.message, "error");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
       }
     });
   </script>
