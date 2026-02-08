@@ -941,6 +941,9 @@
           appliedCoupon = { ...couponData, code: couponCode, id: querySnapshot.docs[0].id };
           showToast(`Kupon ${couponCode} berhasil diterapkan! 🎉`, 'success');
 
+          // Update price display immediately
+          updateTotalPrice();
+
           // Disable further changes
           couponInput.disabled = true;
           checkBtn.textContent = '✓';
