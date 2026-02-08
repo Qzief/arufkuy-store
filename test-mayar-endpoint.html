@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Test Mayar API Endpoint</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #fff;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            background: #0e639c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background: #1177bb;
+        }
+
+        pre {
+            background: #2d2d2d;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+
+        .success {
+            color: #4ec9b0;
+        }
+
+        .error {
+            color: #f48771;
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px;
+            width: 400px;
+            background: #2d2d2d;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 4px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            color: #9cdcfe;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🧪 Mayar API Endpoint Tester</h1>
+
+    <div>
+        <label>API Key:</label>
+        <input type="text" id="apiKey" placeholder="Paste your MAYAR_API_KEY here" />
+
+        <label>Base URL:</label>
+        <input type="text" id="baseUrl" value="https://api.mayar.id/hl/v1" />
+
+        <label>Email:</label>
+        <input type="email" id="email" value="test@example.com" />
+
+        <label>Mobile (format: 628xxx):</label>
+        <input type="text" id="mobile" value="628123456789" />
+    </div>
+
+    <h3>Test Endpoints:</h3>
+    <button onclick="testEndpoint('/invoice')">Test: POST /invoice</button>
+    <button onclick="testEndpoint('/invoices')">Test: POST /invoices</button>
+    <button onclick="testEndpoint('/payment/create-invoice')">Test: POST /payment/create-invoice</button>
+
+    <h3>Result:</h3>
+    <pre id="result">Click a button to test...</pre>
+
+    <script>
+        async function testEndpoint(path) {
+            const apiKey = document.getElementById('apiKey').value;
+            const baseUrl = document.getElementById('baseUrl').value;
+            const email = document.getElementById('email').value;
+            const mobile = document.getElementById('mobile').value;
+            const resultEl = document.getElementById('result');
+
+            if (!apiKey) {
+                resultEl.innerHTML = '<span class="error">❌ Please enter API Key</span>';
+                return;
+            }
+
+            const url = baseUrl + path;
+            const payload = {
+                name: "Test User",
+                email: email,
+                mobile: mobile,
+                description: "Test Invoice",
+                redirectUrl: "https://example.com/success",
+                expiredAt: new Date(Date.now() + 24 * 3600000).toISOString(),
+                items: [
+                    {
+                        quantity: 1,
+                        rate: 10000,
+                        description: "Test Product"
+                    }
+                ]
+            };
+
+            resultEl.innerHTML = `⏳ Testing: ${url}\n\nRequest Payload:\n${JSON.stringify(payload, null, 2)}\n\nWaiting for response...`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                let statusClass = response.ok ? 'success' : 'error';
+                let statusIcon = response.ok ? '✅' : '❌';
+
+                resultEl.innerHTML = `<span class="${statusClass}">${statusIcon} Status: ${response.status} ${response.statusText}</span>\n\n` +
+                    `URL: ${url}\n\n` +
+                    `Response:\n${JSON.stringify(data, null, 2)}`;
+
+            } catch (error) {
+                resultEl.innerHTML = `<span class="error">❌ Error: ${error.message}</span>\n\n` +
+                    `URL: ${url}\n\n` +
+                    `Stack: ${error.stack}`;
+            }
+        }
+    </script>
+</body>
+
+</html>

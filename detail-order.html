@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Status Pesanan — Arufkuy Store</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          boxShadow: {
+            glow: "0 0 0 1px rgba(148,163,184,.12), 0 12px 40px rgba(2,6,23,.55)"
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="min-h-screen bg-slate-950 text-slate-100 font-sans flex items-center justify-center p-4">
+
+  <div class="w-full max-w-md">
+    <div class="rounded-3xl border border-white/10 bg-white/5 p-8 text-center shadow-glow">
+      <!-- Icon Animasi -->
+      <div class="mx-auto grid h-20 w-20 place-items-center rounded-full bg-indigo-500/20 text-4xl animate-pulse">
+        ⏳
+      </div>
+
+      <h1 class="mt-6 text-2xl font-bold" data-i18n="status_title">Pembayaran Berhasil</h1>
+      <p class="mt-2 text-slate-300" data-i18n="status_desc">Terima kasih telah melakukan pembayaran melalui Mayar.</p>
+
+      <div class="mt-6 space-y-3 text-left">
+        <div class="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
+          <p class="text-xs text-slate-400">Order ID</p>
+          <p id="ref-id" class="font-mono font-semibold text-white tracking-wider">...</p>
+        </div>
+
+        <div class="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
+          <p class="text-xs text-slate-400">Produk</p>
+          <p id="product-name" class="font-semibold text-white">...</p>
+        </div>
+
+        <div class="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
+          <p class="text-xs text-slate-400">Total Pembayaran</p>
+          <p id="product-price" class="font-semibold text-white">...</p>
+        </div>
+
+        <div class="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
+          <p class="text-xs text-slate-400" data-i18n="status_info_title">Info</p>
+          <p class="text-sm text-slate-300 mt-1" data-i18n="status_info_desc">
+            Produk digital Anda akan ditampilkan di halaman ini dan juga dikirimkan ke email Anda. Simpan Order ID untuk
+            referensi.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-8 flex flex-col gap-3">
+        <a href="index.html"
+          class="inline-flex w-full justify-center rounded-xl bg-white/10 py-3 text-sm font-semibold text-white hover:bg-white/20 transition">
+          <span data-i18n="btn_home">Kembali ke Beranda</span>
+        </a>
+        <button onclick="viewInvoice()" class="text-xs text-indigo-400 hover:text-indigo-300" data-i18n="btn_invoice">
+          Lihat Bukti Transaksi (Invoice)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Simple encryption/decryption for local storage (optional) -->
+  <script src="utils.js"></script>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDtBSbjr5IHmuZqND0MIexw-tWWcZIF33A",
+      authDomain: "arufkuy-store.firebaseapp.com",
+      projectId: "arufkuy-store",
+      storageBucket: "arufkuy-store.firebasestorage.app",
+      messagingSenderId: "694416486376",
+      appId: "1:694416486376:web:fa36cccffd65557ddc3e5d"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get("orderId");
+    const refId = params.get("ref"); // Invoice ID from Mayar
+
+    // Fallback for legacy URL (without orderId)
+    const legacyProduct = params.get("product");
+    const legacyPrice = params.get("price");
+
+    if (orderId) {
+      loadOrder(orderId);
+    } else if (legacyProduct) {
+      // Legacy mode (just display from URL)
+      document.getElementById("ref-id").textContent = refId || "-";
+      document.getElementById("product-name").textContent = legacyProduct;
+      document.getElementById("product-price").textContent = "Rp " + new Intl.NumberFormat("id-ID").format(legacyPrice);
+    } else {
+      document.getElementById("status-title").textContent = "Pesanan Tidak Ditemukan";
+      document.getElementById("status-desc").textContent = "Mohon periksa kembali link Anda.";
+    }
+
+    function loadOrder(id) {
+      const statusTitle = document.getElementById("status-title");
+      const statusDesc = document.getElementById("status-desc");
+
+      // Listen to real-time updates
+      onSnapshot(doc(db, "orders", id), (doc) => {
+        if (doc.exists()) {
+          const data = doc.data();
+
+          document.getElementById("ref-id").textContent = refId || id; // Show Mayar Ref or Firestore ID
+          document.getElementById("product-name").textContent = data.productName;
+          document.getElementById("product-price").textContent = "Rp " + new Intl.NumberFormat("id-ID").format(data.totalPrice);
+
+          // Update Status UI
+          if (data.status === 'paid' || data.status === 'completed') {
+            statusTitle.textContent = "Pembayaran Berhasil";
+            statusDesc.textContent = "Terima kasih! Pesanan Anda sedang diproses/sudah dikirim.";
+
+            // Show Delivered Items if available
+            if (data.deliveredItems) {
+              renderDeliveredItemsNew(data.deliveredItems);
+            }
+
+            // Show Buyer Notes if available
+            if (data.buyerNotes) {
+              renderBuyerNotes(data.buyerNotes);
+            }
+
+          } else if (data.status === 'pending') {
+            statusTitle.textContent = "Menunggu Pembayaran";
+            statusDesc.textContent = "Silakan selesaikan pembayaran Anda di Mayar.";
+          } else {
+            statusTitle.textContent = "Status: " + data.status;
+          }
+
+        } else {
+          statusTitle.textContent = "Pesanan Tidak Ditemukan";
+        }
+      });
+    }
+
+    function renderDeliveredItems(items) {
+      // Check if container already exists
+      let container = document.getElementById("delivered-items-container");
+      if (!container) {
+        container = document.createElement("div");
+        container.id = "delivered-items-container";
+        container.className = "mt-6 rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-4 animate-fade-in";
+
+        const title = document.createElement("p");
+        title.className = "text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2";
+        title.textContent = "✨ Item Diterima (Delivered)";
+        container.appendChild(title);
+
+        const parent = document.querySelector(".mt-6.space-y-3");
+        parent.insertBefore(container, parent.firstChild); // Insert at top of list
+      }
+
+      // Create Dropdown details
+      // If items is a string (legacy/simple), wrap in array or just display
+      // If it's credential like "email:pass", formatting it nicely
+
+      const content = document.createElement("details");
+      content.className = "group";
+      content.innerHTML = `
+        <summary class="flex cursor-pointer items-center justify-between rounded-xl bg-emerald-500/10 p-3 text-sm font-medium text-emerald-300 hover:bg-emerald-500/20 transition">
+          <span>Lihat Data Akun/Item</span>
+          <span class="transition group-open:rotate-180">▼</span>
+        </summary>
+        <div class="mt-2 rounded-xl bg-black/40 p-3 text-sm font-mono text-emerald-200 break-all whitespace-pre-wrap select-all border border-emerald-500/10">
+          ${items}
+        </div>
+      `;
+
+      // Clear previous content (except title) and append new
+      // Actually simpler to just replace the inner content of container except title
+      // But for safety let's just re-render
+
+      // Remove old details if any
+      const oldDetails = container.querySelector("details");
+      if (oldDetails) oldDetails.remove();
+
+      container.appendChild(content);
+    }
+
+    function renderDeliveredItemsNew(items) {
+      // Check if container already exists
+      let container = document.getElementById("delivered-items-container");
+      if (!container) {
+        container = document.createElement("div");
+        container.id = "delivered-items-container";
+        container.className = "mt-6 rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-4 animate-fade-in";
+
+        const title = document.createElement("p");
+        title.className = "text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2";
+        title.textContent = "✨ Item Diterima (Delivered)";
+        container.appendChild(title);
+
+        const parent = document.querySelector(".mt-6.space-y-3");
+        parent.insertBefore(container, parent.firstChild); // Insert at top of list
+      }
+
+      // Normalize items to array
+      let itemsArray = [];
+      if (Array.isArray(items)) {
+        itemsArray = items;
+      } else {
+        itemsArray = [{ content: items, note: '' }];
+      }
+
+      // Create/Get List Container
+      let list = document.getElementById("delivered-items-list");
+      if (!list) {
+        list = document.createElement("div");
+        list.id = "delivered-items-list";
+        list.className = "space-y-2";
+        container.appendChild(list);
+      } else {
+        list.innerHTML = "";
+      }
+
+      // Render Items as Dropdowns
+      itemsArray.forEach((item, index) => {
+        const details = document.createElement("details");
+        details.className = "group bg-slate-900/50 rounded-xl border border-white/10 overflow-hidden";
+        if (index === 0) details.open = true; // Auto open first item
+
+        // Note HTML
+        let noteHtml = '';
+        if (item.note) {
+          noteHtml = `
+            <div class="mt-2 text-xs text-amber-200/80 italic flex items-start gap-1">
+               <span>📝</span>
+               <div class="leading-relaxed whitespace-pre-wrap font-sans">${item.note}</div>
+            </div>
+          `;
+        }
+
+        details.innerHTML = `
+            < summary class="flex justify-between items-center p-3 cursor-pointer select-none bg-white/5 hover:bg-white/10 transition" >
+                <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Item #${index + 1}</span>
+                <span class="text-slate-400 transition-transform duration-300 group-open:rotate-180">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                  </svg>
+                </span>
+            </summary >
+            <div class="p-3 border-t border-white/10">
+              <div class="bg-black/40 rounded-lg p-3 border border-emerald-500/10 relative group/copy">
+                <div class="font-mono text-sm text-emerald-300 break-all whitespace-pre-wrap select-all font-medium pr-8">${item.content}</div>
+                <button onclick="navigator.clipboard.writeText(this.previousElementSibling.innerText); this.innerHTML='✓';" class="absolute top-2 right-2 text-slate-500 hover:text-emerald-400 bg-slate-800/50 hover:bg-slate-800 p-1 rounded transition">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                    <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                  </svg>
+                </button>
+              </div>
+              ${noteHtml}
+            </div>
+          `;
+        list.appendChild(details);
+      });
+    }
+
+    function renderBuyerNotes(notes) {
+      let container = document.getElementById("buyer-notes-container");
+      if (!container) {
+        container = document.createElement("div");
+        container.id = "buyer-notes-container";
+        container.className = "rounded-2xl border border-white/10 bg-slate-950/50 p-4";
+
+        const title = document.createElement("p");
+        title.className = "text-xs text-slate-400";
+        title.textContent = "Catatan Admin";
+        container.appendChild(title);
+
+        const text = document.createElement("p");
+        text.id = "buyer-notes-text";
+        text.className = "font-medium text-amber-200 mt-1 text-sm";
+        container.appendChild(text);
+
+        const parent = document.querySelector(".mt-6.space-y-3");
+        parent.appendChild(container);
+      }
+
+      document.getElementById("buyer-notes-text").textContent = notes;
+    }
+
+    function viewInvoice() {
+      if (refId) {
+        window.location.href = `https://arufkuy.myr.id/invoices/${refId}`;
+      } else {
+        alert("Invoice ID belum tersedia.");
+      }
+    }
+  </script>
+</body>
+
+</html>

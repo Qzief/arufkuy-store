@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Invoice — Arufkuy Store</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          boxShadow: {
+            glow: "0 0 0 1px rgba(148,163,184,.12), 0 12px 40px rgba(2,6,23,.55)"
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Smooth scroll */
+    html { scroll-behavior: smooth; }
+    /* Subtle background grid */
+    .grid-bg {
+      background-image:
+        radial-gradient(circle at 1px 1px, rgba(148,163,184,.14) 1px, transparent 0);
+      background-size: 26px 26px;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100 font-sans flex items-center justify-center p-4">
+
+  <!-- Top gradient / ambient -->
+  <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+    <div class="absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-indigo-500/20 blur-3xl"></div>
+    <div class="absolute bottom-[-160px] right-[-160px] h-[420px] w-[420px] rounded-full bg-fuchsia-500/10 blur-3xl"></div>
+  </div>
+
+  <div class="w-full max-w-2xl">
+    <div class="rounded-3xl border border-white/10 bg-white/5 p-8 md:p-10 shadow-glow relative overflow-hidden">
+
+      <!-- Header Invoice -->
+      <div class="flex flex-col md:flex-row justify-between items-start border-b border-white/10 pb-8 mb-8">
+        <div class="flex items-center gap-4">
+          <div class="grid h-12 w-12 place-items-center rounded-xl bg-white/5 shadow-glow border border-white/10">
+            <span class="text-xl font-bold text-indigo-300">A</span>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight">INVOICE</h1>
+            <p class="text-sm text-slate-400">Arufkuy Store</p>
+          </div>
+        </div>
+        <div class="mt-6 md:mt-0 text-left md:text-right">
+          <p class="text-xs text-slate-400 uppercase tracking-wider">Tanggal</p>
+          <p class="font-semibold text-slate-200" id="date">...</p>
+        </div>
+      </div>
+
+      <!-- Details -->
+      <div class="space-y-6">
+        <div class="flex justify-between items-center rounded-2xl border border-white/10 bg-slate-950/30 p-4">
+          <span class="text-sm text-slate-400">Order Ref</span>
+          <span class="font-mono font-semibold text-indigo-300" id="ref">...</span>
+        </div>
+
+        <div class="rounded-2xl border border-white/10 bg-slate-950/30 p-6">
+          <div class="flex justify-between items-center mb-4">
+            <span class="text-sm text-slate-400">Produk</span>
+            <span class="font-semibold text-white text-right" id="product">...</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-slate-400">Status</span>
+            <span class="inline-flex items-center rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-200 border border-emerald-500/20">
+              PAID / PROCESSING
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total -->
+      <div class="mt-8 border-t border-white/10 pt-8 flex justify-between items-center">
+        <span class="text-lg font-bold text-slate-200">Total Pembayaran</span>
+        <span class="text-3xl font-bold text-indigo-400" id="total">...</span>
+      </div>
+
+      <!-- Footer -->
+      <div class="mt-12 text-center">
+        <p class="text-xs text-slate-500">
+          Terima kasih telah berbelanja di Arufkuy Store.<br>
+          Simpan bukti ini sebagai referensi transaksi yang sah.
+        </p>
+        <div class="mt-6">
+          <a href="index.html" class="text-sm font-semibold text-indigo-400 hover:text-indigo-300 transition">
+            &larr; Kembali ke Beranda
+          </a>
+        </div>
+      </div>
+
+      <!-- Decorative elements -->
+      <div class="absolute -top-24 -right-24 h-48 w-48 rounded-full bg-indigo-500/10 blur-3xl"></div>
+      <div class="absolute -bottom-24 -left-24 h-48 w-48 rounded-full bg-cyan-500/10 blur-3xl"></div>
+    </div>
+  </div>
+
+  <script>
+    // Simulasi data invoice dari URL params
+    const params = new URLSearchParams(window.location.search);
+    document.getElementById("date").textContent = new Date().toLocaleDateString("id-ID", {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+    document.getElementById("ref").textContent = params.get("ref") || "INV-XXXXXX";
+    document.getElementById("product").textContent = params.get("product") || "Digital Item";
+
+    const price = params.get("price") || "0";
+    document.getElementById("total").textContent = "Rp " + new Intl.NumberFormat("id-ID").format(price);
+  </script>
+</body>
+</html>
