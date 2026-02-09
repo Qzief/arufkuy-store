@@ -1198,7 +1198,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, getDocs, getDoc, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy, runTransaction, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, getDoc, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, runTransaction, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDtBSbjr5IHmuZqND0MIexw-tWWcZIF33A",
@@ -1523,6 +1523,64 @@
 
       // Real stats would need better queries, but we can approximate from recent loads
       // For now, let's rely on the listeners to populate these as they load data
+
+      // Load recent activity
+      loadDashboardActivity();
+    }
+
+    function loadDashboardActivity() {
+      const activityBody = document.getElementById('dash-activity-body');
+
+      // Query recent orders (last 5)
+      const q = query(collection(db, "orders"), orderBy("createdAt", "desc"), limit(5));
+
+      getDocs(q).then(snapshot => {
+        if (snapshot.empty) {
+          activityBody.innerHTML = '<tr><td colspan="3" class="text-center py-8 text-slate-500">Belum ada aktivitas terkini</td></tr>';
+          return;
+        }
+
+        activityBody.innerHTML = '';
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const date = data.createdAt ? new Date(data.createdAt.seconds * 1000) : new Date();
+          const timeStr = date.toLocaleString('id-ID', {
+            day: '2-digit',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+
+          let statusBadge = '';
+          let actionText = '';
+
+          if (data.status === 'paid') {
+            statusBadge = '<span class="px-2 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400">Paid</span>';
+            actionText = `Order #${doc.id.substring(0, 8)} - ${data.productName || 'Produk'}`;
+          } else if (data.status === 'pending') {
+            statusBadge = '<span class="px-2 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400">Pending</span>';
+            actionText = `Order #${doc.id.substring(0, 8)} dibuat`;
+          } else if (data.status === 'delivered') {
+            statusBadge = '<span class="px-2 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400">Delivered</span>';
+            actionText = `Order #${doc.id.substring(0, 8)} terkirim`;
+          } else {
+            statusBadge = '<span class="px-2 py-1 rounded-full text-xs font-semibold bg-slate-500/10 text-slate-400">Unknown</span>';
+            actionText = `Order #${doc.id.substring(0, 8)}`;
+          }
+
+          const row = `
+            <tr class="hover:bg-white/5 transition">
+              <td class="px-6 py-4 whitespace-nowrap text-xs text-slate-400">${timeStr}</td>
+              <td class="px-6 py-4 text-sm">${actionText}</td>
+              <td class="px-6 py-4">${statusBadge}</td>
+            </tr>
+          `;
+          activityBody.innerHTML += row;
+        });
+      }).catch(error => {
+        console.error("Error loading activity:", error);
+        activityBody.innerHTML = '<tr><td colspan="3" class="text-center py-8 text-red-400">Gagal memuat aktivitas</td></tr>';
+      });
     }
 
     // Image Upload Logic
