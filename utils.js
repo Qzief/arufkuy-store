@@ -136,31 +136,53 @@ window.googleTranslateElementInit = function () {
 function setLanguage(lang) {
   // Get the domain (handle both localhost and hosted environments)
   const hostname = window.location.hostname;
-  const domain = hostname.includes('localhost') ? '' : hostname;
 
-  // Clear all possible cookie variations more aggressively
-  const expireDate = "Thu, 01 Jan 1970 00:00:00 UTC";
+  // Function to delete all variations of a cookie
+  function deleteCookie(name) {
+    const expireDate = "Thu, 01 Jan 1970 00:00:00 UTC";
+    // Clear with various domain and path combinations
+    document.cookie = `${name}=; expires=${expireDate}; path=/;`;
+    document.cookie = `${name}=; expires=${expireDate}; path=/; domain=${hostname};`;
+    document.cookie = `${name}=; expires=${expireDate}; path=/; domain=.${hostname};`;
+    // Try with root domain if it's a subdomain
+    if (hostname.split('.').length > 2) {
+      const rootDomain = hostname.split('.').slice(-2).join('.');
+      document.cookie = `${name}=; expires=${expireDate}; path=/; domain=${rootDomain};`;
+      document.cookie = `${name}=; expires=${expireDate}; path=/; domain=.${rootDomain};`;
+    }
+  }
 
-  // Clear cookies with different path and domain combinations
-  document.cookie = `googtrans=; expires=${expireDate}; path=/;`;
-  document.cookie = `googtrans=; expires=${expireDate}; path=/; domain=${hostname};`;
-  document.cookie = `googtrans=; expires=${expireDate}; path=/; domain=.${hostname};`;
+  // Clear ALL Google Translate related cookies
+  deleteCookie('googtrans');
+  deleteCookie('googtrans(null)');
+  deleteCookie('googtrans(en)');
+  deleteCookie('googtrans(id)');
 
-  // Also clear the /auto variant that Google Translate sometimes uses
-  document.cookie = `googtrans=/auto/id; expires=${expireDate}; path=/;`;
-  document.cookie = `googtrans=/auto/en; expires=${expireDate}; path=/;`;
-  document.cookie = `googtrans=/auto/id; expires=${expireDate}; path=/; domain=${hostname};`;
-  document.cookie = `googtrans=/auto/en; expires=${expireDate}; path=/; domain=${hostname};`;
+  // Clear sessionStorage items that Google Translate might use
+  try {
+    Object.keys(sessionStorage).forEach(key => {
+      if (key.includes('google') || key.includes('translate')) {
+        sessionStorage.removeItem(key);
+      }
+    });
+  } catch (e) {
+    console.log('Could not clear sessionStorage:', e);
+  }
 
-  // Set the new cookie value
-  const cookieValue = (lang === 'en') ? '/id/en' : '/id/id';
-  document.cookie = `googtrans=${cookieValue}; path=/; max-age=31536000;`; // 1 year expiry
-
-  // Save to localStorage
+  // Save preference BEFORE setting cookie
   localStorage.setItem('app_lang', lang);
 
-  // Reload the page
-  location.reload();
+  // Set the new cookie value with proper format
+  const cookieValue = (lang === 'en') ? '/id/en' : '/id/id';
+
+  // Set cookie without domain to let browser handle it automatically
+  document.cookie = `googtrans=${cookieValue}; path=/; max-age=31536000; SameSite=Lax;`;
+
+  // Force a complete refresh by using location.href instead of reload
+  // This ensures Google Translate reinitializes completely
+  setTimeout(() => {
+    window.location.href = window.location.pathname + window.location.search;
+  }, 100);
 }
 
 function updateDropdownUI() {
