@@ -1056,7 +1056,7 @@
           } else if (type === 'lanterns') {
             drawLantern(ctx, p.size, colors?.accent || '#FFD700', colors?.primary || '#FF4500');
           } else if (type === 'crescent') {
-            drawCrescentMoon(ctx, p.size, colors?.primary || '#FFD700');
+            drawCrescentMoon(ctx, p.size, colors?.primary || '#FFD700', colors?.accent || '#FFF');
           } else if (type === 'ketupat') {
             drawKetupat(ctx, p.size, colors?.primary || '#228B22', colors?.accent || '#90EE90');
           } else if (type === 'confetti') {
@@ -1084,8 +1084,8 @@
       let speed, size;
       switch (type) {
         case 'lanterns': speed = Math.random() * 0.5 + 0.3; size = Math.random() * 15 + 20; break;
-        case 'crescent': speed = Math.random() * 0.8 + 0.4; size = Math.random() * 12 + 15; break;
-        case 'ketupat': speed = Math.random() * 1 + 0.5; size = Math.random() * 10 + 12; break;
+        case 'crescent': speed = Math.random() * 0.8 + 0.4; size = Math.random() * 6 + 8; break;
+        case 'ketupat': speed = Math.random() * 1 + 0.5; size = Math.random() * 6 + 8; break;
         case 'confetti': speed = Math.random() * 2 + 1; size = Math.random() * 6 + 4; break;
         case 'snow': speed = Math.random() * 1.2 + 0.4; size = Math.random() * 8 + 4; break;
         case 'leaves': speed = Math.random() * 1.5 + 0.5; size = Math.random() * 12 + 8; break;
@@ -1340,15 +1340,15 @@
     }
 
     // 🌙 Crescent Moon (Ramadan)
-    function drawCrescentMoon(ctx, size, color) {
-      // Outer glow
-      const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 1.5);
-      glow.addColorStop(0, color + '80');
-      glow.addColorStop(0.5, color + '30');
+    function drawCrescentMoon(ctx, size, color, accentColor) {
+      // Outer glow with softer effect
+      const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 2.5);
+      glow.addColorStop(0, color + '50');
+      glow.addColorStop(0.5, color + '20');
       glow.addColorStop(1, 'transparent');
       ctx.fillStyle = glow;
       ctx.beginPath();
-      ctx.arc(0, 0, size * 1.5, 0, Math.PI * 2);
+      ctx.arc(0, 0, size * 2.5, 0, Math.PI * 2);
       ctx.fill();
 
       // Crescent shape
@@ -1364,8 +1364,8 @@
       ctx.fill();
       ctx.globalCompositeOperation = 'source-over';
 
-      // Star next to moon
-      ctx.fillStyle = color;
+      // Star next to moon - use accent color if provided
+      ctx.fillStyle = accentColor || color;
       const starX = -size * 0.8;
       const starY = -size * 0.3;
       const starSize = size * 0.25;
@@ -1387,11 +1387,11 @@
 
     // 🧧 Ketupat (Eid/Lebaran)
     function drawKetupat(ctx, size, greenColor, lightGreenColor) {
-      // Diamond shape
+      // Diamond shape with better color usage
       const gradient = ctx.createLinearGradient(-size, 0, size, 0);
       gradient.addColorStop(0, '#1B5E20');
-      gradient.addColorStop(0.3, greenColor);
-      gradient.addColorStop(0.7, lightGreenColor);
+      gradient.addColorStop(0.3, greenColor || '#228B22');
+      gradient.addColorStop(0.7, lightGreenColor || '#90EE90');
       gradient.addColorStop(1, '#1B5E20');
 
       ctx.fillStyle = gradient;
