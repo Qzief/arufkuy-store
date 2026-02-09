@@ -1060,11 +1060,27 @@
             : '<span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400">In Stock</span>';
 
       let priceHtml = '';
-      if (data.hasVariants && Array.isArray(data.variants)) {
+      if (data.hasVariants && Array.isArray(data.variants) && data.variants.length > 0) {
         const prices = data.variants.map(v => v.price).sort((a, b) => a - b);
-        if (prices.length > 0) priceHtml = `<p class="text-xl font-bold">Rp ${new Intl.NumberFormat("id-ID").format(prices[0])}+</p>`;
+        const minPrice = prices[0];
+        const maxPrice = prices[prices.length - 1];
+
+        if (minPrice === maxPrice) {
+          priceHtml = `<p class="text-lg font-bold text-white">${formatPrice(minPrice)}</p>`;
+        } else {
+          priceHtml = `<p class="text-lg font-bold text-white">${formatPrice(minPrice)} - ${formatPrice(maxPrice)}</p>`;
+        }
       } else {
-        priceHtml = `<p class="text-xl font-bold">Rp ${new Intl.NumberFormat("id-ID").format(data.price)}</p>`;
+        if (data.original_price && data.original_price > data.price) {
+          priceHtml = `
+            <div class="flex items-end gap-2">
+              <p class="text-lg font-bold text-white">${formatPrice(data.price)}</p>
+              <p class="text-sm text-slate-500 line-through">${formatPrice(data.original_price)}</p>
+            </div>
+          `;
+        } else {
+          priceHtml = `<p class="text-lg font-bold text-white">${formatPrice(data.price)}</p>`;
+        }
       }
 
       return `
