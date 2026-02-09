@@ -2124,9 +2124,12 @@
       modal.classList.remove("flex");
     };
 
-    window.editProduct = (id) => {
+    window.editProduct = async (id) => {
       const product = products.find(p => p.id === id);
       if (!product) return;
+
+      // Ensure sections are loaded before setting value
+      await loadSectionsDropdown();
 
       document.getElementById("modal-title").innerText = "Edit Produk";
       document.getElementById("prod-id").value = product.id;
