@@ -2319,122 +2319,6 @@
     });
 
     // ===============================================
-    // SECTIONS MANAGEMENT
-    // ===============================================
-    window.loadSections = () => {
-      const tableBody = document.getElementById("sections-table-body");
-      onSnapshot(query(collection(db, "catalogSections"), orderBy("order", "asc")), (snapshot) => {
-        tableBody.innerHTML = "";
-        if (snapshot.empty) {
-          tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-4 text-center text-slate-500">Belum ada section.</td></tr>`;
-          return;
-        }
-
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          const isActive = data.isActive
-            ? '<span class="text-emerald-400 text-xs">Aktif</span>'
-            : '<span class="text-red-400 text-xs">Nonaktif</span>';
-
-          const row = `
-            <tr class="hover:bg-white/5 transition">
-              <td class="px-6 py-4 font-mono text-slate-400">${data.order}</td>
-              <td class="px-6 py-4 font-bold text-white">${data.name}</td>
-              <td class="px-6 py-4 text-sm text-slate-400">${data.description || '-'}</td>
-              <td class="px-6 py-4">${isActive}</td>
-              <td class="px-6 py-4 text-right space-x-2">
-                <button onclick="editSection('${doc.id}')" class="text-slate-400 hover:text-indigo-400 text-xs border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/5 transition">Edit</button>
-                <button onclick="deleteSection('${doc.id}')" class="text-slate-400 hover:text-red-400 text-xs border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/5 transition">Hapus</button>
-              </td>
-            </tr>
-          `;
-          tableBody.innerHTML += row;
-        });
-      });
-    };
-
-    window.openSectionModal = (mode) => {
-      const modal = document.getElementById("section-modal");
-      if (mode !== 'edit') {
-        document.getElementById("section-form").reset();
-        document.getElementById("section-id").value = "";
-        document.getElementById("section-modal-title").innerText = "Tambah Section";
-      }
-      modal.classList.remove("hidden");
-      modal.classList.add("flex");
-    };
-
-    window.closeSectionModal = () => {
-      const modal = document.getElementById("section-modal");
-      modal.classList.add("hidden");
-      modal.classList.remove("flex");
-    };
-
-    window.editSection = async (id) => {
-      const docSnap = await getDoc(doc(db, "catalogSections", id));
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        document.getElementById("section-id").value = id;
-        document.getElementById("section-name").value = data.name;
-        document.getElementById("section-desc").value = data.description || "";
-        document.getElementById("section-order").value = data.order;
-        document.getElementById("section-enabled").checked = data.isActive;
-        document.getElementById("section-modal-title").innerText = "Edit Section";
-        openSectionModal('edit');
-      }
-    };
-
-    window.deleteSection = async (id) => {
-      if (confirm("Hapus section ini? Produk dalam section tidak akan dihapus.")) {
-        try {
-          await deleteDoc(doc(db, "catalogSections", id));
-          showToast("Section berhasil dihapus", "success");
-        } catch (err) {
-          showToast("Gagal hapus: " + err.message, "error");
-        }
-      }
-    };
-
-    document.getElementById("section-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const id = document.getElementById("section-id").value;
-      const name = document.getElementById("section-name").value.trim();
-      const description = document.getElementById("section-desc").value.trim();
-      const order = parseInt(document.getElementById("section-order").value);
-      const isActive = document.getElementById("section-active").checked;
-
-      const submitBtn = e.target.querySelector('button[type="submit"]');
-      const originalText = submitBtn.textContent;
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Menyimpan...';
-
-      try {
-        const payload = {
-          name,
-          description,
-          order,
-          isActive,
-          updatedAt: serverTimestamp()
-        };
-
-        if (id) {
-          await updateDoc(doc(db, "catalogSections", id), payload);
-          showToast("Section berhasil diupdate", "success");
-        } else {
-          payload.createdAt = serverTimestamp();
-          await addDoc(collection(db, "catalogSections"), payload);
-          showToast("Section berhasil dibuat", "success");
-        }
-        closeSectionModal();
-      } catch (err) {
-        showToast("Gagal menyimpan: " + err.message, "error");
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
-      }
-    });
-
-    // ===============================================
     // POPUPS MANAGEMENT
     // ===============================================
     window.loadPopups = () => {
@@ -2852,55 +2736,64 @@
       }
     };
 
-    document.getElementById("section-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const id = document.getElementById("section-id").value;
-      const name = document.getElementById("section-name").value.trim();
-      const description = document.getElementById("section-desc").value.trim();
-      const order = parseInt(document.getElementById("section-order").value) || 0;
-      const enabled = document.getElementById("section-enabled").checked;
+    // Prevent duplicate registration
+    if (!window.__sectionFormHandlerAttached) {
+      window.__sectionFormHandlerAttached = true;
 
-      const submitBtn = e.target.querySelector('button[type="submit"]');
-      const originalText = submitBtn.textContent;
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Menyimpan...';
+      let isSectionSubmitting = false;
 
-      try {
-        const payload = {
-          name,
-          description,
-          order,
-          enabled,
-          updatedAt: serverTimestamp()
-        };
+      document.getElementById("section-form").onsubmit = async (e) => {
+        e.preventDefault();
 
-        if (id) {
-          try {
+        // Prevent double submission
+        if (isSectionSubmitting) {
+          console.log('Section form already submitting, skipping...');
+          return false;
+        }
+        isSectionSubmitting = true;
+
+        const id = document.getElementById("section-id").value;
+        const name = document.getElementById("section-name").value.trim();
+        const description = document.getElementById("section-desc").value.trim();
+        const order = parseInt(document.getElementById("section-order").value) || 0;
+        const enabled = document.getElementById("section-enabled").checked;
+
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Menyimpan...';
+
+        try {
+          const payload = {
+            name,
+            description,
+            order,
+            enabled,
+            updatedAt: serverTimestamp()
+          };
+
+          if (id) {
             await updateDoc(doc(db, "sections", id), payload);
             showToast("Section berhasil diupdate", "success");
-          } catch (updateErr) {
-            // If document doesn't exist (e.g., from old catalogSections collection), create new
-            if (updateErr.code === 'not-found') {
-              payload.createdAt = serverTimestamp();
-              await addDoc(collection(db, "sections"), payload);
-              showToast("Section berhasil dibuat ulang (data lama di-migrate)", "success");
-            } else {
-              throw updateErr;
-            }
+            closeSectionModal();
+          } else {
+            payload.createdAt = serverTimestamp();
+            await addDoc(collection(db, "sections"), payload);
+            showToast("Section berhasil dibuat", "success");
+            closeSectionModal();
           }
-        } else {
-          payload.createdAt = serverTimestamp();
-          await addDoc(collection(db, "sections"), payload);
-          showToast("Section berhasil dibuat", "success");
+        } catch (err) {
+          console.error('Section save error:', err);
+          showToast("Gagal menyimpan: " + err.message, "error");
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+          isSectionSubmitting = false;
         }
-        closeSectionModal();
-      } catch (err) {
-        showToast("Gagal menyimpan: " + err.message, "error");
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
-      }
-    });
+
+        return false;
+      };
+    }
   </script>
 </body>
 
