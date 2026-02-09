@@ -134,11 +134,32 @@ window.googleTranslateElementInit = function () {
 };
 
 function setLanguage(lang) {
-  document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-  document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=" + window.location.hostname;
-  let cookieValue = (lang === 'en') ? '/id/en' : '/id/id';
-  document.cookie = "googtrans=" + cookieValue + "; path=/";
+  // Get the domain (handle both localhost and hosted environments)
+  const hostname = window.location.hostname;
+  const domain = hostname.includes('localhost') ? '' : hostname;
+
+  // Clear all possible cookie variations more aggressively
+  const expireDate = "Thu, 01 Jan 1970 00:00:00 UTC";
+
+  // Clear cookies with different path and domain combinations
+  document.cookie = `googtrans=; expires=${expireDate}; path=/;`;
+  document.cookie = `googtrans=; expires=${expireDate}; path=/; domain=${hostname};`;
+  document.cookie = `googtrans=; expires=${expireDate}; path=/; domain=.${hostname};`;
+
+  // Also clear the /auto variant that Google Translate sometimes uses
+  document.cookie = `googtrans=/auto/id; expires=${expireDate}; path=/;`;
+  document.cookie = `googtrans=/auto/en; expires=${expireDate}; path=/;`;
+  document.cookie = `googtrans=/auto/id; expires=${expireDate}; path=/; domain=${hostname};`;
+  document.cookie = `googtrans=/auto/en; expires=${expireDate}; path=/; domain=${hostname};`;
+
+  // Set the new cookie value
+  const cookieValue = (lang === 'en') ? '/id/en' : '/id/id';
+  document.cookie = `googtrans=${cookieValue}; path=/; max-age=31536000;`; // 1 year expiry
+
+  // Save to localStorage
   localStorage.setItem('app_lang', lang);
+
+  // Reload the page
   location.reload();
 }
 
