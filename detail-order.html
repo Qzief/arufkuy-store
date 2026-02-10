@@ -4,7 +4,6 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" href="favicon.ico">
   <title>Status Pesanan — Arufkuy Store</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -218,7 +217,8 @@
                 clip-rule="evenodd" />
             </svg>
             <p class="text-xs text-slate-400 leading-relaxed" data-i18n="status_info_desc">
-              Produk digital Anda akan ditampilkan di halaman ini dan silahkan chat support jika produk tidak sesuai/berfungsi. Simpan Order ID
+              Produk digital Anda akan ditampilkan di halaman ini dan silahkan chat support jika produk tidak
+              sesuai/berfungsi. Simpan Order ID
               untuk referensi.
             </p>
           </div>
@@ -254,7 +254,7 @@
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDtBSbjr5IHmuZqND0MIexw-tWWcZIF33A",
@@ -269,17 +269,17 @@
     const db = getFirestore(app);
 
     const params = new URLSearchParams(window.location.search);
-    // Support 'invoice' OR 'id' (Mayar default)
-    const invoiceParam = params.get("invoice") || params.get("id");
-    const orderIdParam = params.get("orderId"); // Legacy param (Firestore Doc ID)
-    let refId = params.get("ref"); // Legacy param
+    const orderId = params.get("orderId");
+    // Support multiple names for Invoice ID: invoice (preferred), id (Mayar default), transactionId (legacy/alias)
+    const invoiceIdParam = params.get("invoice") || params.get("id") || params.get("transactionId");
+    let refId = params.get("ref"); // Legacy ref
 
     // Check if refId is a placeholder and treat it as invalid
     if (refId === '{invoiceId}' || refId === null || refId === '') {
       refId = null;
     }
 
-    // Fallback for legacy URL (without orderId/invoice)
+    // Fallback for legacy URL (without orderId)
     const legacyProduct = params.get("product");
     const legacyPrice = params.get("price");
 
@@ -296,20 +296,21 @@
       });
     };
 
-    // Determine which ID to use
-    if (invoiceParam) {
-      // If we have an invoice ID (from ?invoice= or ?id=), use it
-      loadOrder(invoiceParam);
-
-      // Optional: Clean URL to show ?invoice=... instead of ?id=... for consistency
-      if (params.has("id")) {
-        const newUrl = new URL(window.location);
+    if (invoiceIdParam) {
+      // If we have an invoice ID, we prefer to show ?invoice=ID in the URL
+      // If the URL is currently ?id=... or ?transactionId=..., replace it
+      if (!params.has("invoice")) {
+        const newUrl = new URL(window.location.href);
         newUrl.searchParams.delete("id");
-        newUrl.searchParams.set("invoice", invoiceParam);
+        newUrl.searchParams.delete("transactionId");
+        newUrl.searchParams.set("invoice", invoiceIdParam);
         window.history.replaceState({}, '', newUrl);
       }
-    } else if (orderIdParam) {
-      loadOrder(orderIdParam);
+
+      // Look up order by Invoice ID
+      findOrderByInvoiceId(invoiceIdParam);
+    } else if (orderId) {
+      loadOrder(orderId);
     } else if (legacyProduct) {
       // Legacy mode (just display from URL)
       document.getElementById("ref-id").textContent = refId || "-";
@@ -362,12 +363,29 @@
       }
     }
 
-    async function loadOrder(id) {
+    function loadOrder(id) {
       let pollInterval = null;
-      let docRef = null;
 
-      function processOrderData(data) {
-        const displayRefId = data.invoiceId || refId || id;
+      // Start auto-polling as fallback (will be cleared once realtime works)
+      function startPolling() {
+        if (pollInterval) return; // Already polling
+        console.log('Starting auto-poll fallback every 5 seconds...');
+        pollInterval = setInterval(async () => {
+          try {
+            const docSnap = await getDoc(doc(db, "orders", id));
+            if (docSnap.exists()) {
+              processOrderData(docSnap.data(), id);
+            }
+          } catch (e) {
+            console.warn('Poll error:', e.code || e.message);
+          }
+        }, 5000);
+      }
+
+      function processOrderData(data, currentOrderId) {
+        // Use the explicit invoiceId if available, otherwise just use the ID passed (if it's not internal)
+        // Since we are showing "Order ID" in UI, user wants "Invoice ID" (transaction) there.
+        const displayRefId = data.invoiceId || invoiceIdParam || refId || currentOrderId;
         document.getElementById("ref-id").textContent = displayRefId;
         document.getElementById("product-name").textContent = data.productName;
         document.getElementById("product-price").textContent = "Rp " + new Intl.NumberFormat("id-ID").format(data.totalPrice);
@@ -391,74 +409,50 @@
         }
       }
 
-      // 1. Resolve Document Reference (Try Doc ID first, then Invoice ID)
-      try {
-        let potentialDocRef = doc(db, "orders", id);
-        let docSnap = await getDoc(potentialDocRef);
-
+      // Try real-time listener first
+      onSnapshot(doc(db, "orders", id), (docSnap) => {
         if (docSnap.exists()) {
-          docRef = potentialDocRef;
+          processOrderData(docSnap.data(), id);
         } else {
-          // Not found as Doc ID, try as Invoice ID
-          const q = query(collection(db, "orders"), where("invoiceId", "==", id));
-          const qSnap = await getDocs(q);
-          if (!qSnap.empty) {
-            docRef = qSnap.docs[0].ref;
-            docSnap = qSnap.docs[0]; // Use the found doc
-          }
-        }
-
-        if (!docRef) {
           setStatus('not-found');
-          return;
         }
+      }, (error) => {
+        console.warn("Realtime listener error:", error.code);
 
-        // Initial render
-        if (docSnap.exists()) {
-          processOrderData(docSnap.data());
-        }
-
-        // 2. Start Realtime Listener
-        onSnapshot(docRef, (snap) => {
-          if (snap.exists()) {
-            processOrderData(snap.data());
+        // Fallback: one-time fetch + start polling
+        getDoc(doc(db, "orders", id)).then((docSnap) => {
+          if (docSnap.exists()) {
+            processOrderData(docSnap.data(), id);
+            // If still pending, start polling
+            const data = docSnap.data();
+            if (data.status === 'pending' || (data.status === 'paid' && !data.deliveredItems)) {
+              startPolling();
+            }
           } else {
             setStatus('not-found');
           }
-        }, (error) => {
-          console.warn("Realtime listener error:", error.code);
-          // Fallback: use polling if realtime fails
-          getDoc(docRef).then((snap) => {
-            if (snap.exists()) {
-              const data = snap.data();
-              processOrderData(data);
-              if (data.status === 'pending' || (data.status === 'paid' && !data.deliveredItems)) {
-                startPolling();
-              }
-            }
-          });
+        }).catch(() => {
+          setStatus('not-found');
         });
+      });
+    }
 
-      } catch (e) {
-        console.error("Error loading order:", e);
+    async function findOrderByInvoiceId(invId) {
+      try {
+        const q = query(collection(db, "orders"), where("invoiceId", "==", invId), limit(1));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const doc = querySnapshot.docs[0];
+          console.log("Found order by invoiceId:", doc.id);
+          loadOrder(doc.id); // Delegate to standard loader
+        } else {
+          console.warn("No order found with invoiceId:", invId);
+          setStatus('not-found');
+        }
+      } catch (error) {
+        console.error("Error finding order:", error);
         setStatus('not-found');
-      }
-
-      function startPolling() {
-        if (pollInterval) return;
-        console.log('Starting auto-poll fallback every 5 seconds...');
-        pollInterval = setInterval(async () => {
-          try {
-            if (docRef) {
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                  processOrderData(docSnap.data());
-                }
-            }
-          } catch (e) {
-            console.warn('Poll error:', e.code || e.message);
-          }
-        }, 5000);
       }
     }
 

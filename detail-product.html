@@ -5,7 +5,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Detail Produk — Arufkuy Store</title>
-  <link rel="icon" type="image/x-icon" href="icon.png">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -921,7 +920,7 @@
           email: email,
           mobile: phone,
           description: `Order ID: ${orderId} - ${description || 'Digital Product'}`, // Embed Order ID for robust matching
-          redirectUrl: `${window.location.origin}/detail-order.html?orderId=${orderId}`,
+          redirectUrl: `${window.location.origin}/detail-order.html`,
           items: [
             {
               name: itemName,
@@ -1556,6 +1555,5 @@
   </script>
   <!--End of Tawk.to Script-->
 </body>
-
 
 </html>
