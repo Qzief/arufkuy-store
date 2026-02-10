@@ -854,7 +854,7 @@
           name: name,
           email: email,
           mobile: phone,
-          description: description,
+          description: `Order ID: ${orderId} - ${description || 'Digital Product'}`, // Embed Order ID for robust matching
           redirectUrl: `${window.location.origin}/detail-order.html?orderId=${orderId}`,
           items: [
             {
