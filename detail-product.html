@@ -50,7 +50,7 @@
   <!-- Header -->
   <header class="sticky top-0 z-50 border-b border-white/10 bg-slate-950/70 backdrop-blur">
     <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-      <a href="https://store.arufkuy.me" class="flex items-center gap-3">
+      <a href="index.html" class="flex items-center gap-3">
         <div class="grid h-10 w-10 place-items-center rounded-xl bg-white/5 shadow-glow">
           <span class="text-lg font-bold text-indigo-300">A</span>
         </div>
@@ -61,10 +61,10 @@
       </a>
 
       <nav class="hidden items-center gap-6 text-sm text-slate-300 md:flex">
-        <a href="https://store.arufkuy.me/#products" class="hover:text-white transition">Produk</a>
-        <a href="order-guide" class="hover:text-white transition">Cara Order</a>
-        <a href="help-center" class="hover:text-white transition">FAQ</a>
-        <a href="contact" class="hover:text-white transition">Kontak</a>
+        <a href="index.html#products" class="hover:text-white transition">Produk</a>
+        <a href="order-guide.html" class="hover:text-white transition">Cara Order</a>
+        <a href="help-center.html" class="hover:text-white transition">Pusat Bantuan</a>
+        <a href="contact.html" class="hover:text-white transition">Kontak</a>
       </nav>
 
       <div class="flex items-center gap-3">
@@ -130,7 +130,7 @@
 
         <!-- Navigation Links -->
         <div class="space-y-1 mb-4">
-          <a href="https://store.arufkuy.me#products" onclick="closeMobileMenu()"
+          <a href="index.html#products" onclick="closeMobileMenu()"
             class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-200 hover:bg-white/10 transition">
             <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -138,7 +138,7 @@
             </svg>
             Produk
           </a>
-          <a href="order-guide" onclick="closeMobileMenu()"
+          <a href="order-guide.html" onclick="closeMobileMenu()"
             class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-200 hover:bg-white/10 transition">
             <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -147,16 +147,16 @@
             </svg>
             Cara Order
           </a>
-          <a href="help-center" onclick="closeMobileMenu()"
+          <a href="help-center.html" onclick="closeMobileMenu()"
             class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-200 hover:bg-white/10 transition">
             <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
               </path>
             </svg>
-            FAQ
+            Pusat Bantuan
           </a>
-          <a href="contact" onclick="closeMobileMenu()"
+          <a href="contact.html" onclick="closeMobileMenu()"
             class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-200 hover:bg-white/10 transition">
             <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -228,7 +228,7 @@
 
       <!-- Breadcrumb -->
       <div class="mb-8 flex items-center gap-2 text-sm text-slate-400">
-        <a href="https://store.arufkuy.me" class="hover:text-white transition">Home</a>
+        <a href="index.html" class="hover:text-white transition">Home</a>
         <span>/</span>
         <span class="text-slate-200">Detail Product</span>
       </div>
@@ -645,7 +645,7 @@
     async function loadProduct() {
       if (!productId) {
         alert("Produk tidak ditemukan");
-        window.location.href = "https://store.arufkuy.me";
+        window.location.href = "index.html";
         return;
       }
 
@@ -738,7 +738,7 @@
           document.getElementById("product-container").classList.remove("hidden");
         } else {
           alert("Produk tidak ditemukan di database.");
-          window.location.href = "https://store.arufkuy.me/";
+          window.location.href = "index.html";
         }
       } catch (error) {
         console.error("Error fetching product:", error);
@@ -1475,21 +1475,20 @@
 
     init();
   </script>
+
   <!--Start of Tawk.to Script-->
-<script type="text/javascript">
-var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-(function(){
-var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-s1.async=true;
-s1.src='https://embed.tawk.to/698a62f02fb5be1c3a2b2e1e/1jh294vin';
-s1.charset='UTF-8';
-s1.setAttribute('crossorigin','*');
-s0.parentNode.insertBefore(s1,s0);
-})();
-</script>
-<!--End of Tawk.to Script-->
+  <script type="text/javascript">
+    var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
+    (function () {
+      var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
+      s1.async = true;
+      s1.src = 'https://embed.tawk.to/698a62f02fb5be1c3a2b2e1e/1jh294vin';
+      s1.charset = 'UTF-8';
+      s1.setAttribute('crossorigin', '*');
+      s0.parentNode.insertBefore(s1, s0);
+    })();
+  </script>
+  <!--End of Tawk.to Script-->
 </body>
 
-
 </html>
-
