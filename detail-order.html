@@ -128,7 +128,7 @@
             <p class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Order ID</p>
             <p id="ref-id" class="font-mono font-bold text-white text-sm tracking-wider mt-0.5">...</p>
           </div>
-          <button onclick="copyText(document.getElementById('ref-id').textContent)"
+          <button onclick="copyText(document.getElementById('ref-id').textContent, this)"
             class="text-slate-500 hover:text-emerald-400 transition p-1.5 rounded-lg hover:bg-white/5" title="Salin">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
               <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
@@ -281,13 +281,15 @@
     const legacyPrice = params.get("price");
 
     // Global copy utility
-    window.copyText = function (text) {
+    window.copyText = function (text, btn) {
+      if (!text) return;
       navigator.clipboard.writeText(text).then(() => {
         // Brief visual feedback
-        const btn = event.currentTarget;
-        const originalHTML = btn.innerHTML;
-        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>';
-        setTimeout(() => { btn.innerHTML = originalHTML; }, 1500);
+        if (btn) {
+          const originalHTML = btn.innerHTML;
+          btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>';
+          setTimeout(() => { btn.innerHTML = originalHTML; }, 1500);
+        }
       });
     };
 
@@ -474,7 +476,7 @@
             <div class="p-3 border-t border-white/5">
               <div class="bg-black/40 rounded-lg p-3 border border-emerald-500/10 relative group/copy">
                 <div class="font-mono text-sm text-emerald-300 break-all whitespace-pre-wrap select-all font-medium pr-8">${item.content || 'Content Unavailable'}</div>
-                <button onclick="copyText(this.previousElementSibling.innerText)" class="absolute top-2 right-2 text-slate-600 hover:text-emerald-400 bg-slate-800/50 hover:bg-slate-800 p-1.5 rounded-lg transition">
+                <button onclick="copyText(this.previousElementSibling.innerText, this)" class="absolute top-2 right-2 text-slate-600 hover:text-emerald-400 bg-slate-800/50 hover:bg-slate-800 p-1.5 rounded-lg transition">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
                     <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
