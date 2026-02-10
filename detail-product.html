@@ -796,6 +796,20 @@
         }
         description += ` - Product ID: ${productId}`;
 
+        // Calculate final price with discount BEFORE transaction
+        let finalTotal = totalPriceIDR;
+        let discountValue = 0;
+
+        if (appliedCoupon) {
+          if (appliedCoupon.type === 'fixed') {
+            discountValue = appliedCoupon.value;
+          } else if (appliedCoupon.type === 'percent') {
+            discountValue = Math.floor(totalPriceIDR * (appliedCoupon.value / 100));
+          }
+          if (discountValue > totalPriceIDR) discountValue = totalPriceIDR;
+          finalTotal = totalPriceIDR - discountValue;
+        }
+
         // Create pending order in Firestore
         // Create pending order using TRANSACTION to reserve stock
         let orderId = 'pending';
@@ -864,7 +878,9 @@
               productName: finalProductName,
               productId: productId,
               quantity: quantity,
-              totalPrice: totalPriceIDR,
+              totalPrice: finalTotal,
+              originalTotalPrice: totalPriceIDR,
+              discountAmount: discountValue,
               status: 'pending',
               createdAt: new Date(),
               coupon: coupon || null,
