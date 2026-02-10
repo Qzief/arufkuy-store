@@ -936,7 +936,7 @@
           email: email,
           mobile: phone,
           description: `Order ID: ${orderId} - ${description || 'Digital Product'}`, // Embed Order ID for robust matching
-          redirectUrl: `${window.location.origin}/detail-order.html`, // Redirect to generic page, Mayar appends ?id={invoiceId}
+          redirectUrl: `${window.location.origin}/detail-order.html?orderId=${orderId}`, // Use orderId for initial lookup, page will swap to invoiceId
           items: [
             {
               name: itemName,
