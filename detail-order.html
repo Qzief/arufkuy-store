@@ -23,13 +23,17 @@
 
   <div class="w-full max-w-md">
     <div class="rounded-3xl border border-white/10 bg-white/5 p-8 text-center shadow-glow">
-      <!-- Icon Animasi -->
-      <div class="mx-auto grid h-20 w-20 place-items-center rounded-full bg-indigo-500/20 text-4xl animate-pulse">
-        ⏳
+      <!-- Icon Status -->
+      <div id="status-icon"
+        class="mx-auto grid h-20 w-20 place-items-center rounded-full bg-emerald-500/20 text-emerald-400">
+        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
       </div>
 
-      <h1 class="mt-6 text-2xl font-bold" data-i18n="status_title">Pembayaran Berhasil</h1>
-      <p class="mt-2 text-slate-300" data-i18n="status_desc">Terima kasih telah melakukan pembayaran melalui Mayar.</p>
+      <h1 id="status-title-text" class="mt-6 text-2xl font-bold" data-i18n="status_title">Pembayaran Berhasil</h1>
+      <p id="status-desc-text" class="mt-2 text-slate-300" data-i18n="status_desc">Terima kasih telah melakukan
+        pembayaran melalui Mayar.</p>
 
       <div class="mt-6 space-y-3 text-left">
         <div class="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
@@ -90,7 +94,12 @@
 
     const params = new URLSearchParams(window.location.search);
     const orderId = params.get("orderId");
-    const refId = params.get("ref"); // Invoice ID from Mayar
+    let refId = params.get("ref"); // Invoice ID from Mayar
+
+    // Check if refId is a placeholder and treat it as invalid
+    if (refId === '{invoiceId}' || refId === null || refId === '') {
+      refId = null;
+    }
 
     // Fallback for legacy URL (without orderId)
     const legacyProduct = params.get("product");
@@ -119,7 +128,9 @@
         if (doc.exists()) {
           const data = doc.data();
 
-          document.getElementById("ref-id").textContent = refId || id; // Show Mayar Ref or Firestore ID
+          // Display invoice ID: prefer data.invoiceId from Firebase, fallback to refId from URL, then orderId
+          const displayRefId = data.invoiceId || refId || id;
+          document.getElementById("ref-id").textContent = displayRefId;
           document.getElementById("product-name").textContent = data.productName;
           document.getElementById("product-price").textContent = "Rp " + new Intl.NumberFormat("id-ID").format(data.totalPrice);
 
@@ -128,16 +139,23 @@
             if (statusTitle) statusTitle.textContent = "Pembayaran Berhasil";
             if (statusDesc) statusDesc.textContent = "Terima kasih! Pesanan Anda sedang diproses/sudah dikirim.";
 
+            // Debug: log deliveredItems
+            console.log("Order data:", data);
+            console.log("Delivered items:", data.deliveredItems);
+
             // Show Delivered Items if available
             if (data.deliveredItems) {
+              console.log("Rendering delivered items...");
               renderDeliveredItemsNew(data.deliveredItems);
+            } else {
+              console.warn("No delivered items found in order data");
             }
 
             // Show Buyer Notes if available
             if (data.buyerNotes) {
               renderBuyerNotes(data.buyerNotes);
-            }
 
+            }
           } else if (data.status === 'pending') {
             if (statusTitle) statusTitle.textContent = "Menunggu Pembayaran";
             if (statusDesc) statusDesc.textContent = "Silakan selesaikan pembayaran Anda di Mayar.";
@@ -158,7 +176,8 @@
             if (docSnap.exists()) {
               const data = docSnap.data();
 
-              document.getElementById("ref-id").textContent = refId || id;
+              const displayRefId = data.invoiceId || refId || id;
+              document.getElementById("ref-id").textContent = displayRefId;
               document.getElementById("product-name").textContent = data.productName;
               document.getElementById("product-price").textContent = "Rp " + new Intl.NumberFormat("id-ID").format(data.totalPrice);
 
@@ -166,7 +185,9 @@
                 if (statusTitle) statusTitle.textContent = "Pembayaran Berhasil";
                 if (statusDesc) statusDesc.textContent = "Terima kasih! Pesanan Anda sedang diproses/sudah dikirim.";
 
+                // IMPORTANT: Also render delivered items in fallback path
                 if (data.deliveredItems) {
+                  console.log("Rendering delivered items (fallback)...");
                   renderDeliveredItemsNew(data.deliveredItems);
                 }
 
