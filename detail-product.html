@@ -444,7 +444,7 @@
   <!-- Firebase & Page Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, addDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, addDoc, collection, query, where, getDocs, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDtBSbjr5IHmuZqND0MIexw-tWWcZIF33A",
@@ -797,34 +797,99 @@
         description += ` - Product ID: ${productId}`;
 
         // Create pending order in Firestore
+        // Create pending order using TRANSACTION to reserve stock
         let orderId = 'pending';
+
         try {
-          const orderPayload = {
-            customerName: name,
-            customerEmail: email,
-            customerPhone: phone,
-            productName: finalProductName, // Includes variant name
-            productId: productId,
-            quantity: quantity,
-            totalPrice: totalPriceIDR,
-            status: 'pending',
-            createdAt: new Date(),
-            coupon: coupon || null,
-            description: description
-          };
+          await runTransaction(db, async (transaction) => {
+            // 1. Read Product Data
+            const productRef = doc(db, "products", productId);
+            const productDoc = await transaction.get(productRef);
 
-          if (isVariableProduct && selectedVariant) {
-            orderPayload.variantId = selectedVariant.id;
-            orderPayload.variantName = selectedVariant.name;
-          }
+            if (!productDoc.exists()) {
+              throw new Error("Produk tidak ditemukan!");
+            }
 
-          const orderRef = await addDoc(collection(db, "orders"), orderPayload);
-          orderId = orderRef.id;
-        } catch (dbError) {
-          console.error('Error saving order to Firestore:', dbError);
-          showToast('Gagal menyimpan data pesanan. Silakan coba lagi', 'error');
+            const productData = productDoc.data();
+            let bookedItems = [];
+            let newStockItems = [];
+            let newVariants = [];
+
+            // 2. STOCK CHECK & DEDUCTION LOGIC
+            if (isVariableProduct && selectedVariant) {
+              // --- Variant Product ---
+              const variantIndex = productData.variants.findIndex(v => v.id === selectedVariant.id);
+              if (variantIndex === -1) throw new Error("Varian tidak ditemukan!");
+
+              const variant = productData.variants[variantIndex];
+              const currentStock = variant.stockItems || [];
+
+              if (currentStock.length < quantity) {
+                throw new Error(`Stok tidak cukup! Tersisa ${currentStock.length} item.`);
+              }
+
+              // Take items from FRONT (FIFO)
+              bookedItems = currentStock.slice(0, quantity);
+              const remainingStock = currentStock.slice(quantity);
+
+              // Prepare updated variants array
+              newVariants = [...productData.variants];
+              newVariants[variantIndex] = {
+                ...variant,
+                stockItems: remainingStock
+              };
+
+              transaction.update(productRef, { variants: newVariants });
+
+            } else {
+              // --- Simple Product ---
+              const currentStock = productData.stockItems || [];
+
+              if (currentStock.length < quantity) {
+                throw new Error(`Stok tidak cukup! Tersisa ${currentStock.length} item.`);
+              }
+
+              // Take items from FRONT (FIFO)
+              bookedItems = currentStock.slice(0, quantity);
+              newStockItems = currentStock.slice(quantity);
+
+              transaction.update(productRef, { stockItems: newStockItems });
+            }
+
+            // 3. Create Order Payload with Booked Items
+            const orderPayload = {
+              customerName: name,
+              customerEmail: email,
+              customerPhone: phone,
+              productName: finalProductName,
+              productId: productId,
+              quantity: quantity,
+              totalPrice: totalPriceIDR,
+              status: 'pending',
+              createdAt: new Date(),
+              coupon: coupon || null,
+              description: description,
+              bookedItems: bookedItems // STORE RESERVED ITEMS HERE
+            };
+
+            if (isVariableProduct && selectedVariant) {
+              orderPayload.variantId = selectedVariant.id;
+              orderPayload.variantName = selectedVariant.name;
+            }
+
+            // 4. Create Order Doc
+            const orderRef = doc(collection(db, "orders"));
+            orderId = orderRef.id;
+            transaction.set(orderRef, orderPayload);
+          });
+
+        } catch (error) {
+          console.error('Transaction failed:', error);
+          showToast(`Gagal memproses pesanan: ${error.message}`, 'error');
           submitBtn.disabled = false;
           submitBtn.innerHTML = originalBtnText;
+          // Refresh product data to show latest stock
+          loadProduct();
           return;
         }
 

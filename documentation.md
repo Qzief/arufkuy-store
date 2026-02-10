@@ -39,7 +39,7 @@ Fitur input stok mendukung beberapa format canggih untuk memudahkan admin:
 *   **Cancelled**: Pesanan dibatalkan (dibatalkan admin atau auto-cancel).
 
 ### B. Auto-Cancel (Otomatis)
-*   **Cara Kerja**: Sistem otomatis mengecek pesanan "Pending" yang sudah lebih dari **24 Jam**.
+*   **Cara Kerja**: Sistem otomatis mengecek pesanan "Pending" yang sudah lebih dari **1 Jam**.
 *   **Pemicu**: Pengecekan dilakukan setiap kali Anda membuka **Dashboard Admin**.
 *   **Notifikasi**: Akan muncul notifikasi Toast jika ada pesanan yang otomatis dibatalkan.
 

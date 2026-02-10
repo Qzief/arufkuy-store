@@ -296,6 +296,8 @@
               class="px-3 py-1.5 rounded-lg bg-white/5 text-slate-400 hover:text-white text-xs font-medium border border-transparent">Pending</button>
             <button onclick="filterOrders('paid')"
               class="px-3 py-1.5 rounded-lg bg-white/5 text-slate-400 hover:text-white text-xs font-medium border border-transparent">Paid</button>
+            <button onclick="filterOrders('cancelled')"
+              class="px-3 py-1.5 rounded-lg bg-white/5 text-slate-400 hover:text-white text-xs font-medium border border-transparent">Cancelled</button>
           </div>
           <button onclick="loadOrders()" class="p-2 rounded-lg bg-white/5 text-slate-400 hover:text-white transition">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1629,40 +1631,91 @@
     }
 
     // --- AUTO CANCEL LOGIC (Client-Side Trigger) ---
+    // --- AUTO CANCEL LOGIC (Client-Side Trigger) ---
     async function autoCancelExpiredOrders() {
       console.log("Checking for expired orders...");
       const now = new Date();
-      const oneDayAgo = new Date(now.getTime() - (24 * 60 * 60 * 1000));
+      // Change from 24 hours to 1 hour
+      const oneHourAgo = new Date(now.getTime() - (1 * 60 * 60 * 1000));
 
       try {
         const q = query(collection(db, "orders"), where("status", "==", "pending"));
         const snapshot = await getDocs(q);
 
         let cancelledCount = 0;
-        const batchPromises = [];
 
-        snapshot.forEach((docSnap) => {
+        // We must process these sequentially to avoid transactions overlapping on same product (though uncommon for auto-cancel)
+        // Or we can just do parallel since updates are small. 
+        // Better: Process 1 by 1 or use Promise.all but be careful.
+        // Let's use loop for safety with stock returns.
+
+        for (const docSnap of snapshot.docs) {
           const data = docSnap.data();
-          if (!data.createdAt) return;
+          if (!data.createdAt) continue;
 
           const createdTime = data.createdAt.toDate();
-          if (createdTime < oneDayAgo) {
+          if (createdTime < oneHourAgo) {
             // Order is expired
-            const promise = updateDoc(doc(db, "orders", docSnap.id), {
+            console.log(`Processing expired order ${docSnap.id}...`);
+
+            // Check for booked items to restore
+            const bookedItems = data.bookedItems || [];
+            const productId = data.productId;
+            const variantId = data.variantId;
+            let restored = false;
+
+            if (bookedItems.length > 0 && productId) {
+              try {
+                await runTransaction(db, async (transaction) => {
+                  const productRef = doc(db, "products", productId);
+                  const productDoc = await transaction.get(productRef);
+
+                  if (!productDoc.exists()) {
+                    // Product gone, just cancel order
+                    return;
+                  }
+
+                  const productData = productDoc.data();
+
+                  if (data.variantId && productData.hasVariants) {
+                    // Restore to Variant
+                    const variantIndex = productData.variants.findIndex(v => v.id === data.variantId);
+                    if (variantIndex !== -1) {
+                      const variant = productData.variants[variantIndex];
+                      // Prepend booked items back to stock
+                      const newStock = [...bookedItems, ...(variant.stockItems || [])];
+                      const newVariants = [...productData.variants];
+                      newVariants[variantIndex] = { ...variant, stockItems: newStock };
+                      transaction.update(productRef, { variants: newVariants });
+                    }
+                  } else {
+                    // Restore to Simple Product
+                    const newStock = [...bookedItems, ...(productData.stockItems || [])];
+                    transaction.update(productRef, { stockItems: newStock });
+                  }
+                });
+                restored = true;
+                console.log(`Restored ${bookedItems.length} items to stock for order ${docSnap.id}`);
+              } catch (rErr) {
+                console.error("Failed to restore stock:", rErr);
+                // Continue to cancel anyway? tricky. Let's cancel so it doesn't get stuck, log error.
+              }
+            }
+
+            // Mark as cancelled
+            await updateDoc(doc(db, "orders", docSnap.id), {
               status: "cancelled",
-              cancelledReason: "auto-expired-24h",
+              cancelledReason: "auto-expired-1h",
+              stockRestored: restored,
               updatedAt: serverTimestamp()
-            }).then(() => {
-              console.log(`Auto-cancelled order ${docSnap.id}`);
             });
-            batchPromises.push(promise);
+
             cancelledCount++;
           }
-        });
+        }
 
         if (cancelledCount > 0) {
-          await Promise.all(batchPromises);
-          showToast(`Otomatis membatalkan ${cancelledCount} pesanan expired (>24 jam).`, 'warning');
+          showToast(`Otomatis membatalkan ${cancelledCount} pesanan expired (>1 jam) & mengembalikan stok.`, 'warning');
           // Refresh data
           loadDashboardStats();
           loadOrders();
@@ -1955,6 +2008,7 @@
           if (data.status === 'paid') statusBadge = '<span class="bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded text-[10px]">Paid</span>';
           else if (data.status === 'completed') statusBadge = '<span class="bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded text-[10px]">Completed</span>';
           else if (data.status === 'delivered') statusBadge = '<span class="bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded text-[10px]">Delivered</span>';
+          else if (data.status === 'cancelled') statusBadge = '<span class="bg-red-500/20 text-red-300 px-2 py-0.5 rounded text-[10px]">Cancelled</span>';
           else statusBadge = `<span class="bg-slate-500/20 text-slate-300 px-2 py-0.5 rounded text-[10px]">${data.status}</span>`;
 
           const row = `
@@ -1988,7 +2042,8 @@
       const buttons = {
         'all': document.querySelector("button[onclick=\"filterOrders('all')\"]"),
         'pending': document.querySelector("button[onclick=\"filterOrders('pending')\"]"),
-        'paid': document.querySelector("button[onclick=\"filterOrders('paid')\"]")
+        'paid': document.querySelector("button[onclick=\"filterOrders('paid')\"]"),
+        'cancelled': document.querySelector("button[onclick=\"filterOrders('cancelled')\"]")
       };
 
       Object.values(buttons).forEach(btn => {
@@ -2035,6 +2090,7 @@
           if (data.status === 'pending') statusBadge = '<span class="bg-amber-500/20 text-amber-300 px-2 py-1 rounded text-xs">Pending</span>';
           else if (data.status === 'paid') statusBadge = '<span class="bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded text-xs">Paid</span>';
           else if (data.status === 'completed') statusBadge = '<span class="bg-blue-500/20 text-blue-300 px-2 py-1 rounded text-xs">Completed</span>';
+          else if (data.status === 'cancelled') statusBadge = '<span class="bg-red-500/20 text-red-300 px-2 py-1 rounded text-xs">Cancelled</span>';
           else statusBadge = `<span class="bg-slate-700 text-slate-300 px-2 py-1 rounded text-xs">${data.status}</span>`;
 
           const row = `
@@ -2063,6 +2119,98 @@
         }
       });
     };
+
+    window.autoCancelExpiredOrders = async () => {
+      console.log('Running auto-cancel check...');
+      const now = new Date();
+      // 1 Hour Expiration
+      const expirationTime = 60 * 60 * 1000;
+
+      try {
+        // Query pending orders
+        // Note: In a real app with many orders, you'd want a composite index on status + createdAt
+        // Here we'll query pending and filter client-side for simplicity/cost
+        const q = query(collection(db, "orders"), where("status", "==", "pending"));
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) return;
+
+        const batch = writeBatch(db);
+        let cancelCount = 0;
+
+        for (const docSnap of snapshot.docs) {
+          const data = docSnap.data();
+          const createdAt = data.createdAt ? data.createdAt.toDate() : null;
+
+          if (!createdAt) continue;
+
+          if (now - createdAt > expirationTime) {
+            // EXPIRED!
+            console.log(`Order ${docSnap.id} is expired. Cancelling...`);
+
+            // 1. Check if it has bookedItems to return
+            if (data.bookedItems && Array.isArray(data.bookedItems) && data.bookedItems.length > 0) {
+              const prodRef = doc(db, "products", data.productId);
+              const prodSnap = await getDoc(prodRef);
+
+              if (prodSnap.exists()) {
+                const prodData = prodSnap.data();
+
+                // Restore Stock
+                if (data.variantId && prodData.hasVariants) {
+                  // Variant Restore
+                  const variantIndex = prodData.variants.findIndex(v => v.id === data.variantId);
+                  if (variantIndex !== -1) {
+                    const currentRequestItems = data.bookedItems.map(item => ({ ...item, note: '' })); // Reset note or keep as is? Usually clear note for stock
+                    // We just push them back to stockItems
+                    const updatedVariants = [...prodData.variants];
+                    updatedVariants[variantIndex].stockItems = [
+                      ...updatedVariants[variantIndex].stockItems,
+                      ...currentRequestItems
+                    ];
+                    batch.update(prodRef, { variants: updatedVariants });
+                  }
+                } else {
+                  // Simple Product Restore
+                  const currentRequestItems = data.bookedItems.map(item => ({ ...item, note: '' }));
+                  const currentStock = prodData.stockItems || [];
+                  batch.update(prodRef, {
+                    stockItems: [...currentStock, ...currentRequestItems]
+                  });
+                }
+              }
+            }
+
+            // 2. Update Order Status
+            batch.update(doc(db, "orders", docSnap.id), {
+              status: 'cancelled',
+              bookedItems: null, // Clear booked items
+              cancelledAt: serverTimestamp(),
+              cancelReason: 'expired_auto'
+            });
+
+            cancelCount++;
+          }
+        }
+
+        if (cancelCount > 0) {
+          await batch.commit();
+          console.log(`Auto-cancelled ${cancelCount} expired orders.`);
+          showToast(`Otomatis membatalkan ${cancelCount} pesanan kadaluarsa`, 'info');
+          // Reload if on orders tab
+          if (document.getElementById('tab-orders').classList.contains('hidden') === false) {
+            loadOrders();
+          }
+        }
+
+      } catch (error) {
+        console.error('Auto-cancel error:', error);
+      }
+    };
+
+    // Run auto-cancel on load and every minute
+    window.autoCancelExpiredOrders();
+    setInterval(window.autoCancelExpiredOrders, 60 * 1000);
 
     window.addDeliveryItem = (content = '', note = '') => {
       const container = document.getElementById("delivery-items-container");
