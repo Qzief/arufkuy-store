@@ -104,15 +104,17 @@
       document.getElementById("product-name").textContent = legacyProduct;
       document.getElementById("product-price").textContent = "Rp " + new Intl.NumberFormat("id-ID").format(legacyPrice);
     } else {
-      document.getElementById("status-title").textContent = "Pesanan Tidak Ditemukan";
-      document.getElementById("status-desc").textContent = "Mohon periksa kembali link Anda.";
+      const titleEl = document.querySelector("[data-i18n='status_title']");
+      const descEl = document.querySelector("[data-i18n='status_desc']");
+      if (titleEl) titleEl.textContent = "Pesanan Tidak Ditemukan";
+      if (descEl) descEl.textContent = "Mohon periksa kembali link Anda.";
     }
 
     function loadOrder(id) {
-      const statusTitle = document.getElementById("status-title");
-      const statusDesc = document.getElementById("status-desc");
+      const statusTitle = document.querySelector("[data-i18n='status_title']");
+      const statusDesc = document.querySelector("[data-i18n='status_desc']");
 
-      // Listen to real-time updates
+      // Listen to real-time updates with error handling
       onSnapshot(doc(db, "orders", id), (doc) => {
         if (doc.exists()) {
           const data = doc.data();
@@ -123,8 +125,8 @@
 
           // Update Status UI
           if (data.status === 'paid' || data.status === 'completed') {
-            statusTitle.textContent = "Pembayaran Berhasil";
-            statusDesc.textContent = "Terima kasih! Pesanan Anda sedang diproses/sudah dikirim.";
+            if (statusTitle) statusTitle.textContent = "Pembayaran Berhasil";
+            if (statusDesc) statusDesc.textContent = "Terima kasih! Pesanan Anda sedang diproses/sudah dikirim.";
 
             // Show Delivered Items if available
             if (data.deliveredItems) {
@@ -137,14 +139,46 @@
             }
 
           } else if (data.status === 'pending') {
-            statusTitle.textContent = "Menunggu Pembayaran";
-            statusDesc.textContent = "Silakan selesaikan pembayaran Anda di Mayar.";
+            if (statusTitle) statusTitle.textContent = "Menunggu Pembayaran";
+            if (statusDesc) statusDesc.textContent = "Silakan selesaikan pembayaran Anda di Mayar.";
           } else {
-            statusTitle.textContent = "Status: " + data.status;
+            if (statusTitle) statusTitle.textContent = "Status: " + data.status;
           }
 
         } else {
-          statusTitle.textContent = "Pesanan Tidak Ditemukan";
+          if (statusTitle) statusTitle.textContent = "Pesanan Tidak Ditemukan";
+        }
+      }, (error) => {
+        // Handle permission denied or other errors
+        console.warn("Error loading order (using fallback):", error.code);
+
+        // If permission denied, try one-time fetch instead
+        if (error.code === 'permission-denied') {
+          getDoc(doc(db, "orders", id)).then((docSnap) => {
+            if (docSnap.exists()) {
+              const data = docSnap.data();
+
+              document.getElementById("ref-id").textContent = refId || id;
+              document.getElementById("product-name").textContent = data.productName;
+              document.getElementById("product-price").textContent = "Rp " + new Intl.NumberFormat("id-ID").format(data.totalPrice);
+
+              if (data.status === 'paid' || data.status === 'completed') {
+                if (statusTitle) statusTitle.textContent = "Pembayaran Berhasil";
+                if (statusDesc) statusDesc.textContent = "Terima kasih! Pesanan Anda sedang diproses/sudah dikirim.";
+
+                if (data.deliveredItems) {
+                  renderDeliveredItemsNew(data.deliveredItems);
+                }
+
+                if (data.buyerNotes) {
+                  renderBuyerNotes(data.buyerNotes);
+                }
+              }
+            }
+          }).catch(() => {
+            if (statusTitle) statusTitle.textContent = "Pesanan Tidak Ditemukan";
+            if (statusDesc) statusDesc.textContent = "Maaf, terjadi kesalahan. Silakan hubungi customer service.";
+          });
         }
       });
     }
@@ -303,6 +337,9 @@
         alert("Invoice ID belum tersedia.");
       }
     }
+
+    // Expose function to global scope for onclick
+    window.viewInvoice = viewInvoice;
   </script>
 </body>
 
