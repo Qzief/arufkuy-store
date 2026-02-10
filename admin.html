@@ -884,8 +884,8 @@
             </div>
             <!-- Input Content -->
             <div class="grid gap-2 mb-3">
-              <textarea id="stock-input-content" rows="2" placeholder="Akun/Konten..."
-                class="text-xs bg-black/20 border border-white/10 rounded-lg p-2 text-white outline-none focus:border-indigo-500 resize-none"></textarea>
+              <textarea id="stock-input-content" rows="3" placeholder="Akun/Konten... (Satu per baris untuk Bulk)"
+                class="text-xs bg-black/20 border border-white/10 rounded-lg p-2 text-white outline-none focus:border-indigo-500 resize-none font-mono"></textarea>
               <div class="flex gap-2">
                 <textarea id="stock-input-note" rows="2" placeholder="Catatan Private (Optional)"
                   class="flex-grow text-xs bg-black/20 border border-white/10 rounded-lg p-2 text-white outline-none focus:border-indigo-500 resize-none"></textarea>
@@ -1198,7 +1198,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, getDocs, getDoc, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, runTransaction, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, getDoc, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, limit, runTransaction, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDtBSbjr5IHmuZqND0MIexw-tWWcZIF33A",
@@ -1516,16 +1516,36 @@
 
     // Dashboard Stats Logic
     function loadDashboardStats() {
-      // Simple counts from arrays if loaded, or fetch count
+      // Total products count
       if (products.length > 0) {
         document.getElementById('dash-total-products').innerText = products.length;
       }
 
-      // Real stats would need better queries, but we can approximate from recent loads
-      // For now, let's rely on the listeners to populate these as they load data
+      // Count pending orders & calculate total sales from orders collection
+      const ordersQuery = query(collection(db, "orders"));
+      getDocs(ordersQuery).then(snapshot => {
+        let pendingCount = 0;
+        let totalSales = 0;
+
+        snapshot.forEach(docSnap => {
+          const data = docSnap.data();
+          if (data.status === 'pending') pendingCount++;
+          if (data.status === 'paid' || data.status === 'completed' || data.status === 'delivered') {
+            totalSales += (data.totalPrice || 0);
+          }
+        });
+
+        document.getElementById('dash-pending-orders').innerText = pendingCount;
+        document.getElementById('dash-total-sales').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(totalSales);
+      }).catch(error => {
+        console.error('Error loading dashboard stats:', error);
+      });
 
       // Load recent activity
       loadDashboardActivity();
+
+      // Trigger Auto-Cancel Check (Once per session/load ideally, but safe to run often)
+      autoCancelExpiredOrders();
     }
 
     function loadDashboardActivity() {
@@ -1608,6 +1628,52 @@
       }
     }
 
+    // --- AUTO CANCEL LOGIC (Client-Side Trigger) ---
+    async function autoCancelExpiredOrders() {
+      console.log("Checking for expired orders...");
+      const now = new Date();
+      const oneDayAgo = new Date(now.getTime() - (24 * 60 * 60 * 1000));
+
+      try {
+        const q = query(collection(db, "orders"), where("status", "==", "pending"));
+        const snapshot = await getDocs(q);
+
+        let cancelledCount = 0;
+        const batchPromises = [];
+
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          if (!data.createdAt) return;
+
+          const createdTime = data.createdAt.toDate();
+          if (createdTime < oneDayAgo) {
+            // Order is expired
+            const promise = updateDoc(doc(db, "orders", docSnap.id), {
+              status: "cancelled",
+              cancelledReason: "auto-expired-24h",
+              updatedAt: serverTimestamp()
+            }).then(() => {
+              console.log(`Auto-cancelled order ${docSnap.id}`);
+            });
+            batchPromises.push(promise);
+            cancelledCount++;
+          }
+        });
+
+        if (cancelledCount > 0) {
+          await Promise.all(batchPromises);
+          showToast(`Otomatis membatalkan ${cancelledCount} pesanan expired (>24 jam).`, 'warning');
+          // Refresh data
+          loadDashboardStats();
+          loadOrders();
+        } else {
+          console.log("No expired orders found.");
+        }
+      } catch (err) {
+        console.error("Error auto-cancelling orders:", err);
+      }
+    }
+
     // Product CRUD Logic
     let products = [];
     let currentEditingStock = []; // For Simple Product
@@ -1678,6 +1744,8 @@
 
     // --- VARIANT LOGIC ---
 
+    let currentOpenVariants = new Set(); // Track open variant stock panels
+
     window.toggleVariantMode = () => {
       const checkbox = document.getElementById("has-variants");
       isVariableProduct = checkbox.checked;
@@ -1700,12 +1768,15 @@
         original_price: 0,
         stockItems: []
       });
+      // Auto open the new variant's stock panel if needed, or just render
       renderVariants();
     };
 
     window.removeVariant = (index) => {
       if (confirm("Hapus varian ini? Stok di dalamnya akan hilang.")) {
         currentVariants.splice(index, 1);
+        // Clear from open set if needed, though index shift handles it naturally (or breaks it, but simple Set clear is safer)
+        currentOpenVariants.clear();
         renderVariants();
       }
     };
@@ -1714,13 +1785,34 @@
       currentVariants[index][field] = value;
     };
 
+    // Helper to parse stock input (supports [multiline] blocks)
+    function parseStockInput(rawText) {
+      const parts = rawText.split(/(\[[\s\S]*?\])/);
+      const items = [];
+
+      parts.forEach(part => {
+        if (!part.trim()) return;
+
+        if (part.trim().startsWith('[') && part.trim().endsWith(']')) {
+          // Block content: Remove outer brackets and treat as one item
+          const content = part.trim().slice(1, -1).trim();
+          if (content) items.push(content);
+        } else {
+          // Standard content: Split by newline
+          const lines = part.split(/\r?\n/).filter(line => line.trim() !== '');
+          items.push(...lines);
+        }
+      });
+      return items;
+    }
+
     window.toggleVariantStock = (index) => {
-      const container = document.getElementById(`var-stock-ui-${index}`);
-      if (container.classList.contains('hidden')) {
-        container.classList.remove('hidden');
+      if (currentOpenVariants.has(index)) {
+        currentOpenVariants.delete(index);
       } else {
-        container.classList.add('hidden');
+        currentOpenVariants.add(index);
       }
+      renderVariants();
     };
 
     window.addStockToVariant = (index) => {
@@ -1729,14 +1821,23 @@
 
       if (!contentInp.value.trim()) return alert("Konten stok kosong!");
 
-      currentVariants[index].stockItems.push({
-        id: Date.now().toString(),
-        content: contentInp.value.trim(),
-        note: noteInp.value.trim()
+      const rawText = contentInp.value.trim();
+      const note = noteInp ? noteInp.value.trim() : "";
+
+      const items = parseStockInput(rawText);
+
+      if (items.length === 0) return;
+
+      items.forEach(itemContent => {
+        currentVariants[index].stockItems.push({
+          id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+          content: itemContent,
+          note: note
+        });
       });
 
       contentInp.value = "";
-      noteInp.value = "";
+      if (noteInp) noteInp.value = "";
       renderVariants();
     };
 
@@ -1751,6 +1852,9 @@
 
       currentVariants.forEach((v, index) => {
         const stockCount = v.stockItems ? v.stockItems.length : 0;
+        const isOpen = currentOpenVariants.has(index);
+        const toggleIcon = isOpen ? '▲' : '▼';
+        const displayClass = isOpen ? 'block' : 'hidden';
 
         const div = document.createElement("div");
         div.className = "bg-white/5 rounded-xl border border-white/10 p-4 transition hover:border-indigo-500/30";
@@ -1780,32 +1884,38 @@
 
              <!-- Stock Control -->
              <div class="border-t border-white/5 pt-3">
-                <div class="flex justify-between items-center">
+                <div class="flex justify-between items-center cursor-pointer select-none" onclick="toggleVariantStock(${index})">
                    <div class="flex items-center gap-2">
                       <span class="text-xs text-slate-400">Stok: <span class="text-white font-bold">${stockCount}</span> Item</span>
                    </div>
-                   <button type="button" onclick="toggleVariantStock(${index})" class="text-[10px] text-indigo-300 hover:text-white bg-indigo-500/10 hover:bg-indigo-500 px-2 py-1 rounded transition">
-                      Kelola Stok
+                   <button type="button" class="text-[10px] text-indigo-300 hover:text-white bg-indigo-500/10 hover:bg-indigo-500 px-2 py-1 rounded transition">
+                      ${isOpen ? 'Tutup Stok' : 'Kelola Stok'} ${toggleIcon}
                    </button>
                 </div>
 
                 <!-- Expanded Stock UI -->
-                <div id="var-stock-ui-${index}" class="hidden mt-3 bg-black/20 rounded-lg p-3 animate-fade-in">
-                    <div class="flex gap-2 mb-2 items-start">
-                       <textarea id="var-stock-content-${index}" rows="2" placeholder="Akun/Konten..." class="flex-grow text-[10px] bg-slate-900 border border-white/10 rounded px-2 py-1 text-white outline-none resize-none"></textarea>
-                       <textarea id="var-stock-note-${index}" rows="2" placeholder="Catatan..." class="w-1/3 text-[10px] bg-slate-900 border border-white/10 rounded px-2 py-1 text-white outline-none resize-none"></textarea>
-                       <button type="button" onclick="addStockToVariant(${index})" class="text-[10px] bg-emerald-500 text-white px-2 py-1 rounded hover:bg-emerald-400 h-full self-stretch">+</button>
+                <div id="var-stock-ui-${index}" class="${displayClass} mt-3 bg-black/20 rounded-lg p-3 animate-fade-in">
+                    <div class="mb-2">
+                        <p class="text-[10px] text-slate-500 mb-1">Tambah Stok (Bulk Supported - Satu item per baris)</p>
+                        <div class="flex gap-2 items-start h-20">
+                             <textarea id="var-stock-content-${index}" placeholder="Akun/Konten..." class="flex-grow h-full text-[10px] bg-slate-900 border border-white/10 rounded px-2 py-1 text-white outline-none resize-none font-mono leading-relaxed"></textarea>
+                             <div class="flex flex-col gap-2 w-1/3 h-full">
+                                <textarea id="var-stock-note-${index}" placeholder="Catatan (Shared)..." class="flex-grow text-[10px] bg-slate-900 border border-white/10 rounded px-2 py-1 text-white outline-none resize-none"></textarea>
+                                <button type="button" onclick="addStockToVariant(${index})" class="text-[10px] bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-500 font-bold shadow-lg shadow-indigo-500/20 h-8">Add</button>
+                             </div>
+                        </div>
                     </div>
 
                     <!-- Mini List -->
-                    <div class="space-y-1 max-h-24 overflow-y-auto custom-scrollbar">
+                    <div class="space-y-1 max-h-32 overflow-y-auto custom-scrollbar border-t border-white/5 pt-2 mt-2">
+                       ${v.stockItems.length === 0 ? '<p class="text-[10px] text-slate-600 text-center italic py-2">Belum ada stok</p>' : ''}
                        ${v.stockItems.map((s, sIdx) => `
-                          <div class="flex justify-between items-center bg-white/5 px-2 py-1 rounded border border-white/5">
+                          <div class="flex justify-between items-center bg-white/5 px-2 py-1.5 rounded border border-white/5 hover:border-white/10 transition group">
                              <div class="overflow-hidden">
-                                <p class="text-[10px] text-emerald-200 truncate font-mono">${s.content}</p>
+                                <p class="text-[10px] text-emerald-200 truncate font-mono select-all">${s.content}</p>
                                 ${s.note ? `<p class="text-[9px] text-slate-500 truncate">${s.note.replace(/\n/g, '<br>')}</p>` : ''}
                              </div>
-                             <button type="button" onclick="removeStockFromVariant(${index},${sIdx})" class="text-slate-600 hover:text-red-400 ml-2">x</button>
+                             <button type="button" onclick="removeStockFromVariant(${index},${sIdx})" class="text-slate-600 hover:text-red-400 ml-2 opacity-50 group-hover:opacity-100 transition">✕</button>
                           </div>
                        `).join('')}
                     </div>
@@ -1816,43 +1926,55 @@
       });
     }
 
-    // History Logic
+    // History Logic - Query from orders collection (paid/completed/delivered)
     window.loadHistory = () => {
       const tableBody = document.getElementById("history-table-body");
-      const q = query(collection(db, "transactions"), orderBy("date", "desc"));
+      const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
 
       onSnapshot(q, (snapshot) => {
         tableBody.innerHTML = "";
-        if (snapshot.empty) {
-          tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-4 text-center text-slate-500">Belum ada riwayat penjualan.</td></tr>`;
-          return;
-        }
+        let hasHistory = false;
 
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          const date = data.date ? new Date(data.date.seconds * 1000).toLocaleString("id-ID") : "-";
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
 
-          // Handle potentially object-based stock content (legacy vs new)
-          let stockDisplay = "-";
-          if (data.stockContent) {
-            if (typeof data.stockContent === 'object') {
-              stockDisplay = `${data.stockContent.content} <span class="text-slate-500 text-[10px]">(${data.stockContent.note || ''})</span>`;
-            } else {
-              stockDisplay = data.stockContent;
-            }
-          }
+          // Only show completed sales (not pending)
+          if (data.status === 'pending') return;
+          hasHistory = true;
+
+          const date = data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleString("id-ID") : "-";
+
+          // Show delivered items count
+          const itemCount = Array.isArray(data.deliveredItems) ? data.deliveredItems.length : 0;
+          const itemDisplay = itemCount > 0
+            ? `<span class="text-emerald-300 font-medium">${itemCount} item terkirim</span>`
+            : '<span class="text-slate-500">Belum dikirim</span>';
+
+          // Status badge
+          let statusBadge = '';
+          if (data.status === 'paid') statusBadge = '<span class="bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded text-[10px]">Paid</span>';
+          else if (data.status === 'completed') statusBadge = '<span class="bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded text-[10px]">Completed</span>';
+          else if (data.status === 'delivered') statusBadge = '<span class="bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded text-[10px]">Delivered</span>';
+          else statusBadge = `<span class="bg-slate-500/20 text-slate-300 px-2 py-0.5 rounded text-[10px]">${data.status}</span>`;
 
           const row = `
             <tr class="hover:bg-white/5 transition">
               <td class="px-6 py-4 text-xs text-slate-400">${date}</td>
-              <td class="px-6 py-4 font-medium text-white">${data.productName || "-"}</td>
-              <td class="px-6 py-4">Rp ${new Intl.NumberFormat("id-ID").format(data.price || 0)}</td>
-              <td class="px-6 py-4 font-mono text-xs text-emerald-300 break-all max-w-xs">${stockDisplay}</td>
+              <td class="px-6 py-4 font-medium text-white">
+                ${data.productName || "-"}
+                <div class="text-[10px] text-slate-500 mt-0.5">Qty: ${data.quantity || 1} ${statusBadge}</div>
+              </td>
+              <td class="px-6 py-4 font-mono text-sm text-indigo-300">Rp ${new Intl.NumberFormat("id-ID").format(data.totalPrice || 0)}</td>
+              <td class="px-6 py-4 text-xs">${itemDisplay}</td>
               <td class="px-6 py-4 text-xs text-slate-400">${data.customerEmail || "-"}</td>
             </tr>
           `;
           tableBody.innerHTML += row;
         });
+
+        if (!hasHistory) {
+          tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-4 text-center text-slate-500">Belum ada riwayat penjualan.</td></tr>`;
+        }
       });
     };
 
@@ -2246,19 +2368,26 @@
       }
     };
 
-    // Existing Simple Product Stock Logic
+    // Updated Simple Product Stock Logic (Bulk Support)
     window.addStockItemToTemp = () => {
       const contentInp = document.getElementById("stock-input-content");
       const noteInp = document.getElementById("stock-input-note");
-      const content = contentInp.value.trim();
+
+      if (!contentInp.value.trim()) return alert("Konten stok (akun/link) tidak boleh kosong!");
+
+      const rawText = contentInp.value.trim();
       const note = noteInp.value.trim();
 
-      if (!content) return alert("Konten stok (akun/link) tidak boleh kosong!");
+      const items = parseStockInput(rawText);
 
-      currentEditingStock.push({
-        id: Date.now().toString(),
-        content: content,
-        note: note
+      if (items.length === 0) return;
+
+      items.forEach(itemContent => {
+        currentEditingStock.push({
+          id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+          content: itemContent,
+          note: note
+        });
       });
 
       renderStockList();
