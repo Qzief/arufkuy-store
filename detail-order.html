@@ -4,8 +4,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="favicon.ico">
   <title>Status Pesanan — Arufkuy Store</title>
-  <link rel="icon" type="image/x-icon" href="icon.png">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -254,7 +254,7 @@
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDtBSbjr5IHmuZqND0MIexw-tWWcZIF33A",
@@ -269,15 +269,17 @@
     const db = getFirestore(app);
 
     const params = new URLSearchParams(window.location.search);
-    const orderId = params.get("orderId");
-    let refId = params.get("ref"); // Invoice ID from Mayar (legacy)
+    // Support 'invoice' OR 'id' (Mayar default)
+    const invoiceParam = params.get("invoice") || params.get("id");
+    const orderIdParam = params.get("orderId"); // Legacy param (Firestore Doc ID)
+    let refId = params.get("ref"); // Legacy param
 
     // Check if refId is a placeholder and treat it as invalid
     if (refId === '{invoiceId}' || refId === null || refId === '') {
       refId = null;
     }
 
-    // Fallback for legacy URL (without orderId)
+    // Fallback for legacy URL (without orderId/invoice)
     const legacyProduct = params.get("product");
     const legacyPrice = params.get("price");
 
@@ -294,8 +296,20 @@
       });
     };
 
-    if (orderId) {
-      loadOrder(orderId);
+    // Determine which ID to use
+    if (invoiceParam) {
+      // If we have an invoice ID (from ?invoice= or ?id=), use it
+      loadOrder(invoiceParam);
+
+      // Optional: Clean URL to show ?invoice=... instead of ?id=... for consistency
+      if (params.has("id")) {
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.delete("id");
+        newUrl.searchParams.set("invoice", invoiceParam);
+        window.history.replaceState({}, '', newUrl);
+      }
+    } else if (orderIdParam) {
+      loadOrder(orderIdParam);
     } else if (legacyProduct) {
       // Legacy mode (just display from URL)
       document.getElementById("ref-id").textContent = refId || "-";
@@ -348,24 +362,9 @@
       }
     }
 
-    function loadOrder(id) {
+    async function loadOrder(id) {
       let pollInterval = null;
-
-      // Start auto-polling as fallback (will be cleared once realtime works)
-      function startPolling() {
-        if (pollInterval) return; // Already polling
-        console.log('Starting auto-poll fallback every 5 seconds...');
-        pollInterval = setInterval(async () => {
-          try {
-            const docSnap = await getDoc(doc(db, "orders", id));
-            if (docSnap.exists()) {
-              processOrderData(docSnap.data());
-            }
-          } catch (e) {
-            console.warn('Poll error:', e.code || e.message);
-          }
-        }, 5000);
-      }
+      let docRef = null;
 
       function processOrderData(data) {
         const displayRefId = data.invoiceId || refId || id;
@@ -392,32 +391,75 @@
         }
       }
 
-      // Try real-time listener first
-      onSnapshot(doc(db, "orders", id), (docSnap) => {
+      // 1. Resolve Document Reference (Try Doc ID first, then Invoice ID)
+      try {
+        let potentialDocRef = doc(db, "orders", id);
+        let docSnap = await getDoc(potentialDocRef);
+
+        if (docSnap.exists()) {
+          docRef = potentialDocRef;
+        } else {
+          // Not found as Doc ID, try as Invoice ID
+          const q = query(collection(db, "orders"), where("invoiceId", "==", id));
+          const qSnap = await getDocs(q);
+          if (!qSnap.empty) {
+            docRef = qSnap.docs[0].ref;
+            docSnap = qSnap.docs[0]; // Use the found doc
+          }
+        }
+
+        if (!docRef) {
+          setStatus('not-found');
+          return;
+        }
+
+        // Initial render
         if (docSnap.exists()) {
           processOrderData(docSnap.data());
-        } else {
-          setStatus('not-found');
         }
-      }, (error) => {
-        console.warn("Realtime listener error:", error.code);
 
-        // Fallback: one-time fetch + start polling
-        getDoc(doc(db, "orders", id)).then((docSnap) => {
-          if (docSnap.exists()) {
-            processOrderData(docSnap.data());
-            // If still pending, start polling
-            const data = docSnap.data();
-            if (data.status === 'pending' || (data.status === 'paid' && !data.deliveredItems)) {
-              startPolling();
-            }
+        // 2. Start Realtime Listener
+        onSnapshot(docRef, (snap) => {
+          if (snap.exists()) {
+            processOrderData(snap.data());
           } else {
             setStatus('not-found');
           }
-        }).catch(() => {
-          setStatus('not-found');
+        }, (error) => {
+          console.warn("Realtime listener error:", error.code);
+          // Fallback: use polling if realtime fails
+          getDoc(docRef).then((snap) => {
+            if (snap.exists()) {
+              const data = snap.data();
+              processOrderData(data);
+              if (data.status === 'pending' || (data.status === 'paid' && !data.deliveredItems)) {
+                startPolling();
+              }
+            }
+          });
         });
-      });
+
+      } catch (e) {
+        console.error("Error loading order:", e);
+        setStatus('not-found');
+      }
+
+      function startPolling() {
+        if (pollInterval) return;
+        console.log('Starting auto-poll fallback every 5 seconds...');
+        pollInterval = setInterval(async () => {
+          try {
+            if (docRef) {
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                  processOrderData(docSnap.data());
+                }
+            }
+          } catch (e) {
+            console.warn('Poll error:', e.code || e.message);
+          }
+        }, 5000);
+      }
     }
 
     function renderDeliveredItems(items) {
@@ -514,7 +556,6 @@
     window.viewInvoice = viewInvoice;
   </script>
 </body>
-
 
 
 </html>
