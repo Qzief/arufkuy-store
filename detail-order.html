@@ -386,6 +386,17 @@
         // Use the explicit invoiceId if available, otherwise just use the ID passed (if it's not internal)
         // Since we are showing "Order ID" in UI, user wants "Invoice ID" (transaction) there.
         const displayRefId = data.invoiceId || invoiceIdParam || refId || currentOrderId;
+
+        // AUTO-URL FIX: If we loaded via orderId but now have an invoiceId, switch the URL to ?invoice=... for security/aesthetics
+        if (data.invoiceId && !invoiceIdParam && params.get("orderId")) {
+          const newUrl = new URL(window.location.href);
+          newUrl.searchParams.delete("orderId");
+          newUrl.searchParams.set("invoice", data.invoiceId);
+          window.history.replaceState({}, '', newUrl);
+          // Also update our internal param tracker so subsequent logic knows we 'have' it
+          // (though not strictly necessary as we already have data)
+        }
+
         document.getElementById("ref-id").textContent = displayRefId;
         document.getElementById("product-name").textContent = data.productName;
         document.getElementById("product-price").textContent = "Rp " + new Intl.NumberFormat("id-ID").format(data.totalPrice);
