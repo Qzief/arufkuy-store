@@ -17,59 +17,234 @@
       }
     }
   </script>
+  <style>
+    @keyframes pulse-ring {
+      0% {
+        transform: scale(0.8);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(1.6);
+        opacity: 0;
+      }
+    }
+
+    @keyframes fade-up {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-pulse-ring {
+      animation: pulse-ring 2s ease-out infinite;
+    }
+
+    .animate-fade-up {
+      animation: fade-up 0.5s ease-out both;
+    }
+
+    .delay-100 {
+      animation-delay: 0.1s;
+    }
+
+    .delay-200 {
+      animation-delay: 0.2s;
+    }
+
+    .delay-300 {
+      animation-delay: 0.3s;
+    }
+
+    .delay-400 {
+      animation-delay: 0.4s;
+    }
+
+    .delay-500 {
+      animation-delay: 0.5s;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.3);
+      border-radius: 99px;
+    }
+
+    details summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details summary {
+      list-style: none;
+    }
+  </style>
 </head>
 
 <body class="min-h-screen bg-slate-950 text-slate-100 font-sans flex items-center justify-center p-4">
 
-  <div class="w-full max-w-md">
-    <div class="rounded-3xl border border-white/10 bg-white/5 p-8 text-center shadow-glow">
-      <!-- Icon Status -->
-      <div id="status-icon"
-        class="mx-auto grid h-20 w-20 place-items-center rounded-full bg-emerald-500/20 text-emerald-400">
-        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-        </svg>
-      </div>
+  <div class="w-full max-w-lg">
 
-      <h1 id="status-title-text" class="mt-6 text-2xl font-bold" data-i18n="status_title">Pembayaran Berhasil</h1>
-      <p id="status-desc-text" class="mt-2 text-slate-300" data-i18n="status_desc">Terima kasih telah melakukan
-        pembayaran melalui Mayar.</p>
-
-      <div class="mt-6 space-y-3 text-left">
-        <div class="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
-          <p class="text-xs text-slate-400">Order ID</p>
-          <p id="ref-id" class="font-mono font-semibold text-white tracking-wider">...</p>
-        </div>
-
-        <div class="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
-          <p class="text-xs text-slate-400">Produk</p>
-          <p id="product-name" class="font-semibold text-white">...</p>
-        </div>
-
-        <div class="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
-          <p class="text-xs text-slate-400">Total Pembayaran</p>
-          <p id="product-price" class="font-semibold text-white">...</p>
-        </div>
-
-        <div class="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
-          <p class="text-xs text-slate-400" data-i18n="status_info_title">Info</p>
-          <p class="text-sm text-slate-300 mt-1" data-i18n="status_info_desc">
-            Produk digital Anda akan ditampilkan di halaman ini dan juga dikirimkan ke email Anda. Simpan Order ID untuk
-            referensi.
-          </p>
+    <!-- ========== STATUS HEADER ========== -->
+    <div id="status-header" class="text-center mb-6 animate-fade-up">
+      <!-- Animated Icon -->
+      <div class="relative mx-auto w-24 h-24 mb-5">
+        <div id="status-ring" class="absolute inset-0 rounded-full bg-emerald-500/20 animate-pulse-ring"></div>
+        <div id="status-icon"
+          class="relative grid h-24 w-24 place-items-center rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+          <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
         </div>
       </div>
+      <h1 id="status-title-text" class="text-2xl font-bold tracking-tight" data-i18n="status_title">Memuat...</h1>
+      <p id="status-desc-text" class="mt-2 text-sm text-slate-400 max-w-xs mx-auto" data-i18n="status_desc">Sedang
+        memuat data pesanan Anda...</p>
+    </div>
 
-      <div class="mt-8 flex flex-col gap-3">
+    <!-- ========== MAIN CARD ========== -->
+    <div class="rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-sm shadow-glow overflow-hidden">
+
+      <!-- ── Order Info Section ── -->
+      <div class="p-6 space-y-3 animate-fade-up delay-100">
+        <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Informasi Pesanan</h2>
+
+        <!-- Order ID -->
+        <div class="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-900/50 px-4 py-3">
+          <div>
+            <p class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Order ID</p>
+            <p id="ref-id" class="font-mono font-bold text-white text-sm tracking-wider mt-0.5">...</p>
+          </div>
+          <button onclick="copyText(document.getElementById('ref-id').textContent)"
+            class="text-slate-500 hover:text-emerald-400 transition p-1.5 rounded-lg hover:bg-white/5" title="Salin">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+              <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Product & Price Row -->
+        <div class="grid grid-cols-2 gap-3">
+          <div class="rounded-2xl border border-white/10 bg-slate-900/50 px-4 py-3">
+            <p class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Produk</p>
+            <p id="product-name" class="font-semibold text-white text-sm mt-0.5 truncate">...</p>
+          </div>
+          <div class="rounded-2xl border border-white/10 bg-slate-900/50 px-4 py-3">
+            <p class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Total</p>
+            <p id="product-price" class="font-bold text-emerald-400 text-sm mt-0.5">...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Divider ── -->
+      <div class="border-t border-white/5"></div>
+
+      <!-- ── Delivered Items Section (ALWAYS VISIBLE) ── -->
+      <div id="delivered-items-section" class="p-6 animate-fade-up delay-200">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="h-5 w-5 rounded-full bg-emerald-500/20 grid place-items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-emerald-400" viewBox="0 0 20 20"
+              fill="currentColor">
+              <path fill-rule="evenodd"
+                d="M5 4a3 3 0 00-3 3v6a3 3 0 003 3h10a3 3 0 003-3V7a3 3 0 00-3-3H5zm-1 9v-1h5v2H5a1 1 0 01-1-1zm7 1h4a1 1 0 001-1v-1h-5v2zm0-4h5V8h-5v2zM9 8H4v2h5V8z"
+                clip-rule="evenodd" />
+            </svg>
+          </div>
+          <h2 class="text-xs font-bold text-emerald-400 uppercase tracking-widest">Delivered Items</h2>
+        </div>
+
+        <!-- Placeholder (shown when no items yet) -->
+        <div id="delivered-items-placeholder"
+          class="rounded-2xl border border-dashed border-white/10 bg-slate-900/30 p-5 text-center">
+          <div class="mx-auto w-10 h-10 rounded-full bg-slate-800 grid place-items-center mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <p class="text-sm text-slate-400 font-medium">Menunggu Proses</p>
+          <p class="text-xs text-slate-500 mt-1">Produk digital Anda sedang diproses oleh admin. Halaman ini akan
+            otomatis terupdate.</p>
+        </div>
+
+        <!-- Items List (populated by JS) -->
+        <div id="delivered-items-list" class="space-y-2 hidden"></div>
+      </div>
+
+      <!-- ── Divider ── -->
+      <div class="border-t border-white/5"></div>
+
+      <!-- ── Buyer Notes Section (hidden by default) ── -->
+      <div id="buyer-notes-section" class="p-6 hidden animate-fade-up delay-300">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="h-5 w-5 rounded-full bg-amber-500/20 grid place-items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-amber-400" viewBox="0 0 20 20"
+              fill="currentColor">
+              <path
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" />
+            </svg>
+          </div>
+          <h2 class="text-xs font-bold text-amber-400 uppercase tracking-widest">Catatan Admin</h2>
+        </div>
+        <div class="rounded-2xl border border-amber-500/20 bg-amber-950/20 px-4 py-3">
+          <p id="buyer-notes-text" class="text-sm text-amber-200 whitespace-pre-wrap leading-relaxed"></p>
+        </div>
+      </div>
+
+      <!-- ── Info Box ── -->
+      <div class="p-6 pt-0 animate-fade-up delay-400">
+        <div class="rounded-2xl border border-white/5 bg-slate-900/30 px-4 py-3">
+          <div class="flex items-start gap-2.5">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-400 mt-0.5 shrink-0" viewBox="0 0 20 20"
+              fill="currentColor">
+              <path fill-rule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                clip-rule="evenodd" />
+            </svg>
+            <p class="text-xs text-slate-400 leading-relaxed" data-i18n="status_info_desc">
+              Produk digital Anda akan ditampilkan di halaman ini dan juga dikirimkan ke email Anda. Simpan Order ID
+              untuk referensi.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Footer Actions ── -->
+      <div class="border-t border-white/5 p-6 animate-fade-up delay-500">
         <a href="index.html"
-          class="inline-flex w-full justify-center rounded-xl bg-white/10 py-3 text-sm font-semibold text-white hover:bg-white/20 transition">
+          class="flex w-full justify-center items-center gap-2 rounded-2xl bg-white/[0.07] hover:bg-white/[0.12] py-3.5 text-sm font-semibold text-white transition border border-white/5">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path
+              d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+          </svg>
           <span data-i18n="btn_home">Kembali ke Beranda</span>
         </a>
-        <button onclick="viewInvoice()" class="text-xs text-indigo-400 hover:text-indigo-300" data-i18n="btn_invoice">
+        <button onclick="viewInvoice()"
+          class="mt-3 w-full text-xs text-indigo-400 hover:text-indigo-300 transition py-2" data-i18n="btn_invoice">
           Lihat Bukti Transaksi (Invoice)
         </button>
       </div>
+
     </div>
+
+    <!-- Branding -->
+    <p class="text-center text-[10px] text-slate-600 mt-6">Arufkuy Store &copy; 2024</p>
+
   </div>
 
   <!-- Simple encryption/decryption for local storage (optional) -->
@@ -94,7 +269,7 @@
 
     const params = new URLSearchParams(window.location.search);
     const orderId = params.get("orderId");
-    let refId = params.get("ref"); // Invoice ID from Mayar
+    let refId = params.get("ref"); // Invoice ID from Mayar (legacy)
 
     // Check if refId is a placeholder and treat it as invalid
     if (refId === '{invoiceId}' || refId === null || refId === '') {
@@ -105,6 +280,17 @@
     const legacyProduct = params.get("product");
     const legacyPrice = params.get("price");
 
+    // Global copy utility
+    window.copyText = function (text) {
+      navigator.clipboard.writeText(text).then(() => {
+        // Brief visual feedback
+        const btn = event.currentTarget;
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>';
+        setTimeout(() => { btn.innerHTML = originalHTML; }, 1500);
+      });
+    };
+
     if (orderId) {
       loadOrder(orderId);
     } else if (legacyProduct) {
@@ -112,17 +298,42 @@
       document.getElementById("ref-id").textContent = refId || "-";
       document.getElementById("product-name").textContent = legacyProduct;
       document.getElementById("product-price").textContent = "Rp " + new Intl.NumberFormat("id-ID").format(legacyPrice);
+      setStatus('paid');
     } else {
-      const titleEl = document.querySelector("[data-i18n='status_title']");
-      const descEl = document.querySelector("[data-i18n='status_desc']");
-      if (titleEl) titleEl.textContent = "Pesanan Tidak Ditemukan";
-      if (descEl) descEl.textContent = "Mohon periksa kembali link Anda.";
+      setStatus('not-found');
+    }
+
+    function setStatus(status) {
+      const icon = document.getElementById("status-icon");
+      const ring = document.getElementById("status-ring");
+      const title = document.getElementById("status-title-text");
+      const desc = document.getElementById("status-desc-text");
+
+      if (status === 'paid' || status === 'completed') {
+        icon.className = "relative grid h-24 w-24 place-items-center rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+        ring.className = "absolute inset-0 rounded-full bg-emerald-500/20 animate-pulse-ring";
+        icon.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+        if (title) title.textContent = "Pembayaran Berhasil";
+        if (desc) desc.textContent = "Terima kasih! Pesanan Anda sedang diproses/sudah dikirim.";
+      } else if (status === 'pending') {
+        icon.className = "relative grid h-24 w-24 place-items-center rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30";
+        ring.className = "absolute inset-0 rounded-full bg-amber-500/20 animate-pulse-ring";
+        icon.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+        if (title) title.textContent = "Menunggu Pembayaran";
+        if (desc) desc.textContent = "Silakan selesaikan pembayaran Anda di Mayar.";
+      } else if (status === 'not-found') {
+        icon.className = "relative grid h-24 w-24 place-items-center rounded-full bg-red-500/20 text-red-400 border border-red-500/30";
+        ring.className = "absolute inset-0 rounded-full bg-red-500/20";
+        ring.style.animation = 'none';
+        icon.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+        if (title) title.textContent = "Pesanan Tidak Ditemukan";
+        if (desc) desc.textContent = "Mohon periksa kembali link Anda.";
+      } else {
+        if (title) title.textContent = "Status: " + status;
+      }
     }
 
     function loadOrder(id) {
-      const statusTitle = document.querySelector("[data-i18n='status_title']");
-      const statusDesc = document.querySelector("[data-i18n='status_desc']");
-
       // Listen to real-time updates with error handling
       onSnapshot(doc(db, "orders", id), (doc) => {
         if (doc.exists()) {
@@ -135,37 +346,24 @@
           document.getElementById("product-price").textContent = "Rp " + new Intl.NumberFormat("id-ID").format(data.totalPrice);
 
           // Update Status UI
+          setStatus(data.status);
+
           if (data.status === 'paid' || data.status === 'completed') {
-            if (statusTitle) statusTitle.textContent = "Pembayaran Berhasil";
-            if (statusDesc) statusDesc.textContent = "Terima kasih! Pesanan Anda sedang diproses/sudah dikirim.";
-
-            // Debug: log deliveredItems
-            console.log("Order data:", data);
-            console.log("Delivered items:", data.deliveredItems);
-
             // Show Delivered Items if available
             const itemsToRender = data.deliveredItems || data.stockItems;
             if (itemsToRender) {
-              console.log("Rendering delivered items...", itemsToRender);
-              renderDeliveredItemsNew(itemsToRender);
-            } else {
-              console.warn("No delivered items found in order data");
+              renderDeliveredItems(itemsToRender);
             }
+            // If no items yet, the placeholder stays visible (built-in HTML)
 
             // Show Buyer Notes if available
             if (data.buyerNotes) {
               renderBuyerNotes(data.buyerNotes);
-
             }
-          } else if (data.status === 'pending') {
-            if (statusTitle) statusTitle.textContent = "Menunggu Pembayaran";
-            if (statusDesc) statusDesc.textContent = "Silakan selesaikan pembayaran Anda di Mayar.";
-          } else {
-            if (statusTitle) statusTitle.textContent = "Status: " + data.status;
           }
 
         } else {
-          if (statusTitle) statusTitle.textContent = "Pesanan Tidak Ditemukan";
+          setStatus('not-found');
         }
       }, (error) => {
         // Handle permission denied or other errors
@@ -182,15 +380,12 @@
               document.getElementById("product-name").textContent = data.productName;
               document.getElementById("product-price").textContent = "Rp " + new Intl.NumberFormat("id-ID").format(data.totalPrice);
 
-              if (data.status === 'paid' || data.status === 'completed') {
-                if (statusTitle) statusTitle.textContent = "Pembayaran Berhasil";
-                if (statusDesc) statusDesc.textContent = "Terima kasih! Pesanan Anda sedang diproses/sudah dikirim.";
+              setStatus(data.status);
 
-                // IMPORTANT: Also render delivered items in fallback path
+              if (data.status === 'paid' || data.status === 'completed') {
                 const itemsToRender = data.deliveredItems || data.stockItems;
                 if (itemsToRender) {
-                  console.log("Rendering delivered items (fallback)...", itemsToRender);
-                  renderDeliveredItemsNew(itemsToRender);
+                  renderDeliveredItems(itemsToRender);
                 }
 
                 if (data.buyerNotes) {
@@ -199,75 +394,17 @@
               }
             }
           }).catch(() => {
-            if (statusTitle) statusTitle.textContent = "Pesanan Tidak Ditemukan";
-            if (statusDesc) statusDesc.textContent = "Maaf, terjadi kesalahan. Silakan hubungi customer service.";
+            setStatus('not-found');
           });
         }
       });
     }
 
     function renderDeliveredItems(items) {
-      // Check if container already exists
-      let container = document.getElementById("delivered-items-container");
-      if (!container) {
-        container = document.createElement("div");
-        container.id = "delivered-items-container";
-        container.className = "mt-6 rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-4 animate-fade-in";
+      const placeholder = document.getElementById("delivered-items-placeholder");
+      const list = document.getElementById("delivered-items-list");
 
-        const title = document.createElement("p");
-        title.className = "text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2";
-        title.textContent = "✨ Item Diterima (Delivered)";
-        container.appendChild(title);
-
-        const parent = document.querySelector(".mt-6.space-y-3");
-        parent.insertBefore(container, parent.firstChild); // Insert at top of list
-      }
-
-      // Create Dropdown details
-      // If items is a string (legacy/simple), wrap in array or just display
-      // If it's credential like "email:pass", formatting it nicely
-
-      const content = document.createElement("details");
-      content.className = "group";
-      content.innerHTML = `
-        <summary class="flex cursor-pointer items-center justify-between rounded-xl bg-emerald-500/10 p-3 text-sm font-medium text-emerald-300 hover:bg-emerald-500/20 transition">
-          <span>Lihat Data Akun/Item</span>
-          <span class="transition group-open:rotate-180">▼</span>
-        </summary>
-        <div class="mt-2 rounded-xl bg-black/40 p-3 text-sm font-mono text-emerald-200 break-all whitespace-pre-wrap select-all border border-emerald-500/10">
-          ${items}
-        </div>
-      `;
-
-      // Clear previous content (except title) and append new
-      // Actually simpler to just replace the inner content of container except title
-      // But for safety let's just re-render
-
-      // Remove old details if any
-      const oldDetails = container.querySelector("details");
-      if (oldDetails) oldDetails.remove();
-
-      container.appendChild(content);
-    }
-
-    function renderDeliveredItemsNew(items) {
-      // Check if container already exists
-      let container = document.getElementById("delivered-items-container");
-      if (!container) {
-        container = document.createElement("div");
-        container.id = "delivered-items-container";
-        container.className = "mt-6 rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-4 animate-fade-in";
-
-        const title = document.createElement("p");
-        title.className = "text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2";
-        title.textContent = "✨ Item Diterima (Delivered)";
-        container.appendChild(title);
-
-        const parent = document.querySelector(".mt-6.space-y-3");
-        parent.insertBefore(container, parent.firstChild); // Insert at top of list
-      }
-
-      // Normalize items to array and handle string vs object
+      // Normalize items to array
       let itemsArray = [];
       if (Array.isArray(items)) {
         itemsArray = items.map(item => {
@@ -277,7 +414,6 @@
           return item;
         });
       } else if (items) {
-        // Single item
         if (typeof items === 'string') {
           itemsArray = [{ content: items, note: '' }];
         } else {
@@ -285,48 +421,44 @@
         }
       }
 
-      // Create/Get List Container
-      let list = document.getElementById("delivered-items-list");
-      if (!list) {
-        list = document.createElement("div");
-        list.id = "delivered-items-list";
-        list.className = "space-y-2";
-        container.appendChild(list);
-      } else {
-        list.innerHTML = "";
-      }
+      if (itemsArray.length === 0) return;
+
+      // Hide placeholder, show list
+      placeholder.classList.add("hidden");
+      list.classList.remove("hidden");
+      list.innerHTML = "";
 
       // Render Items as Dropdowns
       itemsArray.forEach((item, index) => {
         const details = document.createElement("details");
         details.className = "group bg-slate-900/50 rounded-xl border border-white/10 overflow-hidden";
-        if (index === 0) details.open = true; // Auto open first item
+        if (index === 0) details.open = true;
 
         // Note HTML
         let noteHtml = '';
         if (item.note) {
           noteHtml = `
-            <div class="mt-2 text-xs text-amber-200/80 italic flex items-start gap-1">
-               <span>📝</span>
-               <div class="leading-relaxed whitespace-pre-wrap font-sans">${item.note}</div>
+            <div class="mt-2 flex items-start gap-1.5">
+               <span class="text-amber-400 text-xs mt-px">📝</span>
+               <div class="text-xs text-amber-200/80 italic leading-relaxed whitespace-pre-wrap font-sans">${item.note}</div>
             </div>
           `;
         }
 
         details.innerHTML = `
-            <summary class="flex justify-between items-center p-3 cursor-pointer select-none bg-white/5 hover:bg-white/10 transition">
+            <summary class="flex justify-between items-center p-3 cursor-pointer select-none bg-white/[0.03] hover:bg-white/[0.06] transition">
                 <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Item #${index + 1}</span>
-                <span class="text-slate-400 transition-transform duration-300 group-open:rotate-180">
+                <span class="text-slate-500 transition-transform duration-300 group-open:rotate-180">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                   </svg>
                 </span>
             </summary>
-            <div class="p-3 border-t border-white/10">
+            <div class="p-3 border-t border-white/5">
               <div class="bg-black/40 rounded-lg p-3 border border-emerald-500/10 relative group/copy">
                 <div class="font-mono text-sm text-emerald-300 break-all whitespace-pre-wrap select-all font-medium pr-8">${item.content || 'Content Unavailable'}</div>
-                <button onclick="navigator.clipboard.writeText(this.previousElementSibling.innerText); this.innerHTML='✓';" class="absolute top-2 right-2 text-slate-500 hover:text-emerald-400 bg-slate-800/50 hover:bg-slate-800 p-1 rounded transition">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                <button onclick="copyText(this.previousElementSibling.innerText)" class="absolute top-2 right-2 text-slate-600 hover:text-emerald-400 bg-slate-800/50 hover:bg-slate-800 p-1.5 rounded-lg transition">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
                     <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
                   </svg>
@@ -340,32 +472,19 @@
     }
 
     function renderBuyerNotes(notes) {
-      let container = document.getElementById("buyer-notes-container");
-      if (!container) {
-        container = document.createElement("div");
-        container.id = "buyer-notes-container";
-        container.className = "rounded-2xl border border-white/10 bg-slate-950/50 p-4";
-
-        const title = document.createElement("p");
-        title.className = "text-xs text-slate-400";
-        title.textContent = "Catatan Admin";
-        container.appendChild(title);
-
-        const text = document.createElement("p");
-        text.id = "buyer-notes-text";
-        text.className = "font-medium text-amber-200 mt-1 text-sm";
-        container.appendChild(text);
-
-        const parent = document.querySelector(".mt-6.space-y-3");
-        parent.appendChild(container);
-      }
-
-      document.getElementById("buyer-notes-text").textContent = notes;
+      const section = document.getElementById("buyer-notes-section");
+      const text = document.getElementById("buyer-notes-text");
+      section.classList.remove("hidden");
+      text.textContent = notes;
     }
 
     function viewInvoice() {
-      if (refId) {
-        window.location.href = `https://arufkuy.myr.id/invoices/${refId}`;
+      // Try to get invoiceId from displayed ref-id
+      const displayedRef = document.getElementById("ref-id").textContent;
+      const invoiceId = displayedRef && displayedRef !== '...' && displayedRef !== '-' ? displayedRef : refId;
+
+      if (invoiceId) {
+        window.location.href = `https://arufkuy.myr.id/invoices/${invoiceId}`;
       } else {
         alert("Invoice ID belum tersedia.");
       }
