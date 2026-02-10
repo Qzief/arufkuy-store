@@ -1200,7 +1200,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, getDocs, getDoc, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, limit, runTransaction, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, getDoc, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, limit, runTransaction, serverTimestamp, setDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDtBSbjr5IHmuZqND0MIexw-tWWcZIF33A",
@@ -2120,6 +2120,48 @@
       });
     };
 
+    // Helper: Return booked items to stock
+    window.returnStockFromOrder = async function (orderData, batchArg = null) {
+      if (!orderData.bookedItems || !Array.isArray(orderData.bookedItems) || orderData.bookedItems.length === 0) {
+        return; // Nothing to return
+      }
+
+      const prodRef = doc(db, "products", orderData.productId);
+      // We need to read product first
+      const prodSnap = await getDoc(prodRef);
+      if (!prodSnap.exists()) return;
+
+      const prodData = prodSnap.data();
+
+      // Prepare update payload
+      let updatePayload = {};
+
+      if (orderData.variantId && prodData.hasVariants) {
+        const variantIndex = prodData.variants.findIndex(v => v.id === orderData.variantId);
+        if (variantIndex !== -1) {
+          const itemsReturn = orderData.bookedItems.map(item => ({ ...item, note: '' }));
+          const updatedVariants = [...prodData.variants];
+          updatedVariants[variantIndex].stockItems = [
+            ...updatedVariants[variantIndex].stockItems,
+            ...itemsReturn
+          ];
+          updatePayload = { variants: updatedVariants };
+        }
+      } else {
+        const itemsReturn = orderData.bookedItems.map(item => ({ ...item, note: '' }));
+        const currentStock = prodData.stockItems || [];
+        updatePayload = { stockItems: [...currentStock, ...itemsReturn] };
+      }
+
+      if (Object.keys(updatePayload).length > 0) {
+        if (batchArg) {
+          batchArg.update(prodRef, updatePayload);
+        } else {
+          await updateDoc(prodRef, updatePayload);
+        }
+      }
+    };
+
     window.autoCancelExpiredOrders = async () => {
       console.log('Running auto-cancel check...');
       const now = new Date();
@@ -2307,15 +2349,40 @@
         }
       });
 
+      // Fetch current order data to check status change
+      const orderRef = doc(db, "orders", orderId);
+      const currentSnap = await getDoc(orderRef);
+      if (!currentSnap.exists()) return alert("Order data not found!");
+      const currentData = currentSnap.data();
+
+      // Logic: If changing to Cancelled AND current status is Pending (or not cancelled yet) -> Return Stock
+      // Also check if bookedItems exist to be sure
+      if (status === 'cancelled' && currentData.status !== 'cancelled') {
+        if (confirm("Membatalkan pesanan akan mengembalikan stok (jika ada booked items). Lanjutkan?")) {
+          await returnStockFromOrder(currentData);
+          // After stock returned, we proceed to update order
+        } else {
+          return; // Cancel action
+        }
+      }
+
       try {
-        await updateDoc(doc(db, "orders", orderId), {
+        const updateData = {
           status: status,
-          deliveredItems: deliveredItems, // Updates to array of objects
+          deliveredItems: deliveredItems,
           buyerNotes: buyerNotes,
           updatedAt: serverTimestamp()
-        });
+        };
+
+        // If cancelled, clear bookedItems
+        if (status === 'cancelled') {
+          updateData.bookedItems = null;
+        }
+
+        await updateDoc(orderRef, updateData);
         alert("Pesanan berhasil diupdate!");
         closeOrderModal();
+        loadOrders(); // Refresh table
       } catch (err) {
         alert("Gagal update: " + err.message);
       }
