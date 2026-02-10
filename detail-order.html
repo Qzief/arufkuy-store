@@ -254,7 +254,7 @@
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, onSnapshot, collection, query, where, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDtBSbjr5IHmuZqND0MIexw-tWWcZIF33A",
@@ -270,9 +270,11 @@
 
     const params = new URLSearchParams(window.location.search);
     const orderId = params.get("orderId");
-    // Support multiple names for Invoice ID: invoice (preferred), id (Mayar default), transactionId (legacy/alias)
-    const invoiceIdParam = params.get("invoice") || params.get("id") || params.get("transactionId");
-    let refId = params.get("ref"); // Legacy ref
+    // Mayar sends ?id=...&status=...
+    // We treat 'id' as 'invoice' because we set redirectUrl to generic page
+    const invoiceParam = params.get("invoice") || params.get("id");
+    let refId = params.get("ref"); // Invoice ID from Mayar (legacy)
+    const optionalRefId = params.get("refId"); // Optional refId from URL
 
     // Check if refId is a placeholder and treat it as invalid
     if (refId === '{invoiceId}' || refId === null || refId === '') {
@@ -296,21 +298,10 @@
       });
     };
 
-    if (invoiceIdParam) {
-      // If we have an invoice ID, we prefer to show ?invoice=ID in the URL
-      // If the URL is currently ?id=... or ?transactionId=..., replace it
-      if (!params.has("invoice")) {
-        const newUrl = new URL(window.location.href);
-        newUrl.searchParams.delete("id");
-        newUrl.searchParams.delete("transactionId");
-        newUrl.searchParams.set("invoice", invoiceIdParam);
-        window.history.replaceState({}, '', newUrl);
-      }
-
-      // Look up order by Invoice ID
-      findOrderByInvoiceId(invoiceIdParam);
-    } else if (orderId) {
+    if (orderId) {
       loadOrder(orderId);
+    } else if (invoiceParam) {
+      resolveInvoice(invoiceParam);
     } else if (legacyProduct) {
       // Legacy mode (just display from URL)
       document.getElementById("ref-id").textContent = refId || "-";
@@ -363,6 +354,28 @@
       }
     }
 
+    async function resolveInvoice(invoice) {
+      try {
+        console.log("Resolving invoice:", invoice);
+        // Find order by invoiceId
+        const q = query(collection(db, "orders"), where("invoiceId", "==", invoice), limit(1));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const docSnap = querySnapshot.docs[0];
+          const realOrderId = docSnap.id;
+          console.log("Found orderId:", realOrderId);
+          loadOrder(realOrderId);
+        } else {
+          console.warn('Invoice not found:', invoice);
+          setStatus('not-found');
+        }
+      } catch (error) {
+        console.error('Error finding invoice:', error);
+        setStatus('not-found');
+      }
+    }
+
     function loadOrder(id) {
       let pollInterval = null;
 
@@ -374,7 +387,7 @@
           try {
             const docSnap = await getDoc(doc(db, "orders", id));
             if (docSnap.exists()) {
-              processOrderData(docSnap.data(), id);
+              processOrderData(docSnap.data());
             }
           } catch (e) {
             console.warn('Poll error:', e.code || e.message);
@@ -382,21 +395,9 @@
         }, 5000);
       }
 
-      function processOrderData(data, currentOrderId) {
-        // Use the explicit invoiceId if available, otherwise just use the ID passed (if it's not internal)
-        // Since we are showing "Order ID" in UI, user wants "Invoice ID" (transaction) there.
-        const displayRefId = data.invoiceId || invoiceIdParam || refId || currentOrderId;
-
-        // AUTO-URL FIX: If we loaded via orderId but now have an invoiceId, switch the URL to ?invoice=... for security/aesthetics
-        if (data.invoiceId && !invoiceIdParam && params.get("orderId")) {
-          const newUrl = new URL(window.location.href);
-          newUrl.searchParams.delete("orderId");
-          newUrl.searchParams.set("invoice", data.invoiceId);
-          window.history.replaceState({}, '', newUrl);
-          // Also update our internal param tracker so subsequent logic knows we 'have' it
-          // (though not strictly necessary as we already have data)
-        }
-
+      function processOrderData(data) {
+        console.log("Order Data Loaded:", data); // DEBUG: Check if invoiceId exists
+        const displayRefId = data.invoiceId || refId || id;
         document.getElementById("ref-id").textContent = displayRefId;
         document.getElementById("product-name").textContent = data.productName;
         document.getElementById("product-price").textContent = "Rp " + new Intl.NumberFormat("id-ID").format(data.totalPrice);
@@ -423,7 +424,7 @@
       // Try real-time listener first
       onSnapshot(doc(db, "orders", id), (docSnap) => {
         if (docSnap.exists()) {
-          processOrderData(docSnap.data(), id);
+          processOrderData(docSnap.data());
         } else {
           setStatus('not-found');
         }
@@ -433,7 +434,7 @@
         // Fallback: one-time fetch + start polling
         getDoc(doc(db, "orders", id)).then((docSnap) => {
           if (docSnap.exists()) {
-            processOrderData(docSnap.data(), id);
+            processOrderData(docSnap.data());
             // If still pending, start polling
             const data = docSnap.data();
             if (data.status === 'pending' || (data.status === 'paid' && !data.deliveredItems)) {
@@ -446,25 +447,6 @@
           setStatus('not-found');
         });
       });
-    }
-
-    async function findOrderByInvoiceId(invId) {
-      try {
-        const q = query(collection(db, "orders"), where("invoiceId", "==", invId), limit(1));
-        const querySnapshot = await getDocs(q);
-
-        if (!querySnapshot.empty) {
-          const doc = querySnapshot.docs[0];
-          console.log("Found order by invoiceId:", doc.id);
-          loadOrder(doc.id); // Delegate to standard loader
-        } else {
-          console.warn("No order found with invoiceId:", invId);
-          setStatus('not-found');
-        }
-      } catch (error) {
-        console.error("Error finding order:", error);
-        setStatus('not-found');
-      }
     }
 
     function renderDeliveredItems(items) {
