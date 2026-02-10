@@ -177,9 +177,9 @@
                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <p class="text-sm text-slate-400 font-medium">Menunggu Proses</p>
-          <p class="text-xs text-slate-500 mt-1">Produk digital Anda sedang diproses oleh admin. Halaman ini akan
-            otomatis terupdate.</p>
+          <p id="placeholder-title" class="text-sm text-slate-400 font-medium">Menunggu Proses</p>
+          <p id="placeholder-desc" class="text-xs text-slate-500 mt-1">Produk digital Anda akan otomatis dikirim setelah
+            pembayaran dikonfirmasi. Halaman ini akan otomatis terupdate.</p>
         </div>
 
         <!-- Items List (populated by JS) -->
@@ -298,29 +298,41 @@
       document.getElementById("ref-id").textContent = refId || "-";
       document.getElementById("product-name").textContent = legacyProduct;
       document.getElementById("product-price").textContent = "Rp " + new Intl.NumberFormat("id-ID").format(legacyPrice);
-      setStatus('paid');
+      setStatus('paid', false);
     } else {
       setStatus('not-found');
     }
 
-    function setStatus(status) {
+    function setStatus(status, hasItems) {
       const icon = document.getElementById("status-icon");
       const ring = document.getElementById("status-ring");
       const title = document.getElementById("status-title-text");
       const desc = document.getElementById("status-desc-text");
+      const placeholderTitle = document.getElementById("placeholder-title");
+      const placeholderDesc = document.getElementById("placeholder-desc");
 
       if (status === 'paid' || status === 'completed') {
         icon.className = "relative grid h-24 w-24 place-items-center rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
         ring.className = "absolute inset-0 rounded-full bg-emerald-500/20 animate-pulse-ring";
         icon.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
-        if (title) title.textContent = "Pembayaran Berhasil";
-        if (desc) desc.textContent = "Terima kasih! Pesanan Anda sedang diproses/sudah dikirim.";
+
+        if (hasItems) {
+          if (title) title.textContent = "Pembayaran Berhasil";
+          if (desc) desc.textContent = "Terima kasih! Produk digital Anda sudah dikirim.";
+        } else {
+          if (title) title.textContent = "Pembayaran Diterima";
+          if (desc) desc.textContent = "Pembayaran berhasil! Produk Anda sedang diproses, halaman ini akan otomatis terupdate.";
+          if (placeholderTitle) placeholderTitle.textContent = "Sedang Memproses";
+          if (placeholderDesc) placeholderDesc.textContent = "Pembayaran dikonfirmasi. Produk digital Anda sedang diproses dan akan segera muncul di sini.";
+        }
       } else if (status === 'pending') {
         icon.className = "relative grid h-24 w-24 place-items-center rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30";
         ring.className = "absolute inset-0 rounded-full bg-amber-500/20 animate-pulse-ring";
         icon.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
         if (title) title.textContent = "Menunggu Pembayaran";
-        if (desc) desc.textContent = "Silakan selesaikan pembayaran Anda di Mayar.";
+        if (desc) desc.textContent = "Silakan selesaikan pembayaran Anda. Setelah bayar, produk akan otomatis dikirim.";
+        if (placeholderTitle) placeholderTitle.textContent = "Menunggu Pembayaran";
+        if (placeholderDesc) placeholderDesc.textContent = "Produk digital Anda akan otomatis dikirim setelah pembayaran dikonfirmasi. Halaman ini akan otomatis terupdate.";
       } else if (status === 'not-found') {
         icon.className = "relative grid h-24 w-24 place-items-center rounded-full bg-red-500/20 text-red-400 border border-red-500/30";
         ring.className = "absolute inset-0 rounded-full bg-red-500/20";
@@ -334,69 +346,74 @@
     }
 
     function loadOrder(id) {
-      // Listen to real-time updates with error handling
-      onSnapshot(doc(db, "orders", id), (doc) => {
-        if (doc.exists()) {
-          const data = doc.data();
+      let pollInterval = null;
 
-          // Display invoice ID: prefer data.invoiceId from Firebase, fallback to refId from URL, then orderId
-          const displayRefId = data.invoiceId || refId || id;
-          document.getElementById("ref-id").textContent = displayRefId;
-          document.getElementById("product-name").textContent = data.productName;
-          document.getElementById("product-price").textContent = "Rp " + new Intl.NumberFormat("id-ID").format(data.totalPrice);
-
-          // Update Status UI
-          setStatus(data.status);
-
-          if (data.status === 'paid' || data.status === 'completed') {
-            // Show Delivered Items if available
-            const itemsToRender = data.deliveredItems || data.stockItems;
-            if (itemsToRender) {
-              renderDeliveredItems(itemsToRender);
+      // Start auto-polling as fallback (will be cleared once realtime works)
+      function startPolling() {
+        if (pollInterval) return; // Already polling
+        console.log('Starting auto-poll fallback every 5 seconds...');
+        pollInterval = setInterval(async () => {
+          try {
+            const docSnap = await getDoc(doc(db, "orders", id));
+            if (docSnap.exists()) {
+              processOrderData(docSnap.data());
             }
-            // If no items yet, the placeholder stays visible (built-in HTML)
+          } catch (e) {
+            console.warn('Poll error:', e.code || e.message);
+          }
+        }, 5000);
+      }
 
-            // Show Buyer Notes if available
-            if (data.buyerNotes) {
-              renderBuyerNotes(data.buyerNotes);
-            }
+      function processOrderData(data) {
+        const displayRefId = data.invoiceId || refId || id;
+        document.getElementById("ref-id").textContent = displayRefId;
+        document.getElementById("product-name").textContent = data.productName;
+        document.getElementById("product-price").textContent = "Rp " + new Intl.NumberFormat("id-ID").format(data.totalPrice);
+
+        const itemsToRender = data.deliveredItems || data.stockItems;
+        const hasItems = Array.isArray(itemsToRender) && itemsToRender.length > 0;
+
+        // Update Status UI with item awareness
+        setStatus(data.status, hasItems);
+
+        if (data.status === 'paid' || data.status === 'completed') {
+          if (hasItems) {
+            renderDeliveredItems(itemsToRender);
+            // Items delivered — stop polling
+            if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
           }
 
+          if (data.buyerNotes) {
+            renderBuyerNotes(data.buyerNotes);
+          }
+        }
+      }
+
+      // Try real-time listener first
+      onSnapshot(doc(db, "orders", id), (docSnap) => {
+        if (docSnap.exists()) {
+          processOrderData(docSnap.data());
         } else {
           setStatus('not-found');
         }
       }, (error) => {
-        // Handle permission denied or other errors
-        console.warn("Error loading order (using fallback):", error.code);
+        console.warn("Realtime listener error:", error.code);
 
-        // If permission denied, try one-time fetch instead
-        if (error.code === 'permission-denied') {
-          getDoc(doc(db, "orders", id)).then((docSnap) => {
-            if (docSnap.exists()) {
-              const data = docSnap.data();
-
-              const displayRefId = data.invoiceId || refId || id;
-              document.getElementById("ref-id").textContent = displayRefId;
-              document.getElementById("product-name").textContent = data.productName;
-              document.getElementById("product-price").textContent = "Rp " + new Intl.NumberFormat("id-ID").format(data.totalPrice);
-
-              setStatus(data.status);
-
-              if (data.status === 'paid' || data.status === 'completed') {
-                const itemsToRender = data.deliveredItems || data.stockItems;
-                if (itemsToRender) {
-                  renderDeliveredItems(itemsToRender);
-                }
-
-                if (data.buyerNotes) {
-                  renderBuyerNotes(data.buyerNotes);
-                }
-              }
+        // Fallback: one-time fetch + start polling
+        getDoc(doc(db, "orders", id)).then((docSnap) => {
+          if (docSnap.exists()) {
+            processOrderData(docSnap.data());
+            // If still pending, start polling
+            const data = docSnap.data();
+            if (data.status === 'pending' || (data.status === 'paid' && !data.deliveredItems)) {
+              startPolling();
             }
-          }).catch(() => {
+          } else {
             setStatus('not-found');
-          });
-        }
+          }
+        }).catch(() => {
+          setStatus('not-found');
+        });
       });
     }
 
