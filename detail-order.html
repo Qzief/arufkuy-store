@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Status Pesanan - Arufkuy Store</title>
+  <title>Status Pesanan — Arufkuy Store</title>
   <link rel="icon" type="image/png" href="icon.png">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -97,15 +97,17 @@
     .star-rating input {
       display: none;
     }
+
     .star-rating label {
       cursor: pointer;
       color: #334155;
       font-size: 1.5rem;
       transition: color 0.2s;
     }
-    .star-rating input:checked ~ label,
+
+    .star-rating input:checked~label,
     .star-rating label:hover,
-    .star-rating label:hover ~ label {
+    .star-rating label:hover~label {
       color: #fbbf24;
     }
   </style>
@@ -275,11 +277,14 @@
       </div>
 
       <!-- 6. Review Section (New) -->
-      <div id="review-section" class="hidden rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-sm shadow-glow p-6">
+      <div id="review-section"
+        class="hidden rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-sm shadow-glow p-6">
         <div class="flex items-center gap-2 mb-4">
           <div class="h-5 w-5 rounded-full bg-yellow-500/20 grid place-items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-yellow-400" viewBox="0 0 20 20"
+              fill="currentColor">
+              <path
+                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
             </svg>
           </div>
           <h2 class="text-xs font-bold text-yellow-400 uppercase tracking-widest">Beri Ulasan</h2>
@@ -308,8 +313,10 @@
         </form>
 
         <div id="review-success" class="hidden text-center py-4">
-          <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 mb-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div
+            class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
           </div>
@@ -454,6 +461,15 @@
         icon.innerHTML = '<svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
         if (title) title.textContent = "Pesanan Tidak Ditemukan";
         if (desc) desc.textContent = "Mohon periksa kembali link Anda.";
+      } else if (status === 'cancelled') {
+        icon.className = "relative grid h-20 w-20 place-items-center rounded-full bg-red-500/20 text-red-400 border border-red-500/30";
+        ring.className = "absolute inset-0 rounded-full bg-red-500/20";
+        ring.style.animation = 'none';
+        icon.innerHTML = '<svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+        if (title) title.textContent = "Pesanan Dibatalkan";
+        if (desc) desc.textContent = "Pesanan ini telah dibatalkan oleh sistem atau admin.";
+        if (placeholderTitle) placeholderTitle.textContent = "Pesanan Dibatalkan";
+        if (placeholderDesc) placeholderDesc.textContent = "Tidak ada produk untuk ditampilkan.";
       } else {
         if (title) title.textContent = "Status: " + status;
       }
@@ -501,7 +517,7 @@
       }
 
       function processOrderData(data) {
-        console.log("Order Data Loaded:", data); // DEBUG
+        // console.log("Order Data Loaded:", data); // REMOVED FOR SECURITY
 
         // FEATURE: URL Masquerading
         // If we loaded via orderId but have an invoiceId, switch URL to use invoice
@@ -703,16 +719,16 @@
         // Jika server error/offline, cek local storage sebagai fallback
         const storageKey = 'reviewed_' + orderId;
         if (localStorage.getItem(storageKey)) {
-             document.getElementById('review-section').classList.add('hidden');
+          document.getElementById('review-section').classList.add('hidden');
         } else {
-             document.getElementById('review-section').classList.remove('hidden');
-             document.getElementById('review-form').dataset.orderId = orderId;
-             document.getElementById('review-form').dataset.customerName = customerName || "Pelanggan";
+          document.getElementById('review-section').classList.remove('hidden');
+          document.getElementById('review-form').dataset.orderId = orderId;
+          document.getElementById('review-form').dataset.customerName = customerName || "Pelanggan";
         }
       }
     }
 
-    document.getElementById('review-form').addEventListener('submit', function(e) {
+    document.getElementById('review-form').addEventListener('submit', function (e) {
       e.preventDefault();
 
       const rating = document.querySelector('input[name="rating"]:checked');
@@ -766,7 +782,6 @@
     window.viewInvoice = viewInvoice;
   </script>
 </body>
-
 
 
 </html>

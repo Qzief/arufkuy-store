@@ -2123,7 +2123,12 @@
 
     // Helper: Return booked items to stock
     window.returnStockFromOrder = async function (orderData, batchArg = null) {
-      if (!orderData.bookedItems || !Array.isArray(orderData.bookedItems) || orderData.bookedItems.length === 0) {
+      const booked = (orderData.bookedItems && Array.isArray(orderData.bookedItems)) ? orderData.bookedItems : [];
+      const delivered = (orderData.deliveredItems && Array.isArray(orderData.deliveredItems)) ? orderData.deliveredItems : [];
+
+      const itemsToReturn = [...booked, ...delivered];
+
+      if (itemsToReturn.length === 0) {
         return; // Nothing to return
       }
 
@@ -2140,7 +2145,8 @@
       if (orderData.variantId && prodData.hasVariants) {
         const variantIndex = prodData.variants.findIndex(v => v.id === orderData.variantId);
         if (variantIndex !== -1) {
-          const itemsReturn = orderData.bookedItems.map(item => ({ ...item, note: '' }));
+          // Note: We clear notes to keep stock clean, assuming notes were order-specific or just safe default
+          const itemsReturn = itemsToReturn.map(item => ({ ...item, note: '' }));
           const updatedVariants = [...prodData.variants];
           updatedVariants[variantIndex].stockItems = [
             ...updatedVariants[variantIndex].stockItems,
@@ -2149,7 +2155,7 @@
           updatePayload = { variants: updatedVariants };
         }
       } else {
-        const itemsReturn = orderData.bookedItems.map(item => ({ ...item, note: '' }));
+        const itemsReturn = itemsToReturn.map(item => ({ ...item, note: '' }));
         const currentStock = prodData.stockItems || [];
         updatePayload = { stockItems: [...currentStock, ...itemsReturn] };
       }
