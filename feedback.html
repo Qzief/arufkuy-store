@@ -4,8 +4,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cara Order — Arufkuy Store</title>
-  <meta name="description" content="Panduan lengkap cara melakukan pemesanan produk digital di Arufkuy Store." />
+  <title>Ulasan Pelanggan — Arufkuy Store</title>
+  <meta name="description" content="Lihat apa kata pelanggan tentang layanan Arufkuy Store." />
   <meta name="theme-color" content="#0b1220" />
 
   <!-- Tailwind CDN -->
@@ -66,8 +66,8 @@
 
       <nav class="hidden items-center gap-6 text-sm text-slate-300 md:flex">
         <a href="index.html#products" class="hover:text-white transition">Produk</a>
-        <a href="order-guide.html" class="text-white font-medium transition">Cara Order</a>
-        <a href="feedback.html" class="hover:text-white transition">Feedback</a>
+        <a href="order-guide.html" class="hover:text-white transition">Cara Order</a>
+        <a href="feedback.html" class="hover:text-white transition text-white font-semibold">Feedback</a>
         <a href="help-center.html" class="hover:text-white transition">Pusat Bantuan</a>
         <a href="contact.html" class="hover:text-white transition">Kontak</a>
       </nav>
@@ -139,7 +139,7 @@
             Produk
           </a>
           <a href="order-guide.html" onclick="closeMobileMenu()"
-            class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-white bg-white/10 transition">
+            class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-200 hover:bg-white/10 transition">
             <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
@@ -225,129 +225,39 @@
 
   <!-- Main Content -->
   <main class="flex-grow grid-bg">
-    <section class="mx-auto max-w-6xl px-4 py-16 md:py-24">
-      <div class="text-center max-w-2xl mx-auto mb-16">
+    <!-- Hero Section -->
+    <section class="relative py-16 md:py-24 text-center px-4">
+      <div class="max-w-3xl mx-auto">
         <p
           class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs text-slate-300 mb-6">
-          <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
-          <span>Mudah • Cepat • Otomatis</span>
+          <span class="h-2 w-2 rounded-full bg-yellow-400"></span>
+          <span>Testimoni Pelanggan</span>
         </p>
         <h1 class="text-4xl font-bold tracking-tight md:text-5xl mb-6">
-          Cara <span class="text-indigo-300">Order</span>
+          Apa kata <span class="text-indigo-300">mereka</span>?
         </h1>
-        <p class="text-slate-300 text-lg leading-relaxed">
-          Ikuti langkah-langkah mudah berikut untuk membeli produk digital di Arufkuy Store. Proses otomatis 24/7 tanpa
-          perlu menunggu admin.
+        <p class="text-slate-400 text-lg max-w-2xl mx-auto">
+          Transparansi adalah prioritas kami. Berikut adalah ulasan asli dari pelanggan yang telah berbelanja di Arufkuy Store.
         </p>
       </div>
+    </section>
 
-      <!-- Steps -->
-      <div class="relative">
-        <!-- Connecting Line (Desktop) -->
-        <div
-          class="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent -translate-y-1/2 z-0">
-        </div>
-
-        <div class="grid gap-8 md:grid-cols-4 relative z-10">
-          <!-- Step 1 -->
-          <div class="group relative">
-            <div
-              class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-slate-900 shadow-glow transition-transform duration-300 group-hover:scale-110 group-hover:border-indigo-500/50">
-              <span class="text-2xl font-bold text-indigo-400">1</span>
-            </div>
-            <div class="mt-6 text-center">
-              <h3 class="text-lg font-semibold text-white mb-2">Pilih Produk</h3>
-              <p class="text-sm text-slate-400 leading-relaxed">
-                Cari dan pilih produk digital yang Anda butuhkan dari katalog kami.
-              </p>
-            </div>
-          </div>
-
-          <!-- Step 2 -->
-          <div class="group relative">
-            <div
-              class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-slate-900 shadow-glow transition-transform duration-300 group-hover:scale-110 group-hover:border-indigo-500/50">
-              <span class="text-2xl font-bold text-indigo-400">2</span>
-            </div>
-            <div class="mt-6 text-center">
-              <h3 class="text-lg font-semibold text-white mb-2">Isi Data</h3>
-              <p class="text-sm text-slate-400 leading-relaxed">
-                Lengkapi formulir pemesanan dengan data yang benar (Email/No. HP).
-              </p>
-            </div>
-          </div>
-
-          <!-- Step 3 -->
-          <div class="group relative">
-            <div
-              class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-slate-900 shadow-glow transition-transform duration-300 group-hover:scale-110 group-hover:border-indigo-500/50">
-              <span class="text-2xl font-bold text-indigo-400">3</span>
-            </div>
-            <div class="mt-6 text-center">
-              <h3 class="text-lg font-semibold text-white mb-2">Bayar</h3>
-              <p class="text-sm text-slate-400 leading-relaxed">
-                Selesaikan pembayaran menggunakan metode yang tersedia (QRIS/E-Wallet).
-              </p>
-            </div>
-          </div>
-
-          <!-- Step 4 -->
-          <div class="group relative">
-            <div
-              class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-slate-900 shadow-glow transition-transform duration-300 group-hover:scale-110 group-hover:border-indigo-500/50">
-              <span class="text-2xl font-bold text-indigo-400">4</span>
-            </div>
-            <div class="mt-6 text-center">
-              <h3 class="text-lg font-semibold text-white mb-2">Selesai</h3>
-              <p class="text-sm text-slate-400 leading-relaxed">
-                Produk akan dikirim otomatis ke email atau halaman transaksi Anda.
-              </p>
-            </div>
-          </div>
-        </div>
+    <!-- Reviews Grid -->
+    <section class="mx-auto max-w-6xl px-4 pb-24">
+      <!-- Loading State -->
+      <div id="loading-reviews" class="flex flex-col items-center justify-center py-12">
+        <div class="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mb-4"></div>
+        <p class="text-slate-400 text-sm">Memuat ulasan...</p>
       </div>
 
-      <!-- Payment Methods -->
-      <div class="mt-24 rounded-3xl border border-white/10 bg-white/5 p-8 md:p-12 text-center">
-        <h2 class="text-2xl font-bold mb-8">Metode Pembayaran</h2>
-        <div
-          class="flex flex-wrap justify-center gap-6 md:gap-10 opacity-70 grayscale transition-all duration-500 hover:grayscale-0 hover:opacity-100">
-          <!-- Placeholder Icons for Payment Methods -->
-          <div class="flex items-center gap-2">
-            <div class="h-10 w-10 rounded-full bg-white/10"></div>
-            <span class="font-semibold">QRIS</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <div class="h-10 w-10 rounded-full bg-blue-500/20"></div>
-            <span class="font-semibold">Dana</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <div class="h-10 w-10 rounded-full bg-green-500/20"></div>
-            <span class="font-semibold">GoPay</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <div class="h-10 w-10 rounded-full bg-purple-500/20"></div>
-            <span class="font-semibold">OVO</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <div class="h-10 w-10 rounded-full bg-orange-500/20"></div>
-            <span class="font-semibold">ShopeePay</span>
-          </div>
-        </div>
-        <p class="mt-8 text-sm text-slate-400">
-          *Semua transaksi diproses secara otomatis oleh sistem payment gateway kami.
-        </p>
+      <!-- Reviews Container -->
+      <div id="reviews-container" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 hidden">
+        <!-- Reviews will be injected here -->
       </div>
 
-      <!-- CTA -->
-      <div class="mt-16 text-center">
-        <a href="index.html#products"
-          class="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-500 to-cyan-500 px-8 py-4 text-base font-bold text-white shadow-glow transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-cyan-500/30">
-          <span>Mulai Belanja Sekarang</span>
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-          </svg>
-        </a>
+      <!-- No Reviews State -->
+      <div id="no-reviews" class="hidden text-center py-12">
+        <p class="text-slate-500">Belum ada ulasan yang ditampilkan.</p>
       </div>
     </section>
   </main>
@@ -435,29 +345,119 @@
   <script type="text/javascript"
     src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-  <!-- Firebase & Page Logic -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  <!-- Page Logic -->
+  <script>
+    // --- CONFIGURATION ---
+    // Paste your Google Apps Script Web App URL here (SAME URL AS BEFORE)
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzYGA-rzPSIXOvLftbqCMhXDahn90HViWAqJuXxRTUn7kUYJEPlxot3w7P0JwgFpJdI/exec";
+    // ---------------------
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDtBSbjr5IHmuZqND0MIexw-tWWcZIF33A",
-      authDomain: "arufkuy-store.firebaseapp.com",
-      projectId: "arufkuy-store",
-      storageBucket: "arufkuy-store.firebasestorage.app",
-      messagingSenderId: "694416486376",
-      appId: "1:694416486376:web:fa36cccffd65557ddc3e5d"
-    };
+    async function fetchReviews() {
+      try {
+        // We use the same script URL but with a GET request to fetch data
+        // NOTE: You need to update your Google Apps Script to handle doGet()
+        const response = await fetch(GOOGLE_SCRIPT_URL);
+        const data = await response.json();
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    async function init() {
-      await fetchAndUpdateExchangeRate();
+        renderReviews(data);
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+        document.getElementById('loading-reviews').innerHTML = '<p class="text-red-400">Gagal memuat ulasan.</p>';
+      }
     }
 
-    init();
+    function renderReviews(reviews) {
+      const container = document.getElementById('reviews-container');
+      const loading = document.getElementById('loading-reviews');
+      const noReviews = document.getElementById('no-reviews');
+
+      loading.classList.add('hidden');
+
+      if (!reviews || reviews.length === 0) {
+        noReviews.classList.remove('hidden');
+        return;
+      }
+
+      container.classList.remove('hidden');
+
+      // Sort reviews by date (newest first) - assuming data has timestamp
+      // If your sheet data structure is [timestamp, orderId, product, rating, review]
+      // We need to map it correctly.
+      // Since the current GAS doGet might not be set up, I will assume a standard JSON array structure
+      // or handle the raw array from sheet.
+
+      // Let's assume the API returns an array of objects or arrays.
+      // We will reverse it to show newest first.
+      const sortedReviews = reviews.slice().reverse();
+
+      sortedReviews.forEach(review => {
+        // Handle both object and array formats just in case
+        const rating = review.rating || review[4];
+        const text = review.review || review[5];
+        const product = review.productName || review[3];
+        const customerName = review.customerName || review[2] || "Pelanggan Arufkuy";
+        const dateStr = review.timestamp || review[0];
+
+        // Skip empty reviews if desired, or show them
+        if (!rating) return;
+
+        const card = document.createElement('div');
+        card.className = "rounded-3xl border border-white/10 bg-white/5 p-6 hover:bg-white/10 transition-all duration-300 flex flex-col h-full";
+
+        // Star Rating HTML
+        let starsHtml = '';
+        for (let i = 1; i <= 5; i++) {
+          if (i <= rating) {
+            starsHtml += '<span class="text-yellow-400 text-lg">★</span>';
+          } else {
+            starsHtml += '<span class="text-slate-600 text-lg">★</span>';
+          }
+        }
+
+        // Format Date
+        const dateObj = new Date(dateStr);
+        const formattedDate = !isNaN(dateObj) ? dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Baru saja';
+
+        // Mask Name Logic
+        let reviewerName = customerName;
+        if (reviewerName.length > 3) {
+            reviewerName = reviewerName.substring(0, 3) + "*****";
+        } else if (reviewerName.length > 0) {
+            reviewerName = reviewerName.charAt(0) + "*****";
+        }
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="h-10 w-10 rounded-full bg-indigo-500/20 grid place-items-center text-indigo-300 font-bold text-sm">
+                ${reviewerName.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-white">${reviewerName}</p>
+                <p class="text-xs text-slate-400">${formattedDate}</p>
+              </div>
+            </div>
+            <div class="flex">${starsHtml}</div>
+          </div>
+
+          <div class="flex-grow">
+            <p class="text-slate-300 text-sm leading-relaxed italic">"${text || 'Tidak ada komentar.'}"</p>
+          </div>
+
+          <div class="mt-4 pt-4 border-t border-white/5 flex items-center gap-2">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <p class="text-xs text-emerald-400 font-medium truncate">Membeli: ${product || 'Produk Digital'}</p>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    // Initialize
+    fetchReviews();
   </script>
 </body>
-
 </html>
