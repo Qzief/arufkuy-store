@@ -1586,8 +1586,11 @@
           } else if (data.status === 'delivered') {
             statusBadge = '<span class="px-2 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400">Delivered</span>';
             actionText = `Order #${doc.id.substring(0, 8)} terkirim`;
+          } else if (data.status === 'cancelled') {
+            statusBadge = '<span class="px-2 py-1 rounded-full text-xs font-semibold bg-red-500/10 text-red-400">Cancelled</span>';
+            actionText = `Order #${doc.id.substring(0, 8)} dibatalkan`;
           } else {
-            statusBadge = '<span class="px-2 py-1 rounded-full text-xs font-semibold bg-slate-500/10 text-slate-400">Unknown</span>';
+            statusBadge = `<span class="px-2 py-1 rounded-full text-xs font-semibold bg-slate-500/10 text-slate-400">${data.status || 'Unknown'}</span>`;
             actionText = `Order #${doc.id.substring(0, 8)}`;
           }
 
