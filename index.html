@@ -512,8 +512,67 @@
 
       <div id="products-grid" class="mt-8 grid gap-5 md:grid-cols-3">
         <!-- Loading State -->
-        <div class="col-span-full text-center py-10 text-slate-400 animate-pulse">
-          Memuat produk...
+        <div class="col-span-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 animate-pulse">
+          <!-- Skeleton Item 1 -->
+          <div class="rounded-3xl border border-white/10 bg-white/5 p-4 space-y-4">
+            <div class="aspect-square w-full rounded-2xl bg-white/5 skeleton"></div>
+            <div class="h-4 w-3/4 rounded-lg bg-white/5 skeleton"></div>
+            <div class="h-3 w-1/2 rounded-lg bg-white/5 skeleton"></div>
+            <div class="flex justify-between items-center pt-2">
+              <div class="h-8 w-1/3 rounded-lg bg-white/5 skeleton"></div>
+              <div class="h-8 w-8 rounded-full bg-white/5 skeleton"></div>
+            </div>
+          </div>
+          <!-- Skeleton Item 2 -->
+          <div class="rounded-3xl border border-white/10 bg-white/5 p-4 space-y-4">
+            <div class="aspect-square w-full rounded-2xl bg-white/5 skeleton"></div>
+            <div class="h-4 w-3/4 rounded-lg bg-white/5 skeleton"></div>
+            <div class="h-3 w-1/2 rounded-lg bg-white/5 skeleton"></div>
+            <div class="flex justify-between items-center pt-2">
+              <div class="h-8 w-1/3 rounded-lg bg-white/5 skeleton"></div>
+              <div class="h-8 w-8 rounded-full bg-white/5 skeleton"></div>
+            </div>
+          </div>
+          <!-- Skeleton Item 3 -->
+          <div class="rounded-3xl border border-white/10 bg-white/5 p-4 space-y-4">
+            <div class="aspect-square w-full rounded-2xl bg-white/5 skeleton"></div>
+            <div class="h-4 w-3/4 rounded-lg bg-white/5 skeleton"></div>
+            <div class="h-3 w-1/2 rounded-lg bg-white/5 skeleton"></div>
+            <div class="flex justify-between items-center pt-2">
+              <div class="h-8 w-1/3 rounded-lg bg-white/5 skeleton"></div>
+              <div class="h-8 w-8 rounded-full bg-white/5 skeleton"></div>
+            </div>
+          </div>
+          <!-- Skeleton Item 4 -->
+          <div class="rounded-3xl border border-white/10 bg-white/5 p-4 space-y-4">
+            <div class="aspect-square w-full rounded-2xl bg-white/5 skeleton"></div>
+            <div class="h-4 w-3/4 rounded-lg bg-white/5 skeleton"></div>
+            <div class="h-3 w-1/2 rounded-lg bg-white/5 skeleton"></div>
+            <div class="flex justify-between items-center pt-2">
+              <div class="h-8 w-1/3 rounded-lg bg-white/5 skeleton"></div>
+              <div class="h-8 w-8 rounded-full bg-white/5 skeleton"></div>
+            </div>
+          </div>
+          <!-- Skeleton Item 5 -->
+          <div class="rounded-3xl border border-white/10 bg-white/5 p-4 space-y-4">
+            <div class="aspect-square w-full rounded-2xl bg-white/5 skeleton"></div>
+            <div class="h-4 w-3/4 rounded-lg bg-white/5 skeleton"></div>
+            <div class="h-3 w-1/2 rounded-lg bg-white/5 skeleton"></div>
+            <div class="flex justify-between items-center pt-2">
+              <div class="h-8 w-1/3 rounded-lg bg-white/5 skeleton"></div>
+              <div class="h-8 w-8 rounded-full bg-white/5 skeleton"></div>
+            </div>
+          </div>
+          <!-- Skeleton Item 6 -->
+          <div class="rounded-3xl border border-white/10 bg-white/5 p-4 space-y-4">
+            <div class="aspect-square w-full rounded-2xl bg-white/5 skeleton"></div>
+            <div class="h-4 w-3/4 rounded-lg bg-white/5 skeleton"></div>
+            <div class="h-3 w-1/2 rounded-lg bg-white/5 skeleton"></div>
+            <div class="flex justify-between items-center pt-2">
+              <div class="h-8 w-1/3 rounded-lg bg-white/5 skeleton"></div>
+              <div class="h-8 w-8 rounded-full bg-white/5 skeleton"></div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -651,22 +710,7 @@
     async function loadProducts() {
       const productsGrid = document.getElementById("products-grid");
 
-      // Inject Skeleton Loader
-      productsGrid.innerHTML = `
-        <div class="col-span-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-pulse">
-          ${Array(8).fill(0).map(() => `
-            <div class="rounded-3xl border border-white/10 bg-white/5 p-4 space-y-4">
-              <div class="aspect-square w-full rounded-2xl bg-white/5 skeleton"></div>
-              <div class="h-4 w-3/4 rounded-lg bg-white/5 skeleton"></div>
-              <div class="h-3 w-1/2 rounded-lg bg-white/5 skeleton"></div>
-              <div class="flex justify-between items-center pt-2">
-                 <div class="h-8 w-1/3 rounded-lg bg-white/5 skeleton"></div>
-                 <div class="h-8 w-8 rounded-full bg-white/5 skeleton"></div>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      `;
+      // Skeleton loader already in HTML
 
       try {
         // Load sections first (with fallback if permissions denied)
