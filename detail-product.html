@@ -761,8 +761,9 @@
         }
 
         if (data) {
-
+          console.log("Loaded Product Data:", data); // DEBUG LOG
           isVariableProduct = !!data.hasVariants;
+          console.log("Is Variable Product?", isVariableProduct); // DEBUG LOG
 
           document.getElementById("product-name").textContent = data.name;
           document.title = data.name + " - Arufkuy Store";
