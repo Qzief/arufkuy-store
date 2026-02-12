@@ -771,7 +771,8 @@
 
             // If product has a slug and we're on legacy URL, redirect to clean URL
             if (data.slug && !isSlugMode) {
-              window.history.replaceState(null, '', '/p/' + data.slug);
+              // TEMPORARILY DISABLED due to hosting config issue (404 on slug)
+              // window.history.replaceState(null, '', '/p/' + data.slug);
             }
           }
         }
