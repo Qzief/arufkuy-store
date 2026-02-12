@@ -589,7 +589,12 @@
     const pathSegments = window.location.pathname.split('/').filter(Boolean);
     const pIndex = pathSegments.indexOf('p');
     const isSlugMode = pIndex !== -1 && pIndex < pathSegments.length - 1;
-    const productSlug = isSlugMode ? pathSegments[pIndex + 1] : null;
+    const rawSlug = isSlugMode ? pathSegments[pIndex + 1] : null;
+    const productSlug = rawSlug ? decodeURIComponent(rawSlug).trim() : null;
+
+    console.log("URL Detection -> Path:", window.location.pathname);
+    console.log("Segments:", pathSegments);
+    console.log("Slug Detected:", productSlug);
 
     let productId = legacyId; // Will be resolved from slug if needed
 
@@ -733,8 +738,10 @@
     }
 
     async function loadProduct() {
+      console.log("loadProduct() START. ID:", productId, "Slug:", productSlug);
+
       if (!productId && !productSlug) {
-        alert("Produk tidak ditemukan");
+        alert("Produk tidak ditemukan metadata");
         window.location.href = "/";
         return;
       }
