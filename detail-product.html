@@ -1036,6 +1036,10 @@
           mobile: phone,
           description: `Order ID: ${orderId} - ${description || 'Digital Product'}`, // Embed Order ID for robust matching
           redirectUrl: `${window.location.origin}/detail-order.html?orderId=${orderId}`, // Use orderId for initial lookup, page will swap to invoiceId
+          // New Fields for Stock Reservation
+          orderId: orderId,
+          productId: productId,
+          variantId: isVariableProduct && selectedVariant ? selectedVariant.id : null,
           items: [
             {
               name: itemName,
