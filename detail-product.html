@@ -537,12 +537,7 @@
     function getStock(item) {
       let val = 0;
       if (typeof item.stock !== 'undefined') val = Number(item.stock);
-      else if (Array.isArray(item.stockItems)) val = item.stockItems.length;
-
-      // Fallback for migration: if stock is 0 but stockItems exists
-      if (val === 0 && Array.isArray(item.stockItems) && item.stockItems.length > 0) {
-        val = item.stockItems.length;
-      }
+      // Removed stockItems usage as requested
       return val;
     }
 
@@ -790,6 +785,7 @@
 
           if (isVariableProduct) {
             currentVariants = data.variants || [];
+            console.log("Current Variants Data:", JSON.stringify(currentVariants, null, 2)); // DEBUG LOG
             document.getElementById("variant-section").classList.remove("hidden");
 
             // Render Variants
