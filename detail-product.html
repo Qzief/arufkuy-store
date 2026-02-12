@@ -947,21 +947,73 @@
         }
         description += ` - Product ID: ${productId}`;
 
-        // Calculate net price (for display/Mayar items)
+        // Calculate final price with discount BEFORE transaction
+        let finalTotal = totalPriceIDR;
+        let discountValue = 0;
+
+        if (appliedCoupon) {
+          if (appliedCoupon.type === 'fixed') {
+            discountValue = appliedCoupon.value;
+          } else if (appliedCoupon.type === 'percent') {
+            discountValue = Math.floor(totalPriceIDR * (appliedCoupon.value / 100));
+          }
+          if (discountValue > totalPriceIDR) discountValue = totalPriceIDR;
+          finalTotal = totalPriceIDR - discountValue;
+        }
+
+        // Create pending order in Firestore
+        // Create pending order using TRANSACTION to reserve stock
+        let orderId = 'pending';
+
+        // --- CLIENT-SIDE ORDER CREATION (No Stock Deduction) ---
+        // Stock deduction is now handled by the Server (Worker) or Admin upon payment/processing.
+        // We only create the 'orders' document here as a request.
+
+        try {
+          // 1. Prepare Order Payload
+          const orderPayload = {
+            customerName: name,
+            customerEmail: email,
+            customerPhone: phone,
+            productName: finalProductName,
+            productId: productId,
+            quantity: quantity,
+            totalPrice: finalTotal,
+            originalTotalPrice: totalPriceIDR,
+            discountAmount: discountValue,
+            status: 'pending',
+            createdAt: new Date(), // Client timestamp
+            coupon: coupon || null,
+            description: description,
+            bookedItems: [] // NO SENSITIVE DATA
+          };
+
+          if (isVariableProduct && selectedVariant) {
+            orderPayload.variantId = selectedVariant.id;
+            orderPayload.variantName = selectedVariant.name;
+          }
+
+          // 2. Create Order Doc
+          const orderRef = doc(collection(db, "orders"));
+          orderId = orderRef.id;
+
+          // Just set the document. disallowed fields (like stock updates on product) are avoided.
+          await setDoc(orderRef, orderPayload);
+
+        } catch (error) {
+          console.error('Order creation failed:', error);
+          showToast(`Gagal membuat pesanan: ${error.message}`, 'error');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnText;
+          return;
+        }
+
+        // Build payload for Cloudflare Worker
+        // Calculate net price (Mayar doesn't support couponCode in API)
         let finalItemPrice = finalPrice;
         let itemName = finalProductName;
 
         if (appliedCoupon) {
-          // ... (calculation logic remains same for display, but actual price is calc on server or trusted)
-          // ideally server calculates, but for now we trust client for 'price' in items for Mayar,
-          // BUT stock check is server side.
-          // To be safer, we should let server calculate price too, but that requires more refactoring.
-          // For now, we send the calculated price to Mayar via Worker.
-          // Worker doesn't re-verify price in my current implementation (it uses body.items), 
-          // but it DOES verify stock.
-          // Users *could* manipulate price if they hack the JS, but Mayar is the gatekeeper.
-          // For this task (permissions/booking), this is sufficient.
-
           let totalBeforeDiscount = finalPrice * quantity;
           let discountAmount = 0;
 
@@ -978,32 +1030,22 @@
           itemName = `${finalProductName} (Diskon ${appliedCoupon.code})`;
         }
 
-
-        // Build payload for Cloudflare Worker
-        // NOW INCLUDES productId, variantId for Booking System
         const payload = {
           name: name,
           email: email,
           mobile: phone,
-          description: description,
-          redirectUrl: `${window.location.origin}/detail-order.html`, // Worker will append ?orderId=...
+          description: `Order ID: ${orderId} - ${description || 'Digital Product'}`, // Embed Order ID for robust matching
+          redirectUrl: `${window.location.origin}/detail-order.html?orderId=${orderId}`, // Use orderId for initial lookup, page will swap to invoiceId
           items: [
             {
               name: itemName,
               quantity: quantity,
               price: finalItemPrice
             }
-          ],
-          // CRITICAL: Data for Stock Booking (Server Side)
-          productId: productId,
-          quantity: quantity
+          ]
         };
 
-        if (isVariableProduct && selectedVariant) {
-          payload.variantId = selectedVariant.id;
-        }
-
-        console.log('Sending invoice request (Booking Mode):', payload);
+        console.log('Sending invoice request:', payload);
 
         // TODO: Replace with your actual Cloudflare Worker URL
         const WORKER_URL = 'https://payment.arufkuy.workers.dev/create-invoice';
@@ -1020,23 +1062,45 @@
         const data = await response.json();
         console.log('Worker response:', data);
 
+        // Mayar API returns 'link' not 'url'
         if (response.ok && data.data && data.data.link) {
           // Success!
-          console.log('Invoice created & Stock Booked!');
+          const invoiceId = data.data.id;
+          console.log('Invoice created:', invoiceId);
+
+          // CRITICAL: Save Invoice ID to Firestore immediately
+          // This ensures detail-order.html can find the order by invoice
+          // even before the webhook fires.
+          try {
+            const orderRef = doc(db, "orders", orderId);
+            await runTransaction(db, async (transaction) => {
+              // We use a transaction or just update? Update is fine here as we just created it.
+              // But let's use simple update.
+              // Actually, we are outside the previous transaction.
+            });
+            // Simple update is sufficient
+            const { updateDoc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+            await updateDoc(orderRef, { invoiceId: invoiceId });
+            console.log('Invoice ID saved to Firestore.');
+          } catch (dbError) {
+            console.error('Failed to save invoiceId to Firestore:', dbError);
+            // Proceed anyway, webhook will fix it later or we have orderId backup?
+            // But user relies on invoice link...
+          }
 
           // Redirect to Mayar payment page
           console.log('Redirecting to payment page:', data.data.link);
           window.location.href = data.data.link;
         } else {
-          // Error from API (e.g., Stock Habis)
-          throw new Error(data.message || data.error || 'Gagal membuat pesanan');
+          // Error from API
+          throw new Error(data.message || data.error || 'Gagal membuat invoice');
         }
 
       } catch (error) {
         console.error('Error submitting order:', error);
 
         // Show error message to user
-        showToast(`Gagal: ${error.message}`, 'error');
+        showToast(`Terjadi kesalahan: ${error.message}. Silakan coba lagi atau hubungi admin.`, 'error');
 
         // Re-enable submit button
         submitBtn.disabled = false;

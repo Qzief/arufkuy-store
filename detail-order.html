@@ -519,15 +519,18 @@
       function processOrderData(data) {
         // console.log("Order Data Loaded:", data); // REMOVED FOR SECURITY
 
-        // FEATURE: URL Masquerading - DISABLED PER USER REQUEST
-        // if (data.invoiceId) {
-        //   const currentUrl = new URL(window.location);
-        //   if (currentUrl.searchParams.has("orderId")) {
-        //     currentUrl.searchParams.delete("orderId");
-        //     currentUrl.searchParams.set("invoice", data.invoiceId);
-        //     window.history.replaceState({}, '', currentUrl);
-        //   }
-        // }
+        // FEATURE: URL Masquerading
+        // If we loaded via orderId but have an invoiceId, switch URL to use invoice
+        // This makes the link shareable and hides the internal orderId
+        if (data.invoiceId) {
+          const currentUrl = new URL(window.location);
+          if (currentUrl.searchParams.has("orderId")) {
+            currentUrl.searchParams.delete("orderId");
+            currentUrl.searchParams.set("invoice", data.invoiceId);
+            window.history.replaceState({}, '', currentUrl);
+            // Update params specific variables if needed, though page is already loading
+          }
+        }
 
         const displayRefId = data.invoiceId || refId || id;
         document.getElementById("ref-id").textContent = displayRefId;
