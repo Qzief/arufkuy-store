@@ -331,7 +331,7 @@ export class FrontendFeatures {
         }
 
         return `
-      <a href="detail-product.html?id=${data.id}" class="block rounded-3xl border border-white/10 bg-white/5 p-5 hover:bg-white/10 transition-all duration-300 hover:border-white/20 hover:-translate-y-1 group">
+      <a href="${data.slug ? '/p/' + data.slug : 'detail-product.html?id=' + data.id}" class="block rounded-3xl border border-white/10 bg-white/5 p-5 hover:bg-white/10 transition-all duration-300 hover:border-white/20 hover:-translate-y-1 group">
         <div class="flex flex-col h-full">
           ${imgHtml}
           <div class="mb-2 flex justify-between items-start gap-2">

@@ -261,13 +261,23 @@
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
           </div>
-          <button onclick="openModal('add')"
-            class="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/20 transition-all">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            Tambah Produk
-          </button>
+          <div class="flex items-center gap-2">
+            <button onclick="generateAllSlugs()"
+              class="flex items-center gap-2 rounded-xl bg-amber-600/20 border border-amber-500/30 px-3 py-2.5 text-sm font-bold text-amber-300 hover:bg-amber-600/30 transition-all"
+              title="Generate slug SEO untuk semua produk yang belum punya">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+              </svg>
+              Generate Slugs
+            </button>
+            <button onclick="openModal('add')"
+              class="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/20 transition-all">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              Tambah Produk
+            </button>
+          </div>
         </div>
 
         <div class="overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-xl">
@@ -1634,7 +1644,63 @@
       }
     }
 
-    // --- AUTO CANCEL LOGIC (Client-Side Trigger) ---
+    // --- SLUG GENERATION ---
+    function generateSlug(name) {
+      return name
+        .toString()
+        .toLowerCase()
+        .trim()
+        .replace(/[àáâãäå]/g, 'a')
+        .replace(/[èéêë]/g, 'e')
+        .replace(/[ìíîï]/g, 'i')
+        .replace(/[òóôõö]/g, 'o')
+        .replace(/[ùúûü]/g, 'u')
+        .replace(/[ñ]/g, 'n')
+        .replace(/[^a-z0-9\s-]/g, '')  // Remove special chars
+        .replace(/[\s_]+/g, '-')        // Replace spaces/underscores with hyphens
+        .replace(/-+/g, '-')            // Collapse multiple hyphens
+        .replace(/^-+|-+$/g, '');       // Trim hyphens from edges
+    }
+
+    async function ensureUniqueSlug(baseSlug, excludeId = null) {
+      let slug = baseSlug;
+      let counter = 2;
+      while (true) {
+        const q = query(collection(db, "products"), where("slug", "==", slug));
+        const snap = await getDocs(q);
+        const conflict = snap.docs.find(d => d.id !== excludeId);
+        if (!conflict) return slug;
+        slug = `${baseSlug}-${counter}`;
+        counter++;
+      }
+    }
+
+    window.generateAllSlugs = async () => {
+      if (!confirm("Generate slug SEO untuk semua produk yang belum punya slug?\nProses ini aman dan tidak akan menimpa slug yang sudah ada.")) return;
+
+      try {
+        const snapshot = await getDocs(collection(db, "products"));
+        let updated = 0;
+        let skipped = 0;
+
+        for (const docSnap of snapshot.docs) {
+          const data = docSnap.data();
+          if (data.slug) { skipped++; continue; }
+
+          const baseSlug = generateSlug(data.name || 'product');
+          const uniqueSlug = await ensureUniqueSlug(baseSlug, docSnap.id);
+
+          await updateDoc(doc(db, "products", docSnap.id), { slug: uniqueSlug });
+          updated++;
+        }
+
+        showToast(`Slug generated! ${updated} produk diupdate, ${skipped} sudah punya slug.`, 'success');
+      } catch (err) {
+        console.error('Generate slugs error:', err);
+        showToast('Gagal generate slugs: ' + err.message, 'error');
+      }
+    };
+
     // --- AUTO CANCEL LOGIC (Client-Side Trigger) ---
     async function autoCancelExpiredOrders() {
       console.log("Checking for expired orders...");
@@ -2427,8 +2493,13 @@
         const sectionId = document.getElementById("prod-section").value;
         const orderInSection = parseInt(document.getElementById("prod-order").value) || 0;
 
+        // Generate slug from product name
+        const baseSlug = generateSlug(name);
+        const slug = await ensureUniqueSlug(baseSlug, id || null);
+
         let productData = {
           name,
+          slug,
           description: desc,
           tag,
           image: finalImage,
