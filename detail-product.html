@@ -796,6 +796,7 @@
               btn.onclick = () => selectVariant(index);
 
               const vStock = typeof v.stock !== 'undefined' ? v.stock : (v.stockItems ? v.stockItems.length : 0);
+              console.log(`Variant ${index}:`, v.name, "Stock:", vStock, "Raw Stock:", v.stock, "StockItems:", v.stockItems);
               const stockStatus = vStock > 0 ? `<span class='text-emerald-400 text-[10px]'>${vStock} Tersedia</span>` : `<span class='text-red-400 text-[10px]'>Stok Habis</span>`;
 
               btn.innerHTML = `
