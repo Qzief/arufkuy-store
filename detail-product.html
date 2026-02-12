@@ -765,6 +765,9 @@
             const docSnap = querySnap.docs[0];
             data = docSnap.data();
             productId = docSnap.id; // Important: Set ID for order processing
+            // Backup: Store in DOM to ensure accessibility
+            const orderForm = document.getElementById('order-form');
+            if (orderForm) orderForm.dataset.productId = productId;
           } else {
             console.warn("Slug not found in DB");
           }
@@ -776,6 +779,9 @@
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
             data = docSnap.data();
+            // Backup: Store in DOM
+            const orderForm = document.getElementById('order-form');
+            if (orderForm) orderForm.dataset.productId = productId;
           }
         }
 
@@ -1038,7 +1044,7 @@
           redirectUrl: `${window.location.origin}/detail-order.html?orderId=${orderId}`, // Use orderId for initial lookup, page will swap to invoiceId
           // New Fields for Stock Reservation
           orderId: orderId,
-          productId: productId,
+          productId: productId || document.getElementById('order-form')?.dataset.productId,
           variantId: isVariableProduct && selectedVariant ? selectedVariant.id : null,
           items: [
             {
