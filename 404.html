@@ -746,7 +746,6 @@
     }
 
     async function loadProduct() {
-      console.log("loadProduct() START. ID:", productId);
 
       if (!productId && !productSlug) {
         alert("Produk tidak ditemukan metadata");
@@ -781,9 +780,8 @@
         }
 
         if (data) {
-          console.log("Loaded Product Data:", data); // DEBUG LOG
+
           isVariableProduct = !!data.hasVariants;
-          console.log("Is Variable Product?", isVariableProduct); // DEBUG LOG
 
           document.getElementById("product-name").textContent = data.name;
           document.title = data.name + " - Arufkuy Store";
@@ -800,7 +798,6 @@
 
           if (isVariableProduct) {
             currentVariants = data.variants || [];
-            console.log("Current Variants Data:", JSON.stringify(currentVariants, null, 2)); // DEBUG LOG
             document.getElementById("variant-section").classList.remove("hidden");
 
             // Render Variants
@@ -818,7 +815,6 @@
               btn.onclick = () => selectVariant(index);
 
               const vStock = getStock(v);
-              console.log(`Variant ${index}:`, v.name, "Stock:", vStock);
               const stockStatus = vStock > 0 ? `<span class='text-emerald-400 text-[10px]'>${vStock} Tersedia</span>` : `<span class='text-red-400 text-[10px]'>Stok Habis</span>`;
 
               btn.innerHTML = `
@@ -866,7 +862,6 @@
 
           const loading = document.getElementById("loading-skeleton");
           if (loading) {
-            console.log("Removing skeleton loader");
             loading.remove();
           } else {
             console.warn("Skeleton loader not found to remove");
@@ -906,6 +901,23 @@
       // Validate required fields
       if (!name || !email || !phone) {
         showToast('Silakan lengkapi semua data yang diperlukan', 'warning');
+        return;
+      }
+
+      // Specific Validation
+      if (name.length < 3) {
+        showToast('Nama lengkap minimal 3 karakter', 'warning');
+        return;
+      }
+
+      if (phone.length < 10) {
+        showToast('Nomor WhatsApp minimal 10 angka', 'warning');
+        return;
+      }
+
+      // Basic Phone Format Validation (only numbers)
+      if (!/^\d+$/.test(phone)) {
+        showToast('Nomor WhatsApp harus berupa angka', 'warning');
         return;
       }
 
