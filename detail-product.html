@@ -536,10 +536,17 @@
     // Helper to get stock count safely
     function getStock(item) {
       let val = 0;
+      // 1. Prefer explicit stock metadata
       if (typeof item.stock !== 'undefined') {
         val = Number(item.stock);
-      } else if (Array.isArray(item.stockItems)) {
-        val = item.stockItems.length;
+      }
+
+      // 2. If stockItems exists (legacy or sync issue), trust its length if it's greater than current val
+      // OR if we have no stock metadata. This handles the case where stock=0 but items exist.
+      if (Array.isArray(item.stockItems) && item.stockItems.length > 0) {
+        if (item.stockItems.length > val || typeof item.stock === 'undefined') {
+          val = item.stockItems.length;
+        }
       }
       return val;
     }
