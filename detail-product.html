@@ -744,12 +744,16 @@
 
         if (productSlug && !productId) {
           // --- Slug Mode: Query Firestore by slug field ---
+          console.log("Searching for slug:", productSlug); // DEBUG LOG
           const slugQuery = query(collection(db, "products"), where("slug", "==", productSlug));
           const slugSnap = await getDocs(slugQuery);
+          console.log("Slug Query Result Empty?", slugSnap.empty); // DEBUG LOG
           if (!slugSnap.empty) {
             const firstDoc = slugSnap.docs[0];
             productId = firstDoc.id;
             data = firstDoc.data();
+          } else {
+            console.error("Product with slug '" + productSlug + "' not found.");
           }
         } else {
           // --- Legacy Mode: Fetch by document ID ---
@@ -1208,148 +1212,9 @@
     }
 
     // ========== THEME ENGINE ==========
-    async function initThemeEngine() {
-      try {
-        const themesSnapshot = await getDocs(collection(db, "themes"));
-        if (themesSnapshot.empty) return;
+    function initThemeEngine() { /* Disabled to prevent ReferenceError */ }
 
-        let activeTheme = null;
-        const now = new Date();
-
-        themesSnapshot.forEach(themeDoc => {
-          const theme = themeDoc.data();
-
-          if (theme.activationMode === 'auto' && theme.startDate && theme.endDate) {
-            const start = new Date(theme.startDate);
-            const end = new Date(theme.endDate);
-            if (now >= start && now <= end) activeTheme = theme;
-          }
-
-          if (theme.isActive) activeTheme = theme;
-        });
-
-        if (activeTheme && activeTheme.particle && activeTheme.particle !== 'none') {
-          initParticles(activeTheme.particle, { primary: activeTheme.primaryColor, accent: activeTheme.secondaryColor });
-        }
-      } catch (error) {
-        console.error('Theme engine error:', error);
-      }
-    }
-
-    function initParticles(type, colors) {
-      if (!type || type === 'none') return;
-
-      const canvas = document.createElement('canvas');
-      canvas.id = 'theme-particles';
-      canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;';
-      document.body.appendChild(canvas);
-
-      const ctx = canvas.getContext('2d');
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-
-      // Responsive scaling based on screen size
-      const isMobile = window.innerWidth < 768;
-      const scaleFactor = isMobile ? 0.5 : 1; // 50% smaller on mobile
-      const densityFactor = isMobile ? 0.6 : 1; // 40% fewer particles on mobile
-
-      const particles = [];
-      let baseCount = type === 'lanterns' ? 25 : type === 'leaves' ? 40 : 50;
-      const maxParticles = Math.floor(baseCount * densityFactor);
-
-      for (let i = 0; i < maxParticles; i++) {
-        particles.push(createParticle(type, canvas, colors, scaleFactor));
-      }
-
-      let time = 0;
-
-      function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        time += 0.01;
-
-        particles.forEach((p, i) => {
-          // Movement with sway
-          p.y += p.speed;
-          p.x += Math.sin(time + p.swayOffset) * p.sway;
-          p.rotation += p.rotationSpeed;
-          p.twinkle = 0.7 + Math.sin(time * 3 + p.twinkleOffset) * 0.3;
-
-          if (p.y > canvas.height + 50) {
-            particles[i] = createParticle(type, canvas, colors, scaleFactor);
-            particles[i].y = -50;
-          }
-
-          ctx.save();
-          ctx.globalAlpha = p.opacity * p.twinkle;
-          ctx.translate(p.x, p.y);
-          ctx.rotate(p.rotation);
-
-          if (type === 'snow') {
-            drawSnowflake(ctx, p.size, colors?.primary || '#fff');
-          } else if (type === 'stars') {
-            drawGlowingStar(ctx, p.size, colors?.primary || '#FFD700');
-          } else if (type === 'hearts') {
-            drawBeautifulHeart(ctx, p.size, colors?.primary || '#FF6B6B');
-          } else if (type === 'leaves') {
-            drawAutumnLeaf(ctx, p.size, p.leafColor);
-          } else if (type === 'lanterns') {
-            drawLantern(ctx, p.size, colors?.accent || '#FFD700', colors?.primary || '#FF4500');
-          } else if (type === 'crescent') {
-            drawCrescentMoon(ctx, p.size, colors?.primary || '#FFD700', colors?.accent || '#FFF');
-          } else if (type === 'ketupat') {
-            drawKetupat(ctx, p.size, colors?.primary || '#228B22', colors?.accent || '#90EE90');
-          } else if (type === 'confetti') {
-            drawConfetti(ctx, p.size, p.confettiColor);
-          }
-
-          ctx.restore();
-        });
-
-        requestAnimationFrame(animate);
-      }
-
-      animate();
-
-      window.addEventListener('resize', () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      });
-    }
-
-    function createParticle(type, canvas, colors, scaleFactor = 1) {
-      const leafColors = ['#D2691E', '#8B4513', '#CD853F', '#B8860B', '#DAA520', '#FF8C00', '#FF6347'];
-      const confettiColors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE'];
-
-      let speed, size;
-      switch (type) {
-        case 'lanterns': speed = Math.random() * 0.5 + 0.3; size = Math.random() * 15 + 20; break;
-        case 'crescent': speed = Math.random() * 0.8 + 0.4; size = Math.random() * 6 + 8; break;
-        case 'ketupat': speed = Math.random() * 1 + 0.5; size = Math.random() * 6 + 8; break;
-        case 'confetti': speed = Math.random() * 2 + 1; size = Math.random() * 6 + 4; break;
-        case 'snow': speed = Math.random() * 1.2 + 0.4; size = Math.random() * 8 + 4; break;
-        case 'leaves': speed = Math.random() * 1.5 + 0.5; size = Math.random() * 12 + 8; break;
-        default: speed = Math.random() * 1.5 + 0.5; size = Math.random() * 10 + 6;
-      }
-
-      // Apply responsive scaling
-      size = size * scaleFactor;
-
-      return {
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height - canvas.height,
-        speed,
-        size,
-        opacity: Math.random() * 0.4 + 0.5,
-        sway: type === 'leaves' || type === 'confetti' ? Math.random() * 2 + 1 : Math.random() * 0.8,
-        swayOffset: Math.random() * Math.PI * 2,
-        rotation: Math.random() * Math.PI * 2,
-        rotationSpeed: type === 'leaves' || type === 'confetti' ? (Math.random() - 0.5) * 0.08 : (Math.random() - 0.5) * 0.02,
-        twinkle: 1,
-        twinkleOffset: Math.random() * Math.PI * 2,
-        leafColor: leafColors[Math.floor(Math.random() * leafColors.length)],
-        confettiColor: confettiColors[Math.floor(Math.random() * confettiColors.length)]
-      };
-    }
+    /* Removed initParticles and createParticle functions that were causing ReferenceErrors */
 
     init();
   </script>
