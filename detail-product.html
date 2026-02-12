@@ -581,22 +581,9 @@
       }, 5000);
     }
 
-    // --- URL Detection: Slug (/p/slug) or Legacy (?id=) ---
+    // --- URL Detection: Legacy (?id=) ---
     const params = new URLSearchParams(window.location.search);
-    const legacyId = params.get("id");
-
-    // Robust detection: find 'p' segment index anywhere (handle subdirectories)
-    const pathSegments = window.location.pathname.split('/').filter(Boolean);
-    const pIndex = pathSegments.indexOf('p');
-    const isSlugMode = pIndex !== -1 && pIndex < pathSegments.length - 1;
-    const rawSlug = isSlugMode ? pathSegments[pIndex + 1] : null;
-    const productSlug = rawSlug ? decodeURIComponent(rawSlug).trim() : null;
-
-    console.log("URL Detection -> Path:", window.location.pathname);
-    console.log("Segments:", pathSegments);
-    console.log("Slug Detected:", productSlug);
-
-    let productId = legacyId; // Will be resolved from slug if needed
+    let productId = params.get("id");
 
     let productStock = 0;
     let basePrice = 0;
@@ -738,9 +725,9 @@
     }
 
     async function loadProduct() {
-      console.log("loadProduct() START. ID:", productId, "Slug:", productSlug);
+      console.log("loadProduct() START. ID:", productId);
 
-      if (!productId && !productSlug) {
+      if (!productId) {
         alert("Produk tidak ditemukan metadata");
         window.location.href = "/";
         return;
@@ -749,32 +736,11 @@
       try {
         let data = null;
 
-        if (productSlug && !productId) {
-          // --- Slug Mode: Query Firestore by slug field ---
-          console.log("Searching for slug:", productSlug); // DEBUG LOG
-          const slugQuery = query(collection(db, "products"), where("slug", "==", productSlug));
-          const slugSnap = await getDocs(slugQuery);
-          console.log("Slug Query Result Empty?", slugSnap.empty); // DEBUG LOG
-          if (!slugSnap.empty) {
-            const firstDoc = slugSnap.docs[0];
-            productId = firstDoc.id;
-            data = firstDoc.data();
-          } else {
-            console.error("Product with slug '" + productSlug + "' not found.");
-          }
-        } else {
-          // --- Legacy Mode: Fetch by document ID ---
-          const docRef = doc(db, "products", productId);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            data = docSnap.data();
-
-            // If product has a slug and we're on legacy URL, redirect to clean URL
-            if (data.slug && !isSlugMode) {
-              // TEMPORARILY DISABLED due to hosting config issue (404 on slug)
-              // window.history.replaceState(null, '', '/p/' + data.slug);
-            }
-          }
+        // --- Legacy Mode: Fetch by document ID ---
+        const docRef = doc(db, "products", productId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          data = docSnap.data();
         }
 
         if (data) {
