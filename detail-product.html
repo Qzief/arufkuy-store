@@ -1184,9 +1184,27 @@
     document.getElementById('year').textContent = new Date().getFullYear();
 
     async function init() {
-      await fetchAndUpdateExchangeRate();
-      loadProduct();
-      initThemeEngine();
+      try {
+        if (typeof fetchAndUpdateExchangeRate === 'function') {
+          await fetchAndUpdateExchangeRate();
+        } else {
+          console.warn("fetchAndUpdateExchangeRate not defined. Skipping.");
+        }
+      } catch (err) {
+        console.error("Error fetching exchange rate:", err);
+      }
+
+      try {
+        await loadProduct(); // Await to ensure we catch errors here too
+      } catch (err) {
+        console.error("Critical: loadProduct failed", err);
+      }
+
+      try {
+        initThemeEngine();
+      } catch (e) {
+        console.warn("Theme engine failed", e);
+      }
     }
 
     // ========== THEME ENGINE ==========
