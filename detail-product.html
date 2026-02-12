@@ -536,8 +536,11 @@
     // Helper to get stock count safely
     function getStock(item) {
       let val = 0;
-      if (typeof item.stock !== 'undefined') val = Number(item.stock);
-      // Removed stockItems usage as requested
+      if (typeof item.stock !== 'undefined') {
+        val = Number(item.stock);
+      } else if (Array.isArray(item.stockItems)) {
+        val = item.stockItems.length;
+      }
       return val;
     }
 
