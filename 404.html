@@ -519,7 +519,7 @@
   <!-- Firebase & Page Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, addDoc, collection, query, where, getDocs, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, addDoc, setDoc, collection, query, where, getDocs, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDtBSbjr5IHmuZqND0MIexw-tWWcZIF33A",
@@ -532,6 +532,24 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+
+    // Helper to get stock count safely
+    function getStock(item) {
+      let val = 0;
+      // 1. Prefer explicit stock metadata
+      if (typeof item.stock !== 'undefined') {
+        val = Number(item.stock);
+      }
+
+      // 2. If stockItems exists (legacy or sync issue), trust its length if it's greater than current val
+      // OR if we have no stock metadata. This handles the case where stock=0 but items exist.
+      if (Array.isArray(item.stockItems) && item.stockItems.length > 0) {
+        if (item.stockItems.length > val || typeof item.stock === 'undefined') {
+          val = item.stockItems.length;
+        }
+      }
+      return val;
+    }
 
     // Toast Notification System
     function showToast(message, type = 'info') {
@@ -573,17 +591,20 @@
       }, 5000);
     }
 
-    // --- URL Detection: Slug (/p/slug) or Legacy (?id=) ---
+    // --- URL Detection: Legacy (?id=) ---
     const params = new URLSearchParams(window.location.search);
-    const legacyId = params.get("id");
+    let productId = params.get("id");
+    let productSlug = null;
 
-    // Robust detection: find 'p' segment index anywhere (handle subdirectories)
-    const pathSegments = window.location.pathname.split('/').filter(Boolean);
-    const pIndex = pathSegments.indexOf('p');
-    const isSlugMode = pIndex !== -1 && pIndex < pathSegments.length - 1;
-    const productSlug = isSlugMode ? pathSegments[pIndex + 1] : null;
-
-    let productId = legacyId; // Will be resolved from slug if needed
+    // Check for slug in path /p/SLUG
+    const pathParts = window.location.pathname.split('/');
+    if (pathParts.includes('p') && pathParts.length > 2) {
+      // Find index of 'p' and take next element
+      const pIndex = pathParts.indexOf('p');
+      if (pathParts[pIndex + 1]) {
+        productSlug = pathParts[pIndex + 1];
+      }
+    }
 
     let productStock = 0;
     let basePrice = 0;
@@ -599,23 +620,16 @@
       // Determine effective price
       let effectivePrice = basePrice;
       let effectiveOriginal = originalPrice;
+      const quantVal = parseInt(document.getElementById('quantity').value) || 1;
 
       if (isVariableProduct) {
-        if (!selectedVariant) {
-          // No variant selected yet, show range or 0
-          if (currentVariants.length > 0) {
-            // Show range? For now just show "Mulai dari..." in UI, but here we might need a fallback
-            // But usually this function is called after interaction
-            // If no variant selected, maybe show 0 or min price
-          }
-          return;
-        }
+        if (!selectedVariant) return;
         effectivePrice = selectedVariant.price;
         effectiveOriginal = selectedVariant.original_price || 0;
       }
 
-      const totalPrice = effectivePrice * quantity;
-      const totalOriginalPrice = effectiveOriginal * quantity;
+      const totalPrice = effectivePrice * quantVal;
+      const totalOriginalPrice = effectiveOriginal * quantVal;
 
       let displayPrice = totalPrice;
       let discountAmount = 0;
@@ -663,8 +677,10 @@
       priceContainer.innerHTML = priceHtml;
 
       document.getElementById('qty-minus').disabled = (quantity <= 1);
-      // For variants, check variant stock
-      const limit = isVariableProduct && selectedVariant ? (selectedVariant.stockItems ? selectedVariant.stockItems.length : 0) : productStock;
+      // For variants, use generic stock count
+      const limit = isVariableProduct && selectedVariant
+        ? getStock(selectedVariant)
+        : productStock;
       document.getElementById('qty-plus').disabled = (quantity >= limit);
     }
 
@@ -685,7 +701,8 @@
       document.getElementById("variant-error").classList.add("hidden");
 
       // Update Stock Display
-      const vStock = selectedVariant.stockItems ? selectedVariant.stockItems.length : 0;
+      const vStock = getStock(selectedVariant);
+
       const stockElement = document.getElementById("product-stock");
 
       if (vStock === 0) {
@@ -708,7 +725,9 @@
         const qtyInput = document.getElementById('quantity');
         let currentQty = parseInt(qtyInput.value);
 
-        const limit = isVariableProduct && selectedVariant ? (selectedVariant.stockItems ? selectedVariant.stockItems.length : 0) : productStock;
+        const limit = isVariableProduct && selectedVariant
+          ? getStock(selectedVariant)
+          : productStock;
 
         if (currentQty < limit) {
           qtyInput.value = currentQty + 1;
@@ -727,8 +746,10 @@
     }
 
     async function loadProduct() {
+      console.log("loadProduct() START. ID:", productId);
+
       if (!productId && !productSlug) {
-        alert("Produk tidak ditemukan");
+        alert("Produk tidak ditemukan metadata");
         window.location.href = "/";
         return;
       }
@@ -736,32 +757,33 @@
       try {
         let data = null;
 
-        if (productSlug && !productId) {
-          // --- Slug Mode: Query Firestore by slug field ---
-          const slugQuery = query(collection(db, "products"), where("slug", "==", productSlug));
-          const slugSnap = await getDocs(slugQuery);
-          if (!slugSnap.empty) {
-            const firstDoc = slugSnap.docs[0];
-            productId = firstDoc.id;
-            data = firstDoc.data();
+        // 1. Try fetching by Slug
+        if (productSlug) {
+          console.log("Fetching by Slug:", productSlug);
+          const q = query(collection(db, "products"), where("slug", "==", productSlug));
+          const querySnap = await getDocs(q);
+          if (!querySnap.empty) {
+            const docSnap = querySnap.docs[0];
+            data = docSnap.data();
+            productId = docSnap.id; // Important: Set ID for order processing
+          } else {
+            console.warn("Slug not found in DB");
           }
-        } else {
-          // --- Legacy Mode: Fetch by document ID ---
+        }
+
+        // 2. Fallback: Fetch by ID (Legacy)
+        if (!data && productId) {
           const docRef = doc(db, "products", productId);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
             data = docSnap.data();
-
-            // If product has a slug and we're on legacy URL, redirect to clean URL
-            if (data.slug && !isSlugMode) {
-              window.history.replaceState(null, '', '/p/' + data.slug);
-            }
           }
         }
 
         if (data) {
-
+          console.log("Loaded Product Data:", data); // DEBUG LOG
           isVariableProduct = !!data.hasVariants;
+          console.log("Is Variable Product?", isVariableProduct); // DEBUG LOG
 
           document.getElementById("product-name").textContent = data.name;
           document.title = data.name + " - Arufkuy Store";
@@ -778,6 +800,7 @@
 
           if (isVariableProduct) {
             currentVariants = data.variants || [];
+            console.log("Current Variants Data:", JSON.stringify(currentVariants, null, 2)); // DEBUG LOG
             document.getElementById("variant-section").classList.remove("hidden");
 
             // Render Variants
@@ -794,7 +817,8 @@
               btn.className = "variant-btn rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm font-medium text-slate-300 hover:border-indigo-500/50 hover:bg-white/5 transition text-left flex justify-between items-center group";
               btn.onclick = () => selectVariant(index);
 
-              const vStock = v.stockItems ? v.stockItems.length : 0;
+              const vStock = getStock(v);
+              console.log(`Variant ${index}:`, v.name, "Stock:", vStock);
               const stockStatus = vStock > 0 ? `<span class='text-emerald-400 text-[10px]'>${vStock} Tersedia</span>` : `<span class='text-red-400 text-[10px]'>Stok Habis</span>`;
 
               btn.innerHTML = `
@@ -812,9 +836,9 @@
 
           } else {
             // Simple Product Logic
-            productStock = Array.isArray(data.stockItems) ? data.stockItems.length : 0;
-            basePrice = data.price || 0;
-            originalPrice = data.original_price || 0;
+            productStock = getStock(data);
+            basePrice = Number(data.price) || 0;
+            originalPrice = Number(data.original_price) || 0;
 
             const stockElement = document.getElementById("product-stock");
             if (productStock === 0) {
@@ -929,98 +953,46 @@
         // Create pending order using TRANSACTION to reserve stock
         let orderId = 'pending';
 
+        // --- CLIENT-SIDE ORDER CREATION (No Stock Deduction) ---
+        // Stock deduction is now handled by the Server (Worker) or Admin upon payment/processing.
+        // We only create the 'orders' document here as a request.
+
         try {
-          await runTransaction(db, async (transaction) => {
-            // 1. Read Product Data
-            const productRef = doc(db, "products", productId);
-            const productDoc = await transaction.get(productRef);
+          // 1. Prepare Order Payload
+          const orderPayload = {
+            customerName: name,
+            customerEmail: email,
+            customerPhone: phone,
+            productName: finalProductName,
+            productId: productId,
+            quantity: quantity,
+            totalPrice: finalTotal,
+            originalTotalPrice: totalPriceIDR,
+            discountAmount: discountValue,
+            status: 'pending',
+            createdAt: new Date(), // Client timestamp
+            coupon: coupon || null,
+            description: description,
+            bookedItems: [] // NO SENSITIVE DATA
+          };
 
-            if (!productDoc.exists()) {
-              throw new Error("Produk tidak ditemukan!");
-            }
+          if (isVariableProduct && selectedVariant) {
+            orderPayload.variantId = selectedVariant.id;
+            orderPayload.variantName = selectedVariant.name;
+          }
 
-            const productData = productDoc.data();
-            let bookedItems = [];
-            let newStockItems = [];
-            let newVariants = [];
+          // 2. Create Order Doc
+          const orderRef = doc(collection(db, "orders"));
+          orderId = orderRef.id;
 
-            // 2. STOCK CHECK & DEDUCTION LOGIC
-            if (isVariableProduct && selectedVariant) {
-              // --- Variant Product ---
-              const variantIndex = productData.variants.findIndex(v => v.id === selectedVariant.id);
-              if (variantIndex === -1) throw new Error("Varian tidak ditemukan!");
-
-              const variant = productData.variants[variantIndex];
-              const currentStock = variant.stockItems || [];
-
-              if (currentStock.length < quantity) {
-                throw new Error(`Stok tidak cukup! Tersisa ${currentStock.length} item.`);
-              }
-
-              // Take items from FRONT (FIFO)
-              bookedItems = currentStock.slice(0, quantity);
-              const remainingStock = currentStock.slice(quantity);
-
-              // Prepare updated variants array
-              newVariants = [...productData.variants];
-              newVariants[variantIndex] = {
-                ...variant,
-                stockItems: remainingStock
-              };
-
-              transaction.update(productRef, { variants: newVariants });
-
-            } else {
-              // --- Simple Product ---
-              const currentStock = productData.stockItems || [];
-
-              if (currentStock.length < quantity) {
-                throw new Error(`Stok tidak cukup! Tersisa ${currentStock.length} item.`);
-              }
-
-              // Take items from FRONT (FIFO)
-              bookedItems = currentStock.slice(0, quantity);
-              newStockItems = currentStock.slice(quantity);
-
-              transaction.update(productRef, { stockItems: newStockItems });
-            }
-
-            // 3. Create Order Payload with Booked Items
-            const orderPayload = {
-              customerName: name,
-              customerEmail: email,
-              customerPhone: phone,
-              productName: finalProductName,
-              productId: productId,
-              quantity: quantity,
-              totalPrice: finalTotal,
-              originalTotalPrice: totalPriceIDR,
-              discountAmount: discountValue,
-              status: 'pending',
-              createdAt: new Date(),
-              coupon: coupon || null,
-              description: description,
-              bookedItems: bookedItems // STORE RESERVED ITEMS HERE
-            };
-
-            if (isVariableProduct && selectedVariant) {
-              orderPayload.variantId = selectedVariant.id;
-              orderPayload.variantName = selectedVariant.name;
-            }
-
-            // 4. Create Order Doc
-            const orderRef = doc(collection(db, "orders"));
-            orderId = orderRef.id;
-            transaction.set(orderRef, orderPayload);
-          });
+          // Just set the document. disallowed fields (like stock updates on product) are avoided.
+          await setDoc(orderRef, orderPayload);
 
         } catch (error) {
-          console.error('Transaction failed:', error);
-          showToast(`Gagal memproses pesanan: ${error.message}`, 'error');
+          console.error('Order creation failed:', error);
+          showToast(`Gagal membuat pesanan: ${error.message}`, 'error');
           submitBtn.disabled = false;
           submitBtn.innerHTML = originalBtnText;
-          // Refresh product data to show latest stock
-          loadProduct();
           return;
         }
 
@@ -1183,14 +1155,36 @@
     document.getElementById('year').textContent = new Date().getFullYear();
 
     async function init() {
-      await fetchAndUpdateExchangeRate();
-      loadProduct();
-      initThemeEngine();
+      try {
+        if (typeof fetchAndUpdateExchangeRate === 'function') {
+          await fetchAndUpdateExchangeRate();
+        } else {
+          console.warn("fetchAndUpdateExchangeRate not defined. Skipping.");
+        }
+      } catch (err) {
+        console.error("Error fetching exchange rate:", err);
+      }
+
+      try {
+        await loadProduct(); // Await to ensure we catch errors here too
+      } catch (err) {
+        console.error("Critical: loadProduct failed", err);
+      }
+
+      try {
+        initThemeEngine();
+      } catch (e) {
+        console.warn("Theme engine failed", e);
+      }
     }
 
     // ========== THEME ENGINE ==========
     async function initThemeEngine() {
       try {
+        // We already have top-level imports, but index.html used dynamic imports. 
+        // We'll stick to our existing standard usage of top-level imports where possible, 
+        // but to match index.html logic exactly, we'll adapt its structure.
+
         const themesSnapshot = await getDocs(collection(db, "themes"));
         if (themesSnapshot.empty) return;
 
@@ -1200,13 +1194,19 @@
         themesSnapshot.forEach(themeDoc => {
           const theme = themeDoc.data();
 
+          // Check auto mode (date based)
           if (theme.activationMode === 'auto' && theme.startDate && theme.endDate) {
             const start = new Date(theme.startDate);
             const end = new Date(theme.endDate);
-            if (now >= start && now <= end) activeTheme = theme;
+            if (now >= start && now <= end) {
+              activeTheme = theme;
+            }
           }
 
-          if (theme.isActive) activeTheme = theme;
+          // Check manual mode
+          if (theme.isActive) {
+            activeTheme = theme;
+          }
         });
 
         if (activeTheme && activeTheme.particle && activeTheme.particle !== 'none') {

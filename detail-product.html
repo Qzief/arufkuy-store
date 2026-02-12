@@ -536,8 +536,18 @@
     // Helper to get stock count safely
     function getStock(item) {
       let val = 0;
-      if (typeof item.stock !== 'undefined') val = Number(item.stock);
-      // Removed stockItems usage as requested
+      // 1. Prefer explicit stock metadata
+      if (typeof item.stock !== 'undefined') {
+        val = Number(item.stock);
+      }
+
+      // 2. If stockItems exists (legacy or sync issue), trust its length if it's greater than current val
+      // OR if we have no stock metadata. This handles the case where stock=0 but items exist.
+      if (Array.isArray(item.stockItems) && item.stockItems.length > 0) {
+        if (item.stockItems.length > val || typeof item.stock === 'undefined') {
+          val = item.stockItems.length;
+        }
+      }
       return val;
     }
 
@@ -584,6 +594,17 @@
     // --- URL Detection: Legacy (?id=) ---
     const params = new URLSearchParams(window.location.search);
     let productId = params.get("id");
+    let productSlug = null;
+
+    // Check for slug in path /p/SLUG
+    const pathParts = window.location.pathname.split('/');
+    if (pathParts.includes('p') && pathParts.length > 2) {
+      // Find index of 'p' and take next element
+      const pIndex = pathParts.indexOf('p');
+      if (pathParts[pIndex + 1]) {
+        productSlug = pathParts[pIndex + 1];
+      }
+    }
 
     let productStock = 0;
     let basePrice = 0;
@@ -727,7 +748,7 @@
     async function loadProduct() {
       console.log("loadProduct() START. ID:", productId);
 
-      if (!productId) {
+      if (!productId && !productSlug) {
         alert("Produk tidak ditemukan metadata");
         window.location.href = "/";
         return;
@@ -736,11 +757,27 @@
       try {
         let data = null;
 
-        // --- Legacy Mode: Fetch by document ID ---
-        const docRef = doc(db, "products", productId);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          data = docSnap.data();
+        // 1. Try fetching by Slug
+        if (productSlug) {
+          console.log("Fetching by Slug:", productSlug);
+          const q = query(collection(db, "products"), where("slug", "==", productSlug));
+          const querySnap = await getDocs(q);
+          if (!querySnap.empty) {
+            const docSnap = querySnap.docs[0];
+            data = docSnap.data();
+            productId = docSnap.id; // Important: Set ID for order processing
+          } else {
+            console.warn("Slug not found in DB");
+          }
+        }
+
+        // 2. Fallback: Fetch by ID (Legacy)
+        if (!data && productId) {
+          const docRef = doc(db, "products", productId);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            data = docSnap.data();
+          }
         }
 
         if (data) {
