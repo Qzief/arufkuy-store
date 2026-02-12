@@ -599,23 +599,16 @@
       // Determine effective price
       let effectivePrice = basePrice;
       let effectiveOriginal = originalPrice;
+      const quantVal = parseInt(document.getElementById('quantity').value) || 1;
 
       if (isVariableProduct) {
-        if (!selectedVariant) {
-          // No variant selected yet, show range or 0
-          if (currentVariants.length > 0) {
-            // Show range? For now just show "Mulai dari..." in UI, but here we might need a fallback
-            // But usually this function is called after interaction
-            // If no variant selected, maybe show 0 or min price
-          }
-          return;
-        }
+        if (!selectedVariant) return;
         effectivePrice = selectedVariant.price;
         effectiveOriginal = selectedVariant.original_price || 0;
       }
 
-      const totalPrice = effectivePrice * quantity;
-      const totalOriginalPrice = effectiveOriginal * quantity;
+      const totalPrice = effectivePrice * quantVal;
+      const totalOriginalPrice = effectiveOriginal * quantVal;
 
       let displayPrice = totalPrice;
       let discountAmount = 0;
@@ -663,8 +656,10 @@
       priceContainer.innerHTML = priceHtml;
 
       document.getElementById('qty-minus').disabled = (quantity <= 1);
-      // For variants, check variant stock
-      const limit = isVariableProduct && selectedVariant ? (selectedVariant.stockItems ? selectedVariant.stockItems.length : 0) : productStock;
+      // For variants, use generic stock count
+      const limit = isVariableProduct && selectedVariant
+        ? (typeof selectedVariant.stock !== 'undefined' ? selectedVariant.stock : (selectedVariant.stockItems ? selectedVariant.stockItems.length : 0))
+        : productStock;
       document.getElementById('qty-plus').disabled = (quantity >= limit);
     }
 
@@ -685,7 +680,11 @@
       document.getElementById("variant-error").classList.add("hidden");
 
       // Update Stock Display
-      const vStock = selectedVariant.stockItems ? selectedVariant.stockItems.length : 0;
+      // Use 'stock' property if available (new structure), fallback to stockItems length (old structure)
+      const vStock = typeof selectedVariant.stock !== 'undefined'
+        ? selectedVariant.stock
+        : (selectedVariant.stockItems ? selectedVariant.stockItems.length : 0);
+
       const stockElement = document.getElementById("product-stock");
 
       if (vStock === 0) {
@@ -708,7 +707,9 @@
         const qtyInput = document.getElementById('quantity');
         let currentQty = parseInt(qtyInput.value);
 
-        const limit = isVariableProduct && selectedVariant ? (selectedVariant.stockItems ? selectedVariant.stockItems.length : 0) : productStock;
+        const limit = isVariableProduct && selectedVariant
+          ? (typeof selectedVariant.stock !== 'undefined' ? selectedVariant.stock : (selectedVariant.stockItems ? selectedVariant.stockItems.length : 0))
+          : productStock;
 
         if (currentQty < limit) {
           qtyInput.value = currentQty + 1;
@@ -794,7 +795,7 @@
               btn.className = "variant-btn rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm font-medium text-slate-300 hover:border-indigo-500/50 hover:bg-white/5 transition text-left flex justify-between items-center group";
               btn.onclick = () => selectVariant(index);
 
-              const vStock = v.stockItems ? v.stockItems.length : 0;
+              const vStock = typeof v.stock !== 'undefined' ? v.stock : (v.stockItems ? v.stockItems.length : 0);
               const stockStatus = vStock > 0 ? `<span class='text-emerald-400 text-[10px]'>${vStock} Tersedia</span>` : `<span class='text-red-400 text-[10px]'>Stok Habis</span>`;
 
               btn.innerHTML = `
@@ -812,7 +813,7 @@
 
           } else {
             // Simple Product Logic
-            productStock = Array.isArray(data.stockItems) ? data.stockItems.length : 0;
+            productStock = typeof data.stock !== 'undefined' ? data.stock : (Array.isArray(data.stockItems) ? data.stockItems.length : 0);
             basePrice = data.price || 0;
             originalPrice = data.original_price || 0;
 
@@ -940,52 +941,91 @@
             }
 
             const productData = productDoc.data();
-            let bookedItems = [];
-            let newStockItems = [];
             let newVariants = [];
 
-            // 2. STOCK CHECK & DEDUCTION LOGIC
+            // 2. STOCK CHECK & DEDUCTION LOGIC (METADATA ONLY)
             if (isVariableProduct && selectedVariant) {
               // --- Variant Product ---
               const variantIndex = productData.variants.findIndex(v => v.id === selectedVariant.id);
               if (variantIndex === -1) throw new Error("Varian tidak ditemukan!");
 
               const variant = productData.variants[variantIndex];
-              const currentStock = variant.stockItems || [];
+              const currentStockCount = typeof variant.stock !== 'undefined'
+                ? variant.stock
+                : (variant.stockItems ? variant.stockItems.length : 0);
 
-              if (currentStock.length < quantity) {
-                throw new Error(`Stok tidak cukup! Tersisa ${currentStock.length} item.`);
+              if (currentStockCount < quantity) {
+                throw new Error(`Stok tidak cukup! Tersisa ${currentStockCount} item.`);
               }
 
-              // Take items from FRONT (FIFO)
-              bookedItems = currentStock.slice(0, quantity);
-              const remainingStock = currentStock.slice(quantity);
-
-              // Prepare updated variants array
+              // Decrement Stock Count Only (Reservation)
+              // Do NOT touch stockItems
               newVariants = [...productData.variants];
               newVariants[variantIndex] = {
                 ...variant,
-                stockItems: remainingStock
+                stock: currentStockCount - quantity
               };
+              // Ensure we don't accidentally write back stockItems if they exist in legacy data
+              // Actually, preventing write back is complex if we do spread. 
+              // If we are in legacy mode (variant has stockItems), we MUST maintain it or we break data?
+              // The task is to "Refactor". If we use new structure, we rely on 'stock'.
+              // If we are migrating, we might still have stockItems.
+              // IF we just update 'stock' but leave 'stockItems' unsynced, it creates confusion.
+              // BUT we cannot update 'stockItems' here because we want to hide it.
+              // SOLUTION: If 'stockItems' exists on the variant, we must remove it from the product doc to complete the migration/security fix?
+              // No, that deletes data before migration.
+              // Safest approach for NOW:
+              // If we are in "Legacy Mode" (no separate stock doc), we CANNOT secure it fully yet without breaking legacy worker?
+              // But we updated worker to handle both.
+              // Ideally, we decrement 'stock' count.
+              // If legacy 'stockItems' exists, we leave it alone? Valid question.
+              // If we leave it alone, 'stock' count decreases, 'stockItems' stays same.
+              // Worker will see 'stock' is lower, but 'stockItems' is full.
+              // Worker will take items from 'stockItems' (legacy) and update 'stockItems'.
+              // Worker logic updates 'stockItems'.
+              // PROBLME: If we update 'stock' count here, and Worker updates 'stockItems' later (and also updates 'stock' count?), we might have issues.
+              // Worker implementation updates 'variants' with new StockItems. 
+              // It effectively overwrites the variant.
+              // So if we update 'stock' here, later Worker overwrites the whole variant with its version?
+              // Worker fetches FRESH product data at start of processing.
+              // So Worker will see the decremented stock count.
+              // Then Worker logic:
+              // Legacy: reads stockItems, slices, WRITES back stockItems.
+              // Does Legacy worker write back 'stock' count?
+              // My legacy updated logic in worker.js updates 'variants' field.
+              // It reconstructs variant from `productData.variants`.
+              // `productData` in worker will have the decremented `stock`.
+              // Then worker updates `stockItems` on that variant.
+              // So the `stock` property will be preserved (decremented) unless worker explicitly overwrites it?
+              // In worker: `updatedVariants[variantIndex] = { ...variant, stockItems: remainingItems };`
+              // This PRESERVES `stock` from the fetched `variant`.
+              // So `stock` will remain decremented.
+              // BUT `stockItems` length will ALSO decrease.
+              // So `stock` will be (Original - 1 (reservation) - 1 (worker deduction during legacy update?)).
+              // Wait. Worker takes from `stockItems`.
+              // `stockItems` length is e.g. 10. `stock` is 9 (reserved).
+              // Worker sees stockItems=10. Takes 1. Remaining=9.
+              // Worker saves variant with stockItems=9, stock=9.
+              // Result: 9. Correct!
+              // So we are safe.
 
               transaction.update(productRef, { variants: newVariants });
 
             } else {
               // --- Simple Product ---
-              const currentStock = productData.stockItems || [];
+              const currentStockCount = typeof productData.stock !== 'undefined'
+                ? productData.stock
+                : (productData.stockItems ? productData.stockItems.length : 0);
 
-              if (currentStock.length < quantity) {
-                throw new Error(`Stok tidak cukup! Tersisa ${currentStock.length} item.`);
+              if (currentStockCount < quantity) {
+                throw new Error(`Stok tidak cukup! Tersisa ${currentStockCount} item.`);
               }
 
-              // Take items from FRONT (FIFO)
-              bookedItems = currentStock.slice(0, quantity);
-              newStockItems = currentStock.slice(quantity);
-
-              transaction.update(productRef, { stockItems: newStockItems });
+              // Decrement Stock Count Only
+              transaction.update(productRef, { stock: currentStockCount - quantity });
             }
 
-            // 3. Create Order Payload with Booked Items
+            // 3. Create Order Payload
             const orderPayload = {
               customerName: name,
               customerEmail: email,
@@ -1000,7 +1040,7 @@
               createdAt: new Date(),
               coupon: coupon || null,
               description: description,
-              bookedItems: bookedItems // STORE RESERVED ITEMS HERE
+              bookedItems: [] // NO SENSITIVE DATA
             };
 
             if (isVariableProduct && selectedVariant) {

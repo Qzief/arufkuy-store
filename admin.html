@@ -266,7 +266,9 @@
               class="flex items-center gap-2 rounded-xl bg-amber-600/20 border border-amber-500/30 px-3 py-2.5 text-sm font-bold text-amber-300 hover:bg-amber-600/30 transition-all"
               title="Generate slug SEO untuk semua produk yang belum punya">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1">
+                </path>
               </svg>
               Generate Slugs
             </button>
@@ -1211,7 +1213,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, getDocs, getDoc, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, limit, runTransaction, serverTimestamp, setDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, getDoc, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, limit, runTransaction, serverTimestamp, setDoc, writeBatch, deleteField } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDtBSbjr5IHmuZqND0MIexw-tWWcZIF33A",
@@ -1701,101 +1703,7 @@
       }
     };
 
-    // --- AUTO CANCEL LOGIC (Client-Side Trigger) ---
-    async function autoCancelExpiredOrders() {
-      console.log("Checking for expired orders...");
-      const now = new Date();
-      // Change from 24 hours to 1 hour
-      const oneHourAgo = new Date(now.getTime() - (1 * 60 * 60 * 1000));
 
-      try {
-        const q = query(collection(db, "orders"), where("status", "==", "pending"));
-        const snapshot = await getDocs(q);
-
-        let cancelledCount = 0;
-
-        // We must process these sequentially to avoid transactions overlapping on same product (though uncommon for auto-cancel)
-        // Or we can just do parallel since updates are small. 
-        // Better: Process 1 by 1 or use Promise.all but be careful.
-        // Let's use loop for safety with stock returns.
-
-        for (const docSnap of snapshot.docs) {
-          const data = docSnap.data();
-          if (!data.createdAt) continue;
-
-          const createdTime = data.createdAt.toDate();
-          if (createdTime < oneHourAgo) {
-            // Order is expired
-            console.log(`Processing expired order ${docSnap.id}...`);
-
-            // Check for booked items to restore
-            const bookedItems = data.bookedItems || [];
-            const productId = data.productId;
-            const variantId = data.variantId;
-            let restored = false;
-
-            if (bookedItems.length > 0 && productId) {
-              try {
-                await runTransaction(db, async (transaction) => {
-                  const productRef = doc(db, "products", productId);
-                  const productDoc = await transaction.get(productRef);
-
-                  if (!productDoc.exists()) {
-                    // Product gone, just cancel order
-                    return;
-                  }
-
-                  const productData = productDoc.data();
-
-                  if (data.variantId && productData.hasVariants) {
-                    // Restore to Variant
-                    const variantIndex = productData.variants.findIndex(v => v.id === data.variantId);
-                    if (variantIndex !== -1) {
-                      const variant = productData.variants[variantIndex];
-                      // Prepend booked items back to stock
-                      const newStock = [...bookedItems, ...(variant.stockItems || [])];
-                      const newVariants = [...productData.variants];
-                      newVariants[variantIndex] = { ...variant, stockItems: newStock };
-                      transaction.update(productRef, { variants: newVariants });
-                    }
-                  } else {
-                    // Restore to Simple Product
-                    const newStock = [...bookedItems, ...(productData.stockItems || [])];
-                    transaction.update(productRef, { stockItems: newStock });
-                  }
-                });
-                restored = true;
-                console.log(`Restored ${bookedItems.length} items to stock for order ${docSnap.id}`);
-              } catch (rErr) {
-                console.error("Failed to restore stock:", rErr);
-                // Continue to cancel anyway? tricky. Let's cancel so it doesn't get stuck, log error.
-              }
-            }
-
-            // Mark as cancelled
-            await updateDoc(doc(db, "orders", docSnap.id), {
-              status: "cancelled",
-              cancelledReason: "auto-expired-1h",
-              stockRestored: restored,
-              updatedAt: serverTimestamp()
-            });
-
-            cancelledCount++;
-          }
-        }
-
-        if (cancelledCount > 0) {
-          showToast(`Otomatis membatalkan ${cancelledCount} pesanan expired (>1 jam) & mengembalikan stok.`, 'warning');
-          // Refresh data
-          loadDashboardStats();
-          loadOrders();
-        } else {
-          console.log("No expired orders found.");
-        }
-      } catch (err) {
-        console.error("Error auto-cancelling orders:", err);
-      }
-    }
 
     // Product CRUD Logic
     let products = [];
@@ -1818,7 +1726,7 @@
           let priceDisplay = "";
 
           if (data.hasVariants && Array.isArray(data.variants)) {
-            const totalStock = data.variants.reduce((acc, v) => acc + (v.stockItems ? v.stockItems.length : 0), 0);
+            const totalStock = data.variants.reduce((acc, v) => acc + (v.stock || (v.stockItems ? v.stockItems.length : 0)), 0);
             stockDisplay = `<span class="bg-indigo-500/15 text-indigo-200 px-2.5 py-0.5 rounded-full text-xs font-medium">${data.variants.length} Varian (${totalStock} Item)</span>`;
 
             // Price range or starting from
@@ -1829,7 +1737,7 @@
               priceDisplay = "-";
             }
           } else {
-            const stockCount = Array.isArray(data.stockItems) ? data.stockItems.length : 0;
+            const stockCount = typeof data.stock !== 'undefined' ? data.stock : (Array.isArray(data.stockItems) ? data.stockItems.length : 0);
             const color = stockCount > 0 ? 'bg-emerald-500/15 text-emerald-200' : 'bg-red-500/15 text-red-200';
             stockDisplay = `<span class="inline-flex items-center rounded-full ${color} px-2.5 py-0.5 text-xs font-medium">${stockCount} Item</span>`;
             priceDisplay = `Rp ${new Intl.NumberFormat("id-ID").format(data.price)}`;
@@ -2190,51 +2098,107 @@
       });
     };
 
-    // Helper: Return booked items to stock
+    // Helper: Return booked items to stock (Supports new 'stocks' collection)
     window.returnStockFromOrder = async function (orderData, batchArg = null) {
       const booked = (orderData.bookedItems && Array.isArray(orderData.bookedItems)) ? orderData.bookedItems : [];
       const delivered = (orderData.deliveredItems && Array.isArray(orderData.deliveredItems)) ? orderData.deliveredItems : [];
-
+      // Combine items to return (booked + delivered usually mutually exclusive or complementary depending on cancel state)
+      // Usually, if 'delivered', they are not 'booked'. If 'pending', they are 'booked'.
+      // Only return what exists.
       const itemsToReturn = [...booked, ...delivered];
 
-      if (itemsToReturn.length === 0) {
-        return; // Nothing to return
-      }
+      if (itemsToReturn.length === 0) return;
 
       const prodRef = doc(db, "products", orderData.productId);
-      // We need to read product first
-      const prodSnap = await getDoc(prodRef);
-      if (!prodSnap.exists()) return;
+      const stockRef = doc(db, "stocks", orderData.productId);
 
-      const prodData = prodSnap.data();
+      try {
+        const [prodSnap, stockSnap] = await Promise.all([getDoc(prodRef), getDoc(stockRef)]);
 
-      // Prepare update payload
-      let updatePayload = {};
+        if (!prodSnap.exists()) return;
 
-      if (orderData.variantId && prodData.hasVariants) {
-        const variantIndex = prodData.variants.findIndex(v => v.id === orderData.variantId);
-        if (variantIndex !== -1) {
-          // Note: We clear notes to keep stock clean, assuming notes were order-specific or just safe default
-          const itemsReturn = itemsToReturn.map(item => ({ ...item, note: '' }));
-          const updatedVariants = [...prodData.variants];
-          updatedVariants[variantIndex].stockItems = [
-            ...updatedVariants[variantIndex].stockItems,
-            ...itemsReturn
-          ];
-          updatePayload = { variants: updatedVariants };
-        }
-      } else {
-        const itemsReturn = itemsToReturn.map(item => ({ ...item, note: '' }));
-        const currentStock = prodData.stockItems || [];
-        updatePayload = { stockItems: [...currentStock, ...itemsReturn] };
-      }
+        const prodData = prodSnap.data();
+        const stockData = stockSnap.exists() ? stockSnap.data() : null;
+        const isNewStructure = !!stockData; // If stock doc exists, use it
 
-      if (Object.keys(updatePayload).length > 0) {
-        if (batchArg) {
-          batchArg.update(prodRef, updatePayload);
+        let updatePayloadProd = {};
+        let updatePayloadStock = {};
+
+        // Sanitize items: New IDs (to avoid collision if reused somehow), clear notes
+        const itemsReturn = itemsToReturn.map(item => ({
+          id: Date.now() + Math.random().toString(36).substr(2, 5),
+          content: item.content,
+          note: '' // Reset note
+        }));
+
+        if (orderData.variantId && prodData.hasVariants && Array.isArray(prodData.variants)) {
+          // VARIANT PRODUCT
+          if (isNewStructure && stockData.variants) {
+            const currentVariantStock = stockData.variants[orderData.variantId] || [];
+            const newStock = [...currentVariantStock, ...itemsReturn];
+
+            // Update Stocks Collection
+            const newVariantsStockMap = { ...stockData.variants };
+            newVariantsStockMap[orderData.variantId] = newStock;
+            updatePayloadStock = { variants: newVariantsStockMap };
+
+            // Update Products Collection (Metadata Only: Stock Count)
+            const variantIndex = prodData.variants.findIndex(v => v.id === orderData.variantId);
+            if (variantIndex !== -1) {
+              const updatedVariants = [...prodData.variants];
+              // Only update stock count metadata
+              const newVariantMeta = {
+                ...updatedVariants[variantIndex],
+                stock: newStock.length
+              };
+              // Ensure legacy stockItems is removed if we are in new structure
+              delete newVariantMeta.stockItems;
+              updatedVariants[variantIndex] = newVariantMeta;
+              updatePayloadProd = { variants: updatedVariants };
+            }
+          } else {
+            // Legacy Variant Backup
+            const variantIndex = prodData.variants.findIndex(v => v.id === orderData.variantId);
+            if (variantIndex !== -1) {
+              const currentVariant = prodData.variants[variantIndex];
+              const currentStock = currentVariant.stockItems || [];
+              const newStock = [...currentStock, ...itemsReturn];
+
+              const updatedVariants = [...prodData.variants];
+              updatedVariants[variantIndex] = { ...currentVariant, stockItems: newStock };
+              updatePayloadProd = { variants: updatedVariants };
+            }
+          }
         } else {
-          await updateDoc(prodRef, updatePayload);
+          // SIMPLE PRODUCT
+          if (isNewStructure && stockData.items) {
+            const currentStock = stockData.items || [];
+            const newStock = [...currentStock, ...itemsReturn];
+
+            updatePayloadStock = { items: newStock };
+            // Update count and remove legacy
+            updatePayloadProd = { stock: newStock.length, stockItems: deleteField() };
+          } else {
+            // Legacy Simple
+            const currentStock = prodData.stockItems || [];
+            const newStock = [...currentStock, ...itemsReturn];
+            updatePayloadProd = { stockItems: newStock };
+          }
         }
+
+        // EXECUTE UPDATES
+        if (batchArg) {
+          if (Object.keys(updatePayloadProd).length > 0) batchArg.update(prodRef, updatePayloadProd);
+          if (Object.keys(updatePayloadStock).length > 0) batchArg.update(stockRef, updatePayloadStock);
+        } else {
+          const p = [];
+          if (Object.keys(updatePayloadProd).length > 0) p.push(updateDoc(prodRef, updatePayloadProd));
+          if (Object.keys(updatePayloadStock).length > 0) p.push(updateDoc(stockRef, updatePayloadStock));
+          if (p.length > 0) await Promise.all(p);
+        }
+
+      } catch (err) {
+        console.error("Error returning stock:", err);
       }
     };
 
@@ -2245,9 +2209,6 @@
       const expirationTime = 60 * 60 * 1000;
 
       try {
-        // Query pending orders
-        // Note: In a real app with many orders, you'd want a composite index on status + createdAt
-        // Here we'll query pending and filter client-side for simplicity/cost
         const q = query(collection(db, "orders"), where("status", "==", "pending"));
         const snapshot = await getDocs(q);
 
@@ -2266,37 +2227,9 @@
             // EXPIRED!
             console.log(`Order ${docSnap.id} is expired. Cancelling...`);
 
-            // 1. Check if it has bookedItems to return
+            // 1. Return items to stock (handles both legacy and new structure)
             if (data.bookedItems && Array.isArray(data.bookedItems) && data.bookedItems.length > 0) {
-              const prodRef = doc(db, "products", data.productId);
-              const prodSnap = await getDoc(prodRef);
-
-              if (prodSnap.exists()) {
-                const prodData = prodSnap.data();
-
-                // Restore Stock
-                if (data.variantId && prodData.hasVariants) {
-                  // Variant Restore
-                  const variantIndex = prodData.variants.findIndex(v => v.id === data.variantId);
-                  if (variantIndex !== -1) {
-                    const currentRequestItems = data.bookedItems.map(item => ({ ...item, note: '' })); // Reset note or keep as is? Usually clear note for stock
-                    // We just push them back to stockItems
-                    const updatedVariants = [...prodData.variants];
-                    updatedVariants[variantIndex].stockItems = [
-                      ...updatedVariants[variantIndex].stockItems,
-                      ...currentRequestItems
-                    ];
-                    batch.update(prodRef, { variants: updatedVariants });
-                  }
-                } else {
-                  // Simple Product Restore
-                  const currentRequestItems = data.bookedItems.map(item => ({ ...item, note: '' }));
-                  const currentStock = prodData.stockItems || [];
-                  batch.update(prodRef, {
-                    stockItems: [...currentStock, ...currentRequestItems]
-                  });
-                }
-              }
+              await window.returnStockFromOrder(data, batch);
             }
 
             // 2. Update Order Status
@@ -2317,7 +2250,7 @@
           showToast(`Otomatis membatalkan ${cancelCount} pesanan kadaluarsa`, 'info');
           // Reload if on orders tab
           if (document.getElementById('tab-orders').classList.contains('hidden') === false) {
-            loadOrders();
+            if (typeof loadOrders === 'function') loadOrders();
           }
         }
 
@@ -2495,6 +2428,10 @@
 
         // Generate slug from product name
         const baseSlug = generateSlug(name);
+        // If ID exists, we exclude it from check, but strict slug update might change URL. 
+        // For now let's regenerate slug if name changes or new product.
+        // Or if we want stable slugs, maybe only generate if empty or new.
+        // Let's generate fresh if needed.
         const slug = await ensureUniqueSlug(baseSlug, id || null);
 
         let productData = {
@@ -2509,30 +2446,69 @@
           updatedAt: serverTimestamp()
         };
 
+        // Prepare Stock Data for 'stocks' collection
+        let stockData = {};
+
         if (isVariableProduct) {
           if (currentVariants.length === 0) throw new Error("Minimal harus ada 1 varian!");
-          productData.variants = currentVariants;
-          // Clear simple fields just in case
+
+          // Construct variants for metadata (public)
+          // We remove 'stockItems' from here and replace with 'stock' count
+          const variantsMetadata = currentVariants.map(v => ({
+            id: v.id,
+            name: v.name,
+            price: v.price,
+            original_price: v.original_price,
+            stock: v.stockItems ? v.stockItems.length : 0 // Store count only
+          }));
+
+          productData.variants = variantsMetadata;
+
+          // Clear simple fields
           productData.price = 0;
-          productData.stockItems = [];
+          productData.stock = 0;
+          productData.stockItems = null; // Ensure removed
+
+          // Construct stock data (private)
+          const variantsStock = {};
+          currentVariants.forEach(v => {
+            variantsStock[v.id] = v.stockItems || [];
+          });
+          stockData = { variants: variantsStock };
+
         } else {
           const price = document.getElementById("prod-price").value;
           const original_price = document.getElementById("prod-original-price").value;
 
           productData.price = parseInt(price);
           if (original_price) productData.original_price = parseInt(original_price);
-          productData.stockItems = currentEditingStock;
-          productData.variants = []; // Clear variants
+
+          // Store count only
+          productData.stock = currentEditingStock.length;
+          productData.stockItems = null; // Ensure removed
+          productData.variants = [];
+
+          // Stock data
+          stockData = { items: currentEditingStock };
         }
 
+        let productId = id;
+
         if (id) {
+          // Update Product Metadata
           await updateDoc(doc(db, "products", id), productData);
         } else {
           productData.createdAt = serverTimestamp();
-          await addDoc(collection(db, "products"), productData);
+          const newDoc = await addDoc(collection(db, "products"), productData);
+          productId = newDoc.id;
         }
 
+        // Update Stock Data (Stocks Collection)
+        // Use setDoc with merge to ensure we create or update
+        await setDoc(doc(db, "stocks", productId), stockData, { merge: true });
+
         closeModal();
+        showToast("Produk berhasil disimpan!", "success"); // Changed to toast
       } catch (error) {
         alert("Error: " + error.message);
       } finally {
@@ -2630,22 +2606,44 @@
       document.getElementById("has-variants").checked = isVariableProduct;
       toggleVariantMode();
 
+      // Fetch Secret Stock Data
+      let detailedStock = null;
+      try {
+        const stockDoc = await getDoc(doc(db, "stocks", id));
+        if (stockDoc.exists()) detailedStock = stockDoc.data();
+      } catch (e) { console.error("Error fetching detailed stocks:", e); }
+
       if (isVariableProduct) {
-        currentVariants = product.variants || [];
+        // Hydrate variants with secret stock data
+        // If detailedStock exists, use it. Else fallback to product.variants (migration)
+        currentVariants = product.variants ? product.variants.map(v => {
+          let stockItems = [];
+          if (detailedStock && detailedStock.variants && detailedStock.variants[v.id]) {
+            stockItems = detailedStock.variants[v.id];
+          } else if (v.stockItems) {
+            stockItems = v.stockItems; // Fallback
+          }
+          return { ...v, stockItems };
+        }) : [];
+
         renderVariants();
       } else {
         document.getElementById("prod-price").value = product.price;
         document.getElementById("prod-original-price").value = product.original_price || "";
 
         // Stock Normalization
-        if (Array.isArray(product.stockItems)) {
-          currentEditingStock = product.stockItems.map(item => {
-            if (typeof item === 'string') return { content: item, note: '', id: Math.random().toString(36) };
-            return { ...item, id: item.id || Math.random().toString(36) };
-          });
-        } else {
-          currentEditingStock = [];
+        let rawItems = [];
+        if (detailedStock && detailedStock.items) {
+          rawItems = detailedStock.items;
+        } else if (Array.isArray(product.stockItems)) {
+          rawItems = product.stockItems; // Fallback
         }
+
+        currentEditingStock = rawItems.map(item => {
+          if (typeof item === 'string') return { content: item, note: '', id: Math.random().toString(36) };
+          return { ...item, id: item.id || Math.random().toString(36) };
+        });
+
         renderStockList();
       }
 
@@ -2655,9 +2653,19 @@
     };
 
     window.deleteProduct = async (id) => {
-      if (confirm("Yakin ingin menghapus produk ini?")) {
+      if (confirm("Yakin ingin menghapus produk ini? Stok juga akan dihapus permanen.")) {
         try {
+          // Delete from products
           await deleteDoc(doc(db, "products", id));
+
+          // Delete from stocks (try catch to ignore if not exists)
+          try {
+            await deleteDoc(doc(db, "stocks", id));
+          } catch (e) {
+            console.log("No detailed stock data found or error deleting stock doc", e);
+          }
+
+          showToast("Produk berhasil dihapus", "success");
         } catch (error) {
           alert("Gagal menghapus: " + error.message);
         }
@@ -2766,24 +2774,45 @@
       try {
         await runTransaction(db, async (transaction) => {
           const prodRef = doc(db, "products", prodId);
+          const stockRef = doc(db, "stocks", prodId); // NEW
+
           const prodDoc = await transaction.get(prodRef);
+          const stockDoc = await transaction.get(stockRef); // NEW
 
           if (!prodDoc.exists()) throw "Produk tidak ditemukan!";
 
           const prodData = prodDoc.data();
-          const stock = prodData.stockItems || [];
+          let items = [];
 
-          if (stock.length === 0) throw "Stok habis!";
+          // Logic to get items: check 'stocks' collection first, valid for new structure
+          // Fallback to 'products' collection for lazy migration
+          let isNewStructure = false;
+
+          if (stockDoc.exists()) {
+            items = stockDoc.data().items || [];
+            isNewStructure = true;
+          } else {
+            items = prodData.stockItems || [];
+          }
+
+          if (items.length === 0) throw "Stok habis!";
 
           // Ambil item pertama (FIFO)
-          const itemToSell = stock[0];
-          const remainingStock = stock.slice(1);
+          const itemToSell = items[0];
+          const remainingStock = items.slice(1);
 
           // Prepare stock content for history
           let stockContentForHistory = itemToSell;
 
-          // Update Produk
-          transaction.update(prodRef, { stockItems: remainingStock });
+          // Update Stock & Product
+          if (isNewStructure) {
+            // Update stocks/{id}.items and products/{id}.stock
+            transaction.update(stockRef, { items: remainingStock });
+            transaction.update(prodRef, { stock: remainingStock.length });
+          } else {
+            // Legacy update
+            transaction.update(prodRef, { stockItems: remainingStock });
+          }
 
           // Catat Transaksi
           const transRef = doc(collection(db, "transactions"));

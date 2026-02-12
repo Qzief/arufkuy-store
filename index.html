@@ -1279,9 +1279,9 @@
 
       let stockCount = 0;
       if (data.hasVariants && Array.isArray(data.variants)) {
-        stockCount = data.variants.reduce((acc, v) => acc + (v.stockItems ? v.stockItems.length : 0), 0);
+        stockCount = data.variants.reduce((acc, v) => acc + ((typeof v.stock !== 'undefined') ? v.stock : (v.stockItems ? v.stockItems.length : 0)), 0);
       } else {
-        stockCount = Array.isArray(data.stockItems) ? data.stockItems.length : 0;
+        stockCount = (typeof data.stock !== 'undefined') ? data.stock : (Array.isArray(data.stockItems) ? data.stockItems.length : 0);
       }
 
       let stockHtml = stockCount === 0 ? '<span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-700/50 text-slate-500">Sold Out</span>'
