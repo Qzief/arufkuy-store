@@ -828,6 +828,12 @@
                 placeholder="Contoh: Mobile Legends Diamonds">
             </div>
             <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Slug (URL Friendly)</label>
+              <input type="text" id="prod-slug"
+                class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-slate-300 font-mono focus:border-indigo-500 focus:outline-none placeholder:text-slate-600"
+                placeholder="Auto-generated if empty">
+            </div>
+            <div>
               <label class="block text-xs font-medium text-slate-400 mb-1">Deskripsi & Tag</label>
               <textarea id="prod-desc" rows="2" placeholder="Deskripsi singkat..."
                 class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none mb-2 placeholder:text-slate-600 resize-none"></textarea>
@@ -2426,13 +2432,18 @@
         const sectionId = document.getElementById("prod-section").value;
         const orderInSection = parseInt(document.getElementById("prod-order").value) || 0;
 
-        // Generate slug from product name
-        const baseSlug = generateSlug(name);
-        // If ID exists, we exclude it from check, but strict slug update might change URL. 
-        // For now let's regenerate slug if name changes or new product.
-        // Or if we want stable slugs, maybe only generate if empty or new.
-        // Let's generate fresh if needed.
-        const slug = await ensureUniqueSlug(baseSlug, id || null);
+        // Generate slug logic
+        let slug = document.getElementById("prod-slug").value.trim();
+
+        if (!slug) {
+          // Auto-generate if empty
+          const baseSlug = generateSlug(name);
+          slug = await ensureUniqueSlug(baseSlug, id || null);
+        } else {
+          // Validate manual slug
+          const baseSlug = generateSlug(slug); // Sanitize manually entered slug
+          slug = await ensureUniqueSlug(baseSlug, id || null);
+        }
 
         let productData = {
           name,
@@ -2547,7 +2558,9 @@
       if (mode === 'add') {
         document.getElementById("modal-title").innerText = "Tambah Produk";
         document.getElementById("product-form").reset();
+        document.getElementById("product-form").reset();
         document.getElementById("prod-id").value = "";
+        document.getElementById("prod-slug").value = "";
 
         // Reset State
         currentEditingStock = [];
@@ -2588,6 +2601,8 @@
       document.getElementById("prod-name").value = product.name;
       document.getElementById("prod-desc").value = product.description || "";
       document.getElementById("prod-tag").value = product.tag || "";
+      document.getElementById("prod-tag").value = product.tag || "";
+      document.getElementById("prod-slug").value = product.slug || "";
       document.getElementById("prod-image-url").value = product.image || "";
 
       // Image Preview
