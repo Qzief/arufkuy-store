@@ -35,6 +35,23 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
+
+    /* Skeleton Loading Animation */
+    @keyframes shimmer {
+      0% {
+        background-position: -1000px 0;
+      }
+
+      100% {
+        background-position: 1000px 0;
+      }
+    }
+
+    .skeleton {
+      background: linear-gradient(to right, rgba(255, 255, 255, 0.05) 8%, rgba(255, 255, 255, 0.1) 18%, rgba(255, 255, 255, 0.05) 33%);
+      background-size: 1000px 100%;
+      animation: shimmer 2s infinite linear;
+    }
   </style>
 </head>
 
@@ -233,8 +250,37 @@
         <span class="text-slate-200">Detail Product</span>
       </div>
 
-      <div id="loading" class="text-center py-20">
-        <p class="text-slate-400 animate-pulse">Memuat detail produk...</p>
+      <div id="loading" class="grid grid-cols-1 lg:grid-cols-12 gap-10 animate-pulse">
+        <!-- Left Column Skeleton -->
+        <div class="lg:col-span-7 space-y-6">
+          <div class="aspect-video w-full rounded-3xl bg-white/5 border border-white/10 skeleton"></div>
+          <div class="px-2 space-y-4">
+            <div class="h-8 w-3/4 rounded-xl skeleton bg-white/5"></div>
+            <div class="space-y-2">
+              <div class="h-4 w-full rounded-lg skeleton bg-white/5"></div>
+              <div class="h-4 w-5/6 rounded-lg skeleton bg-white/5"></div>
+              <div class="h-4 w-4/6 rounded-lg skeleton bg-white/5"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Right Column Skeleton -->
+        <div class="lg:col-span-5 mt-8 lg:mt-0">
+          <div
+            class="lg:sticky lg:top-24 rounded-3xl border border-white/10 bg-white/5 p-5 md:p-8 shadow-glow backdrop-blur-sm">
+            <div class="mb-6 pb-6 border-b border-white/10 space-y-4">
+              <div class="flex justify-between">
+                <div class="h-10 w-32 rounded-lg skeleton bg-white/5"></div>
+                <div class="h-10 w-16 rounded-lg skeleton bg-white/5"></div>
+              </div>
+            </div>
+            <div class="space-y-4">
+              <div class="h-10 w-full rounded-xl skeleton bg-white/5"></div>
+              <div class="h-10 w-full rounded-xl skeleton bg-white/5"></div>
+              <div class="h-10 w-full rounded-xl skeleton bg-white/5"></div>
+              <div class="h-12 w-full rounded-xl skeleton mt-6 bg-white/5"></div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div id="product-container" class="hidden gap-10 lg:grid lg:grid-cols-12">

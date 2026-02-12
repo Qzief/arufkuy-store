@@ -42,6 +42,23 @@
       scrollbar-width: none;
     }
 
+    /* Skeleton Loading Animation */
+    @keyframes shimmer {
+      0% {
+        background-position: -1000px 0;
+      }
+
+      100% {
+        background-position: 1000px 0;
+      }
+    }
+
+    .skeleton {
+      background: linear-gradient(to right, rgba(255, 255, 255, 0.05) 8%, rgba(255, 255, 255, 0.1) 18%, rgba(255, 255, 255, 0.05) 33%);
+      background-size: 1000px 100%;
+      animation: shimmer 2s infinite linear;
+    }
+
     /* Payment Carousel Animation */
     @keyframes scroll-infinite {
       0% {
@@ -633,6 +650,23 @@
 
     async function loadProducts() {
       const productsGrid = document.getElementById("products-grid");
+
+      // Inject Skeleton Loader
+      productsGrid.innerHTML = `
+        <div class="col-span-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-pulse">
+          ${Array(8).fill(0).map(() => `
+            <div class="rounded-3xl border border-white/10 bg-white/5 p-4 space-y-4">
+              <div class="aspect-square w-full rounded-2xl bg-white/5 skeleton"></div>
+              <div class="h-4 w-3/4 rounded-lg bg-white/5 skeleton"></div>
+              <div class="h-3 w-1/2 rounded-lg bg-white/5 skeleton"></div>
+              <div class="flex justify-between items-center pt-2">
+                 <div class="h-8 w-1/3 rounded-lg bg-white/5 skeleton"></div>
+                 <div class="h-8 w-8 rounded-full bg-white/5 skeleton"></div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
 
       try {
         // Load sections first (with fallback if permissions denied)
