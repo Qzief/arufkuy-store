@@ -628,17 +628,44 @@
 
         let contentHtml = '';
         if (contentLines.length > 0) {
-          contentHtml = contentLines.map(line => `
-              <div class="bg-black/40 rounded-lg p-3 border border-emerald-500/10 relative group/copy mb-2 last:mb-0">
-                <div class="font-mono text-sm text-emerald-300 break-all whitespace-pre-wrap select-all font-medium pr-8 leading-relaxed">${line}</div>
-                <button onclick="copyText(this.previousElementSibling.innerText, this)" class="absolute top-2 right-2 text-slate-600 hover:text-emerald-400 bg-slate-800/50 hover:bg-slate-800 p-1.5 rounded-lg transition border border-white/5">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
-                    <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
-                  </svg>
-                </button>
-              </div>
-            `).join('');
+          contentHtml = contentLines.map(line => {
+            const parts = line.split('|');
+            // Check if it matches Label|Value pattern
+            if (parts.length > 1) {
+              const label = parts[0].trim();
+              const value = parts.slice(1).join('|').trim();
+              const cleanLabel = label.replace(/^\[/, '');
+              const cleanValue = value.replace(/\]$/, '');
+
+              return `
+                <div class="mb-2 last:mb-0">
+                  <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider mb-0.5">${cleanLabel}</div>
+                  <div class="relative group/copy">
+                     <div class="font-mono text-base text-emerald-300 font-medium bg-black/20 rounded-xl px-4 py-3 select-all break-all border border-emerald-500/10 cursor-text shadow-inner" onclick="copyText(this.innerText)">${cleanValue}</div>
+                     <button onclick="copyText(this.previousElementSibling.innerText, this)" class="absolute top-2 right-2 opacity-0 group-hover/copy:opacity-100 p-2 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition shadow-lg border border-white/5">
+                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                         <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                         <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                       </svg>
+                     </button>
+                  </div>
+                </div>
+               `;
+            } else {
+              // Normal line
+              return `
+                  <div class="bg-black/40 rounded-lg p-3 border border-emerald-500/10 relative group/copy mb-2 last:mb-0">
+                    <div class="font-mono text-sm text-emerald-300 break-all whitespace-pre-wrap select-all font-medium pr-8 leading-relaxed">${line}</div>
+                    <button onclick="copyText(this.previousElementSibling.innerText, this)" class="absolute top-2 right-2 text-slate-600 hover:text-emerald-400 bg-slate-800/50 hover:bg-slate-800 p-1.5 rounded-lg transition border border-white/5">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                        <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                      </svg>
+                    </button>
+                  </div>
+                `;
+            }
+          }).join('');
         } else {
           // Fallback for empty content
           contentHtml = `<div class="text-slate-500 italic text-xs">Konten tidak tersedia</div>`;
@@ -666,12 +693,12 @@
                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                   </svg>
                 </span>
-            </summary>
-            <div class="p-4 border-t border-white/5 bg-black/20">
-              ${contentHtml}
-              ${noteHtml}
-            </div>
-          `;
+            </summary >
+        <div class="p-4 border-t border-white/5 bg-black/20">
+          ${contentHtml}
+          ${noteHtml}
+        </div>
+      `;
         list.appendChild(details);
       });
     }
@@ -782,7 +809,6 @@
     window.viewInvoice = viewInvoice;
   </script>
 </body>
-
 
 
 </html>
