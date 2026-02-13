@@ -2104,14 +2104,32 @@
       });
     };
 
-    // Helper: Return booked items to stock (Supports new 'stocks' collection)
-    window.returnStockFromOrder = async function (orderData, batchArg = null) {
+    // Helper: Return booked items to stock (Supports new 'stocks' collection & V4 Reservations)
+    window.returnStockFromOrder = async function (orderData, batchArg = null, orderId = null) {
+      let itemsToReturn = [];
+
       const booked = (orderData.bookedItems && Array.isArray(orderData.bookedItems)) ? orderData.bookedItems : [];
       const delivered = (orderData.deliveredItems && Array.isArray(orderData.deliveredItems)) ? orderData.deliveredItems : [];
-      // Combine items to return (booked + delivered usually mutually exclusive or complementary depending on cancel state)
-      // Usually, if 'delivered', they are not 'booked'. If 'pending', they are 'booked'.
-      // Only return what exists.
-      const itemsToReturn = [...booked, ...delivered];
+
+      itemsToReturn = [...booked, ...delivered];
+
+      // V4 Support: Logic for Stock Reservations (if no local items found)
+      let reservationRef = null;
+      if (itemsToReturn.length === 0 && orderId) {
+        try {
+          reservationRef = doc(db, "stock_reservations", orderId);
+          const resSnap = await getDoc(reservationRef);
+          if (resSnap.exists()) {
+            const resData = resSnap.data();
+            if (resData.items && Array.isArray(resData.items)) {
+              itemsToReturn = resData.items;
+              console.log(`Found ${itemsToReturn.length} items in stock_reservations for ${orderId}`);
+            }
+          }
+        } catch (e) {
+          console.warn("Failed to check stock_reservations:", e);
+        }
+      }
 
       if (itemsToReturn.length === 0) return;
 
@@ -2196,10 +2214,14 @@
         if (batchArg) {
           if (Object.keys(updatePayloadProd).length > 0) batchArg.update(prodRef, updatePayloadProd);
           if (Object.keys(updatePayloadStock).length > 0) batchArg.update(stockRef, updatePayloadStock);
+          // Helper: We can't delete reservation in batch if it's in a different collection? We can.
+          if (reservationRef) batchArg.delete(reservationRef);
         } else {
           const p = [];
           if (Object.keys(updatePayloadProd).length > 0) p.push(updateDoc(prodRef, updatePayloadProd));
           if (Object.keys(updatePayloadStock).length > 0) p.push(updateDoc(stockRef, updatePayloadStock));
+          if (reservationRef) p.push(deleteDoc(reservationRef));
+
           if (p.length > 0) await Promise.all(p);
         }
 
@@ -2234,9 +2256,8 @@
             console.log(`Order ${docSnap.id} is expired. Cancelling...`);
 
             // 1. Return items to stock (handles both legacy and new structure)
-            if (data.bookedItems && Array.isArray(data.bookedItems) && data.bookedItems.length > 0) {
-              await window.returnStockFromOrder(data, batch);
-            }
+            // Always try to return stock (checks bookedItems OR stock_reservations)
+            await window.returnStockFromOrder(data, batch, docSnap.id);
 
             // 2. Update Order Status
             batch.update(doc(db, "orders", docSnap.id), {
@@ -2371,10 +2392,11 @@
       const currentData = currentSnap.data();
 
       // Logic: If changing to Cancelled AND current status is Pending (or not cancelled yet) -> Return Stock
-      // Also check if bookedItems exist to be sure
+      // Also check if bookedItems exist to be sure (OR if we can find reservation)
       if (status === 'cancelled' && currentData.status !== 'cancelled') {
         if (confirm("Membatalkan pesanan akan mengembalikan stok (jika ada booked items). Lanjutkan?")) {
-          await returnStockFromOrder(currentData);
+          // Pass orderId for V4 reservation lookup
+          await returnStockFromOrder(currentData, null, orderId);
           // After stock returned, we proceed to update order
         } else {
           return; // Cancel action
