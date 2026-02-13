@@ -765,6 +765,9 @@
             const docSnap = querySnap.docs[0];
             data = docSnap.data();
             productId = docSnap.id; // Important: Set ID for order processing
+            // Backup: Store in DOM to ensure accessibility
+            const orderForm = document.getElementById('order-form');
+            if (orderForm) orderForm.dataset.productId = productId;
           } else {
             console.warn("Slug not found in DB");
           }
@@ -1030,12 +1033,32 @@
           itemName = `${finalProductName} (Diskon ${appliedCoupon.code})`;
         }
 
+        // --- DEBUG & FIX: Ensure IDs are present ---
+        // Prioritize: 1. Variable from this scope (if any) -> 2. Global Variable -> 3. Dataset
+        const finalProductId = productId || document.getElementById('order-form')?.dataset.productId || '';
+
+        console.log("DEBUG PAYLOAD VARS (404):", {
+          orderId,
+          productId: finalProductId,
+          globalProductId: productId,
+          datasetId: document.getElementById('order-form')?.dataset.productId
+        });
+
+        if (!finalProductId) {
+          alert("Error: Product ID lost. Refresh page.");
+          throw new Error("Product ID missing");
+        }
+
         const payload = {
           name: name,
           email: email,
           mobile: phone,
           description: `Order ID: ${orderId} - ${description || 'Digital Product'}`, // Embed Order ID for robust matching
           redirectUrl: `${window.location.origin}/detail-order.html?orderId=${orderId}`, // Use orderId for initial lookup, page will swap to invoiceId
+          // New Fields for Stock Reservation
+          orderId: orderId,
+          productId: finalProductId, // Use ensured valuable
+          variantId: isVariableProduct && selectedVariant ? selectedVariant.id : null,
           items: [
             {
               name: itemName,
