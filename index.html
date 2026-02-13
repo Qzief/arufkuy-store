@@ -77,6 +77,40 @@
     .payment-carousel-wrapper:hover .payment-carousel {
       animation-play-state: paused;
     }
+
+    /* Animated Text Gradient */
+    .animate-text-gradient {
+      background: linear-gradient(to right, #818cf8, #c084fc, #38bdf8, #818cf8);
+      background-size: 300% auto;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: textGradient 6s linear infinite;
+    }
+
+    @keyframes textGradient {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      100% {
+        background-position: 100% 50%;
+      }
+    }
+
+    /* Modern Fade In Up */
+    .animate-fade-in-up {
+      animation: fadeInUp 0.8s ease-out forwards;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   </style>
 </head>
 
@@ -276,9 +310,12 @@
             <span>Proses cepat • Aman • Support responsif</span>
           </p>
 
-          <h1 class="mt-5 text-4xl font-bold leading-tight tracking-tight md:text-5xl">
-            <span>Digital goods</span> <span class="text-indigo-300">modern</span> <span>dengan proses</span> <span
-              class="text-indigo-300">rapi</span>.
+          <h1 class="mt-5 text-4xl font-bold leading-tight tracking-tight md:text-5xl animate-fade-in-up"
+            style="animation-delay: 0.2s;">
+            <span class="text-slate-100">Digital goods</span> <span
+              class="animate-text-gradient font-extrabold drop-shadow-lg">modern</span> <span
+              class="text-slate-100">dengan proses</span> <span
+              class="animate-text-gradient font-extrabold drop-shadow-lg">rapi</span>.
           </h1>
 
           <p class="mt-4 text-base leading-relaxed text-slate-300">
@@ -1859,6 +1896,5 @@
   </script>
   <!--End of Tawk.to Script-->
 </body>
-
 
 </html>
