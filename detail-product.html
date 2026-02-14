@@ -1160,6 +1160,8 @@
           showToast('Kupon tidak ditemukan atau tidak aktif', 'error');
           appliedCoupon = null;
           updateTotalPrice();
+          checkBtn.disabled = false;
+          checkBtn.textContent = originalText;
         } else {
           const couponData = querySnapshot.docs[0].data();
 
@@ -1168,6 +1170,8 @@
             showToast('Kupon sudah kadaluarsa', 'error');
             appliedCoupon = null;
             updateTotalPrice();
+            checkBtn.disabled = false;
+            checkBtn.textContent = originalText;
             return;
           }
 
