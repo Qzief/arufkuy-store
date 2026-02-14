@@ -253,7 +253,7 @@
       <div id="tab-products" class="tab-content hidden animate-fade-in">
         <div class="flex justify-between items-center mb-6">
           <div class="relative">
-            <input type="text" placeholder="Cari produk..."
+            <input type="text" placeholder="Cari produk..." id="search-product" oninput="filterProducts(this.value)"
               class="pl-10 pr-4 py-2 rounded-xl bg-white/5 border border-white/10 text-sm focus:outline-none focus:border-indigo-500 text-white w-64 transition-all focus:w-80">
             <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-2.5" fill="none" stroke="currentColor"
               viewBox="0 0 24 24">
@@ -361,6 +361,7 @@
                 <th class="px-6 py-4">Harga</th>
                 <th class="px-6 py-4">Item Terkirim</th>
                 <th class="px-6 py-4">Purchaser</th>
+                <th class="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody id="history-table-body" class="divide-y divide-white/5">
@@ -1555,40 +1556,50 @@
     let isVariableProduct = false;
 
     function loadProducts() {
-      const tableBody = document.getElementById("product-table-body");
-
       onSnapshot(collection(db, "products"), (snapshot) => {
         products = [];
-        tableBody.innerHTML = "";
-
         snapshot.forEach((doc) => {
           const data = doc.data();
           products.push({ id: doc.id, ...data });
+        });
+        renderProducts(products);
+      });
+    }
 
-          let stockDisplay = "";
-          let priceDisplay = "";
+    window.renderProducts = (list) => {
+      const tableBody = document.getElementById("product-table-body");
+      tableBody.innerHTML = "";
 
-          if (data.hasVariants && Array.isArray(data.variants)) {
-            const totalStock = data.variants.reduce((acc, v) => acc + (v.stock || (v.stockItems ? v.stockItems.length : 0)), 0);
-            stockDisplay = `<span class="bg-indigo-500/15 text-indigo-200 px-2.5 py-0.5 rounded-full text-xs font-medium">${data.variants.length} Varian (${totalStock} Item)</span>`;
+      if (list.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-slate-500">Tidak ada produk ditemukan.</td></tr>`;
+        return;
+      }
 
-            // Price range or starting from
-            const prices = data.variants.map(v => v.price).sort((a, b) => a - b);
-            if (prices.length > 0) {
-              priceDisplay = `Rp ${new Intl.NumberFormat("id-ID").format(prices[0])} +`;
-            } else {
-              priceDisplay = "-";
-            }
+      list.forEach((data) => {
+        let stockDisplay = "";
+        let priceDisplay = "";
+
+        if (data.hasVariants && Array.isArray(data.variants)) {
+          const totalStock = data.variants.reduce((acc, v) => acc + (v.stock || (v.stockItems ? v.stockItems.length : 0)), 0);
+          stockDisplay = `<span class="bg-indigo-500/15 text-indigo-200 px-2.5 py-0.5 rounded-full text-xs font-medium">${data.variants.length} Varian (${totalStock} Item)</span>`;
+
+          // Price range or starting from
+          const prices = data.variants.map(v => v.price).sort((a, b) => a - b);
+          if (prices.length > 0) {
+            priceDisplay = `Rp ${new Intl.NumberFormat("id-ID").format(prices[0])} +`;
           } else {
-            const stockCount = typeof data.stock !== 'undefined' ? data.stock : (Array.isArray(data.stockItems) ? data.stockItems.length : 0);
-            const color = stockCount > 0 ? 'bg-emerald-500/15 text-emerald-200' : 'bg-red-500/15 text-red-200';
-            stockDisplay = `<span class="inline-flex items-center rounded-full ${color} px-2.5 py-0.5 text-xs font-medium">${stockCount} Item</span>`;
-            priceDisplay = `Rp ${new Intl.NumberFormat("id-ID").format(data.price)}`;
+            priceDisplay = "-";
           }
+        } else {
+          const stockCount = typeof data.stock !== 'undefined' ? data.stock : (Array.isArray(data.stockItems) ? data.stockItems.length : 0);
+          const color = stockCount > 0 ? 'bg-emerald-500/15 text-emerald-200' : 'bg-red-500/15 text-red-200';
+          stockDisplay = `<span class="inline-flex items-center rounded-full ${color} px-2.5 py-0.5 text-xs font-medium">${stockCount} Item</span>`;
+          priceDisplay = `Rp ${new Intl.NumberFormat("id-ID").format(data.price)}`;
+        }
 
-          const imgHtml = data.image ? `<img src="${data.image}" class="h-10 w-10 rounded-lg object-cover bg-white/5">` : `<div class="h-10 w-10 rounded-lg bg-white/5 flex items-center justify-center text-xs text-slate-500">No</div>`;
+        const imgHtml = data.image ? `<img src="${data.image}" class="h-10 w-10 rounded-lg object-cover bg-white/5">` : `<div class="h-10 w-10 rounded-lg bg-white/5 flex items-center justify-center text-xs text-slate-500">No</div>`;
 
-          const row = `
+        const row = `
             <tr class="hover:bg-white/5 transition group">
               <td class="px-6 py-4 flex items-center gap-3">
                  ${imgHtml}
@@ -1601,20 +1612,29 @@
               <td class="px-6 py-4">${stockDisplay}</td>
               <td class="px-6 py-4 text-right">
                 <div class="flex justify-end gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition">
-                   <button onclick="editProduct('${doc.id}')" class="p-1.5 rounded-lg bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500 hover:text-white transition">
+                   <button onclick="editProduct('${data.id}')" class="p-1.5 rounded-lg bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500 hover:text-white transition">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                    </button>
-                   <button onclick="deleteProduct('${doc.id}')" class="p-1.5 rounded-lg bg-red-500/20 text-red-300 hover:bg-red-500 hover:text-white transition">
+                   <button onclick="deleteProduct('${data.id}')" class="p-1.5 rounded-lg bg-red-500/20 text-red-300 hover:bg-red-500 hover:text-white transition">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                    </button>
                 </div>
               </td>
             </tr>
           `;
-          tableBody.innerHTML += row;
-        });
+        tableBody.innerHTML += row;
       });
-    }
+    };
+
+    window.filterProducts = (keyword) => {
+      if (!keyword) {
+        renderProducts(products);
+        return;
+      }
+      const lower = keyword.toLowerCase();
+      const filtered = products.filter(p => p.name.toLowerCase().includes(lower));
+      renderProducts(filtered);
+    };
 
     // --- VARIANT LOGIC ---
 
@@ -1842,6 +1862,9 @@
               <td class="px-6 py-4 font-mono text-sm text-indigo-300">Rp ${new Intl.NumberFormat("id-ID").format(data.totalPrice || 0)}</td>
               <td class="px-6 py-4 text-xs">${itemDisplay}</td>
               <td class="px-6 py-4 text-xs text-slate-400">${data.customerEmail || "-"}</td>
+              <td class="px-6 py-4 text-right">
+                  <button onclick="openOrderModal('${docSnap.id}')" class="text-indigo-400 hover:text-indigo-300 text-xs border border-indigo-500/30 px-3 py-1.5 rounded-lg hover:bg-indigo-500/10 transition">Kelola</button>
+              </td>
             </tr>
           `;
           tableBody.innerHTML += row;
