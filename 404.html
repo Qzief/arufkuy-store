@@ -5,7 +5,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Detail Produk - Arufkuy Store</title>
-  <link rel="icon" type="image/png" href="icon.png">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -593,6 +592,7 @@
     }
 
     // --- URL Detection: Legacy (?id=) ---
+    console.log("VERSION: STOCK-RESERVATION-Fix-V4 (404) loaded");
     const params = new URLSearchParams(window.location.search);
     let productId = params.get("id");
     let productSlug = null;
@@ -1165,6 +1165,25 @@
             appliedCoupon = null;
             updateTotalPrice();
             return;
+          }
+
+          // Validate Product Restriction
+          if (couponData.allowedProductIds && Array.isArray(couponData.allowedProductIds) && couponData.allowedProductIds.length > 0) {
+            // Try to get ID from variable, fallback to dataset
+            let currentProdId = productId;
+            if (!currentProdId) {
+              const orderForm = document.getElementById('order-form');
+              if (orderForm) currentProdId = orderForm.dataset.productId;
+            }
+
+            if (currentProdId && !couponData.allowedProductIds.includes(currentProdId)) {
+              showToast('Kupon tidak berlaku untuk produk ini', 'error');
+              appliedCoupon = null;
+              updateTotalPrice();
+              checkBtn.disabled = false;
+              checkBtn.textContent = originalText;
+              return;
+            }
           }
 
           // Store coupon (both Firestore data for UI and code for Mayar)
@@ -1746,6 +1765,5 @@
   </script>
   <!--End of Tawk.to Script-->
 </body>
-
 
 </html>

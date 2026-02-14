@@ -568,6 +568,17 @@
           <input type="date" id="coupon-expire"
             class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
         </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Batasi Produk (Optional)</label>
+          <div
+            class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white max-h-40 overflow-y-auto custom-scrollbar"
+            id="coupon-product-list">
+            <p class="text-slate-500 italic text-xs">Memuat produk...</p>
+          </div>
+          <p class="text-[10px] text-slate-500 mt-1">Biarkan kosong untuk berlaku di semua produk.</p>
+        </div>
+
         <div class="flex items-center gap-2">
           <input type="checkbox" id="coupon-active"
             class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" checked>
@@ -1195,6 +1206,31 @@
     // ... (rest of existing code) ...
 
     // Coupons Logic
+    window.renderCouponProductSelection = () => {
+      const container = document.getElementById("coupon-product-list");
+      if (!container) return;
+      container.innerHTML = "";
+
+      if (products.length === 0) {
+        container.innerHTML = '<p class="text-slate-500 italic text-xs">Tidak ada produk tersedia.</p>';
+        return;
+      }
+
+      // Sort products by name
+      const sortedProducts = [...products].sort((a, b) => a.name.localeCompare(b.name));
+
+      sortedProducts.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "flex items-center gap-2 mb-1";
+        div.innerHTML = `
+            <input type="checkbox" id="coupon-prod-${p.id}" value="${p.id}" data-name="${p.name}" class="w-3.5 h-3.5 rounded border-gray-500 text-indigo-500 focus:ring-indigo-500 coupon-product-checkbox">
+            <label for="coupon-prod-${p.id}" class="text-xs text-slate-300 cursor-pointer select-none truncate">${p.name}</label>
+         `;
+        container.appendChild(div);
+      });
+    };
+
+    // Coupons Logic
     window.loadCoupons = () => {
       const tableBody = document.getElementById("coupons-table-body");
       onSnapshot(collection(db, "coupons"), (snapshot) => {
@@ -1229,6 +1265,10 @@
     window.openCouponModal = (mode) => {
       const modal = document.getElementById("coupon-modal");
       document.getElementById("coupon-form").reset();
+
+      // Render checkbox list
+      if (typeof renderCouponProductSelection === 'function') renderCouponProductSelection();
+
       modal.classList.remove("hidden");
       modal.classList.add("flex");
     };
@@ -1260,6 +1300,14 @@
       const expireDate = document.getElementById("coupon-expire").value;
       const isActive = document.getElementById("coupon-active").checked;
 
+      // Collect selected products
+      const selectedProductIds = [];
+      const selectedProductNames = [];
+      document.querySelectorAll('.coupon-product-checkbox:checked').forEach(cb => {
+        selectedProductIds.push(cb.value);
+        selectedProductNames.push(cb.getAttribute('data-name'));
+      });
+
       const submitBtn = e.target.querySelector('button[type="submit"]');
       const originalText = submitBtn.textContent;
       submitBtn.disabled = true;
@@ -1275,6 +1323,8 @@
           totalCoupons,
           usageType,
           isActive,
+          allowedProductIds: selectedProductIds, // NEW: Logic restriction
+          allowedProductNames: selectedProductNames, // NEW: Display/Meta
           createdAt: serverTimestamp()
         };
 

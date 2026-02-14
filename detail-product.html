@@ -1171,6 +1171,25 @@
             return;
           }
 
+          // Validate Product Restriction
+          if (couponData.allowedProductIds && Array.isArray(couponData.allowedProductIds) && couponData.allowedProductIds.length > 0) {
+            // Try to get ID from variable, fallback to dataset
+            let currentProdId = productId;
+            if (!currentProdId) {
+              const orderForm = document.getElementById('order-form');
+              if (orderForm) currentProdId = orderForm.dataset.productId;
+            }
+
+            if (currentProdId && !couponData.allowedProductIds.includes(currentProdId)) {
+              showToast('Kupon tidak berlaku untuk produk ini', 'error');
+              appliedCoupon = null;
+              updateTotalPrice();
+              checkBtn.disabled = false;
+              checkBtn.textContent = originalText;
+              return;
+            }
+          }
+
           // Store coupon (both Firestore data for UI and code for Mayar)
           appliedCoupon = { ...couponData, code: couponCode, id: querySnapshot.docs[0].id };
           showToast(`Kupon ${couponCode} berhasil diterapkan! 🎉`, 'success');
@@ -1750,6 +1769,5 @@
   </script>
   <!--End of Tawk.to Script-->
 </body>
-
 
 </html>
