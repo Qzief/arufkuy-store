@@ -223,8 +223,8 @@
             <p class="text-sm font-medium text-slate-400">Total Penjualan</p>
             <h3 class="text-3xl font-bold text-white mt-1" id="dash-total-sales">Rp 0</h3>
             <div class="mt-4 flex items-center gap-2 text-xs text-blue-300">
-              <span class="bg-blue-500/20 px-2 py-1 rounded-md">All Time</span>
-              <span>Gross Revenue</span>
+              <span class="bg-blue-500/20 px-2 py-1 rounded-md">Hari Ini</span>
+              <span>Pendapatan</span>
             </div>
           </div>
         </div>
@@ -1415,6 +1415,16 @@
       modal.classList.remove("flex");
     };
 
+    // Helper: isToday
+    window.isToday = (dateInput) => {
+      if (!dateInput) return false;
+      const date = dateInput.seconds ? new Date(dateInput.seconds * 1000) : new Date(dateInput);
+      const today = new Date();
+      return date.getDate() === today.getDate() &&
+        date.getMonth() === today.getMonth() &&
+        date.getFullYear() === today.getFullYear();
+    };
+
     document.getElementById("coupon-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const code = document.getElementById("coupon-code").value.trim().toUpperCase();
@@ -1551,8 +1561,12 @@
         snapshot.forEach(docSnap => {
           const data = docSnap.data();
           if (data.status === 'pending') pendingCount++;
+
+          // Filter Total Sales for TODAY Only
           if (data.status === 'paid' || data.status === 'completed' || data.status === 'delivered') {
-            totalSales += (data.totalPrice || 0);
+            if (isToday(data.createdAt)) {
+              totalSales += (data.totalPrice || 0);
+            }
           }
         });
 
@@ -2066,6 +2080,9 @@
 
           // Client-side filter
           if (currentOrderFilter !== 'all' && data.status !== currentOrderFilter) return;
+
+          // Filter: Show only Today's Orders
+          if (!isToday(data.createdAt)) return;
 
           hasOrders = true;
           const date = data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleString("id-ID") : "-";
