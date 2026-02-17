@@ -1385,9 +1385,14 @@
           priceHtml = `<p class="text-[11px] md:text-lg font-bold text-white">${formatPrice(minPrice)}<span class="hidden md:inline"> - ${formatPrice(maxPrice)}</span></p>`;
         }
       } else {
-        priceHtml = `<p class="text-[11px] md:text-lg font-bold text-white">${formatPrice(data.price)}</p>`;
         if (data.original_price && data.original_price > data.price) {
-          priceHtml += `<p class="hidden md:block text-sm text-slate-500 line-through">${formatPrice(data.original_price)}</p>`;
+          priceHtml = `
+            <div class="flex items-center gap-2">
+              <p class="text-[11px] md:text-lg font-bold text-white">${formatPrice(data.price)}</p>
+              <p class="text-[10px] md:text-sm text-slate-500 line-through">${formatPrice(data.original_price)}</p>
+            </div>`;
+        } else {
+          priceHtml = `<p class="text-[11px] md:text-lg font-bold text-white">${formatPrice(data.price)}</p>`;
         }
       }
 
