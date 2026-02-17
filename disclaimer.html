@@ -8,15 +8,37 @@
   <meta name="theme-color" content="#0b1220" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    html { scroll-behavior: smooth; }
+    html {
+      scroll-behavior: smooth;
+    }
+
     .grid-bg {
       background-image: radial-gradient(circle at 1px 1px, rgba(148, 163, 184, .14) 1px, transparent 0);
       background-size: 26px 26px;
     }
-    .prose-invert h2 { color: #fff; margin-top: 2em; margin-bottom: 1em; font-size: 1.5em; font-weight: 700; }
-    .prose-invert p { color: #94a3b8; line-height: 1.75; margin-bottom: 1.5em; }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .prose-invert h2 {
+      color: #fff;
+      margin-top: 2em;
+      margin-bottom: 1em;
+      font-size: 1.5em;
+      font-weight: 700;
+    }
+
+    .prose-invert p {
+      color: #94a3b8;
+      line-height: 1.75;
+      margin-bottom: 1.5em;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
   </style>
 </head>
 
@@ -25,8 +47,8 @@
   <header class="sticky top-0 z-50 border-b border-white/10 bg-slate-950/70 backdrop-blur">
     <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
       <a href="index.html" class="flex items-center gap-3">
-        <div class="grid h-10 w-10 place-items-center rounded-xl bg-white/5 shadow-glow">
-          <span class="text-lg font-bold text-indigo-300">A</span>
+        <div class="grid h-10 w-10 place-items-center rounded-xl bg-white/5 shadow-glow overflow-hidden">
+          <img src="icon.png" alt="A" class="h-8 w-8 object-contain">
         </div>
         <div class="leading-tight">
           <p class="text-sm font-semibold tracking-wide">Arufkuy Store</p>
@@ -198,16 +220,27 @@
       <h1 class="text-3xl md:text-4xl font-bold mb-8 text-center">Disclaimer</h1>
 
       <div class="prose-invert">
-        <p>Informasi yang terdapat dalam situs web Arufkuy Store hanya untuk tujuan informasi umum. Kami berusaha untuk menjaga informasi tetap terkini dan benar, namun kami tidak membuat pernyataan atau jaminan dalam bentuk apa pun, tersurat maupun tersirat, tentang kelengkapan, akurasi, keandalan, kesesuaian, atau ketersediaan situs web atau informasi, produk, layanan, atau gambar terkait yang terdapat di situs web untuk tujuan apa pun.</p>
+        <p>Informasi yang terdapat dalam situs web Arufkuy Store hanya untuk tujuan informasi umum. Kami berusaha untuk
+          menjaga informasi tetap terkini dan benar, namun kami tidak membuat pernyataan atau jaminan dalam bentuk apa
+          pun, tersurat maupun tersirat, tentang kelengkapan, akurasi, keandalan, kesesuaian, atau ketersediaan situs
+          web atau informasi, produk, layanan, atau gambar terkait yang terdapat di situs web untuk tujuan apa pun.</p>
 
         <h2>1. Batasan Tanggung Jawab</h2>
-        <p>Dalam hal apa pun kami tidak bertanggung jawab atas kerugian atau kerusakan apa pun termasuk namun tidak terbatas pada, kerugian atau kerusakan tidak langsung atau konsekuensial, atau kerugian atau kerusakan apa pun yang timbul dari hilangnya data atau keuntungan yang timbul dari, atau sehubungan dengan, penggunaan situs web ini.</p>
+        <p>Dalam hal apa pun kami tidak bertanggung jawab atas kerugian atau kerusakan apa pun termasuk namun tidak
+          terbatas pada, kerugian atau kerusakan tidak langsung atau konsekuensial, atau kerugian atau kerusakan apa pun
+          yang timbul dari hilangnya data atau keuntungan yang timbul dari, atau sehubungan dengan, penggunaan situs web
+          ini.</p>
 
         <h2>2. Tautan Eksternal</h2>
-        <p>Melalui situs web ini Anda mungkin dapat menautkan ke situs web lain yang tidak berada di bawah kendali Arufkuy Store. Kami tidak memiliki kendali atas sifat, konten, dan ketersediaan situs-situs tersebut. Dimasukkannya tautan apa pun tidak serta merta menyiratkan rekomendasi atau mendukung pandangan yang diungkapkan di dalamnya.</p>
+        <p>Melalui situs web ini Anda mungkin dapat menautkan ke situs web lain yang tidak berada di bawah kendali
+          Arufkuy Store. Kami tidak memiliki kendali atas sifat, konten, dan ketersediaan situs-situs tersebut.
+          Dimasukkannya tautan apa pun tidak serta merta menyiratkan rekomendasi atau mendukung pandangan yang
+          diungkapkan di dalamnya.</p>
 
         <h2>3. Afiliasi Produk</h2>
-        <p>Beberapa produk yang kami jual mungkin merupakan produk dari pihak ketiga (seperti voucher game atau lisensi software). Kami bertindak sebagai reseller resmi atau perantara dan tidak memiliki hak kepemilikan atas merek dagang atau kekayaan intelektual dari produk tersebut, kecuali dinyatakan lain.</p>
+        <p>Beberapa produk yang kami jual mungkin merupakan produk dari pihak ketiga (seperti voucher game atau lisensi
+          software). Kami bertindak sebagai reseller resmi atau perantara dan tidak memiliki hak kepemilikan atas merek
+          dagang atau kekayaan intelektual dari produk tersebut, kecuali dinyatakan lain.</p>
       </div>
     </div>
   </main>
@@ -224,7 +257,8 @@
             <span class="text-lg font-bold text-white">Arufkuy Store</span>
           </a>
           <p class="text-slate-400 text-sm leading-relaxed max-w-sm">
-            Platform penyedia produk digital otomatis, cepat, dan terpercaya. Solusi terbaik untuk kebutuhan digital Anda.
+            Platform penyedia produk digital otomatis, cepat, dan terpercaya. Solusi terbaik untuk kebutuhan digital
+            Anda.
           </p>
         </div>
         <div>
@@ -339,4 +373,5 @@
     init();
   </script>
 </body>
+
 </html>

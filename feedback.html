@@ -56,8 +56,8 @@
   <header class="sticky top-0 z-50 border-b border-white/10 bg-slate-950/70 backdrop-blur">
     <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
       <a href="index.html" class="flex items-center gap-3">
-        <div class="grid h-10 w-10 place-items-center rounded-xl bg-white/5 shadow-glow">
-          <span class="text-lg font-bold text-indigo-300">A</span>
+        <div class="grid h-10 w-10 place-items-center rounded-xl bg-white/5 shadow-glow overflow-hidden">
+          <img src="icon.png" alt="A" class="h-8 w-8 object-contain">
         </div>
         <div class="leading-tight">
           <p class="text-sm font-semibold tracking-wide">Arufkuy Store</p>
@@ -238,7 +238,8 @@
           Apa kata <span class="text-indigo-300">mereka</span>?
         </h1>
         <p class="text-slate-400 text-lg max-w-2xl mx-auto">
-          Transparansi adalah prioritas kami. Berikut adalah ulasan asli dari pelanggan yang telah berbelanja di Arufkuy Store.
+          Transparansi adalah prioritas kami. Berikut adalah ulasan asli dari pelanggan yang telah berbelanja di Arufkuy
+          Store.
         </p>
       </div>
     </section>
@@ -275,7 +276,8 @@
             <span class="text-lg font-bold text-white">Arufkuy Store</span>
           </a>
           <p class="text-slate-400 text-sm leading-relaxed max-w-sm">
-            Platform penyedia produk digital otomatis, cepat, dan terpercaya. Solusi terbaik untuk kebutuhan digital Anda.
+            Platform penyedia produk digital otomatis, cepat, dan terpercaya. Solusi terbaik untuk kebutuhan digital
+            Anda.
           </p>
         </div>
         <div>
@@ -450,9 +452,9 @@
         // Mask Name Logic
         let reviewerName = customerName;
         if (reviewerName.length > 3) {
-            reviewerName = reviewerName.substring(0, 3) + "*****";
+          reviewerName = reviewerName.substring(0, 3) + "*****";
         } else if (reviewerName.length > 0) {
-            reviewerName = reviewerName.charAt(0) + "*****";
+          reviewerName = reviewerName.charAt(0) + "*****";
         }
 
         card.innerHTML = `
@@ -489,4 +491,5 @@
     fetchReviews();
   </script>
 </body>
+
 </html>
