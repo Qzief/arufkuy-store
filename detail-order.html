@@ -1,40 +1,661 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Status Pesanan - Arufkuy Store</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detail Order - Arufkuy Store</title>
   <link rel="icon" type="image/png" href="icon.png">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          boxShadow: {
-            glow: "0 0 0 1px rgba(148,163,184,.12), 0 12px 40px rgba(2,6,23,.55)"
-          }
-        }
-      }
-    }
-  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap"
+    rel="stylesheet">
   <style>
-    @keyframes pulse-ring {
-      0% {
-        transform: scale(0.8);
-        opacity: 1;
+    :root {
+      --bg-primary: #0f0f12;
+      --bg-card: #18181d;
+      --bg-elevated: #1f1f26;
+      --accent: #ff6b4a;
+      --accent-soft: rgba(255, 107, 74, 0.15);
+      --accent-glow: rgba(255, 107, 74, 0.4);
+      --text-primary: #fafafa;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --success: #34d399;
+      --danger: #fb7185;
+      --warning: #fbbf24;
+      --border: rgba(255, 255, 255, 0.06);
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --shadow-glow: 0 0 60px -12px var(--accent-glow);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Ambient background */
+    .ambient-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 50vh;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -20%, var(--accent-soft), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 0%, rgba(139, 92, 246, 0.08), transparent);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 24px 140px;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (min-width: 900px) {
+      .container {
+        padding: 24px 40px 80px;
       }
 
-      100% {
-        transform: scale(1.6);
-        opacity: 0;
+      .main-grid {
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 32px;
+        /* align-items: start removed */
+      }
+
+      .main-grid .main-content {
+        order: 1;
+      }
+
+      .main-grid .sidebar-content {
+        order: 2;
+        /* position: sticky removed */
+      }
+
+      .sticky-wrapper {
+        position: sticky;
+        top: 24px;
+        z-index: 10;
+      }
+
+      .order-hero {
+        margin-bottom: 32px;
+      }
+
+      .header {
+        padding: 12px 0 16px;
+      }
+
+      .header-title {
+        font-size: 24px;
+      }
+
+      .order-total {
+        font-size: 40px;
+      }
+
+      .product-image {
+        width: 64px;
+        height: 64px;
+        min-width: 64px;
+        font-size: 24px;
       }
     }
 
-    @keyframes fade-up {
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0 16px;
+    }
+
+    .back-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .back-btn:hover {
+      background: var(--bg-card);
+      transform: translateX(-2px);
+    }
+
+    .back-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--text-primary);
+    }
+
+    .header-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      text-align: center;
+    }
+
+    .menu-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .menu-btn:hover {
+      background: var(--accent-soft);
+      border-color: rgba(255, 107, 74, 0.3);
+    }
+
+    /* Order ID Card - Hero */
+    .order-hero {
+      background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-elevated) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .order-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 120px;
+      height: 120px;
+      background: var(--accent-soft);
+      border-radius: 50%;
+      filter: blur(60px);
+      transform: translate(30%, -30%);
+    }
+
+    .order-id-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      padding: 8px 16px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .order-id-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    .order-date {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .order-total {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #fff 0%, #d4d4d8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Status Timeline */
+    .status-section {
+      margin-bottom: 28px;
+    }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 16px;
+    }
+
+    .timeline {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+    }
+
+    .status-headline {
+      padding: 14px 16px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 18px;
+    }
+
+    #status-title-text {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    #status-desc-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .timeline-item {
+      display: flex;
+      gap: 16px;
+      padding-bottom: 20px;
+    }
+
+    .timeline-item:last-child {
+      padding-bottom: 0;
+    }
+
+    .timeline-dot {
+      width: 12px;
+      height: 12px;
+      min-width: 12px;
+      border-radius: 50%;
+      margin-top: 5px;
+      background: var(--text-muted);
+      opacity: 0.5;
+    }
+
+    .timeline-item.active .timeline-dot {
+      background: var(--accent);
+      opacity: 1;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .timeline-item.completed .timeline-dot {
+      background: var(--success);
+      opacity: 1;
+    }
+
+    .timeline-item.danger .timeline-dot {
+      background: var(--danger);
+      opacity: 1;
+    }
+
+    .timeline-content {
+      flex: 1;
+    }
+
+    .timeline-title {
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .timeline-time {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .timeline-item.completed .timeline-title {
+      color: var(--text-secondary);
+    }
+
+    /* Products */
+    .products-section {
+      margin-bottom: 28px;
+    }
+
+    .product-card {
+      display: flex;
+      gap: 16px;
+      padding: 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      margin-bottom: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .product-card:hover {
+      border-color: rgba(255, 255, 255, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .product-image {
+      width: 80px;
+      height: 80px;
+      min-width: 80px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(145deg, var(--bg-elevated) 0%, var(--bg-primary) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      border: 1px solid var(--border);
+    }
+
+    .product-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .product-name {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      line-height: 1.3;
+      word-break: break-word;
+    }
+
+    .product-variant {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .product-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .product-qty {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .product-price {
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--text-primary);
+      white-space: nowrap;
+    }
+
+    /* Cards (sidebar) */
+    .address-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      margin-bottom: 28px;
+    }
+
+    .address-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .address-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-sm);
+      background: var(--accent-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .address-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .address-detail {
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    /* Credential fields (used for delivered items too) */
+    .credential-field {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 12px;
+    }
+
+    .credential-field:last-child {
+      margin-bottom: 0;
+    }
+
+    .credential-field-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .credential-field-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    .credential-field-value {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+      letter-spacing: 0.02em;
+      word-break: break-word;
+    }
+
+    .credential-copy-btn {
+      width: 36px;
+      height: 36px;
+      min-width: 36px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: var(--text-secondary);
+    }
+
+    .credential-copy-btn:hover {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: rgba(255, 107, 74, 0.3);
+    }
+
+    .credential-group-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin: 16px 0 12px;
+    }
+
+    .credential-group-title:first-child {
+      margin-top: 0;
+    }
+
+    /* Summary */
+    .summary-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .summary-row:last-child {
+      border-bottom: none;
+    }
+
+    .summary-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .summary-value {
+      font-size: 14px;
+      font-weight: 500;
+      text-align: right;
+      margin-left: 12px;
+      white-space: nowrap;
+    }
+
+    .summary-row.total .summary-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    /* Bottom CTA */
+    .bottom-actions {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px;
+      padding-bottom: calc(20px + env(safe-area-inset-bottom));
+      background: linear-gradient(180deg, transparent 0%, var(--bg-primary) 20%);
+      z-index: 100;
+    }
+
+    .cta-group {
+      display: flex;
+      gap: 12px;
+      max-width: min(1200px, 100%);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    @media (min-width: 900px) {
+      .bottom-actions {
+        padding: 24px 40px;
+      }
+
+      .cta-group {
+        padding: 0;
+        max-width: 520px;
+        margin: 0 auto;
+      }
+    }
+
+    .btn {
+      flex: 1;
+      padding: 18px 24px;
+      border-radius: var(--radius-md);
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent) 0%, #ff8a6b 100%);
+      color: white;
+      box-shadow: 0 4px 24px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px var(--accent-glow);
+    }
+
+    .btn-secondary {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-card);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+
+    .btn-outline:hover {
+      background: var(--accent-soft);
+    }
+
+    /* Small helpers */
+    .hidden {
+      display: none !important;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
       from {
         opacity: 0;
-        transform: translateY(16px);
+        transform: translateY(20px);
       }
 
       to {
@@ -43,316 +664,330 @@
       }
     }
 
-    .animate-pulse-ring {
-      animation: pulse-ring 2s ease-out infinite;
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.6;
+        transform: scale(1.2);
+      }
     }
 
-    .animate-fade-up {
-      animation: fade-up 0.5s ease-out both;
+    .order-hero {
+      animation: fadeInUp 0.6s ease-out;
     }
 
-    .delay-100 {
-      animation-delay: 0.1s;
+    .status-section {
+      animation: fadeInUp 0.6s ease-out 0.1s both;
     }
 
-    .delay-200 {
-      animation-delay: 0.2s;
+    .products-section {
+      animation: fadeInUp 0.6s ease-out 0.2s both;
     }
 
-    .delay-300 {
-      animation-delay: 0.3s;
+    .credentials-card {
+      animation: fadeInUp 0.6s ease-out 0.3s both;
     }
 
-    .delay-400 {
-      animation-delay: 0.4s;
-    }
-
-    .delay-500 {
-      animation-delay: 0.5s;
-    }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-      width: 4px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: rgba(148, 163, 184, 0.3);
-      border-radius: 99px;
-    }
-
-    details summary::-webkit-details-marker {
-      display: none;
-    }
-
-    details summary {
-      list-style: none;
+    .summary-card {
+      animation: fadeInUp 0.6s ease-out 0.4s both;
     }
 
     /* Star Rating */
+    .star-rating {
+      display: flex;
+      flex-direction: row-reverse;
+      gap: 6px;
+      justify-content: center;
+      margin: 4px 0 10px;
+    }
+
     .star-rating input {
       display: none;
     }
 
     .star-rating label {
       cursor: pointer;
-      color: #334155;
-      font-size: 1.5rem;
-      transition: color 0.2s;
+      color: #3f3f46;
+      transition: all 0.2s;
+    }
+
+    .star-rating label svg {
+      width: 28px;
+      height: 28px;
     }
 
     .star-rating input:checked~label,
     .star-rating label:hover,
     .star-rating label:hover~label {
-      color: #fbbf24;
+      color: #facc15;
+    }
+
+    /* Accordion Animation */
+    .details-content {
+      overflow: hidden;
+      padding: 0 14px;
+      border-top: 1px solid transparent;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-origin: top;
+      opacity: 0;
+      height: 0;
+    }
+
+    details[open] .details-content {
+      opacity: 1;
+      height: auto;
+      padding: 10px 14px 12px;
+      border-top-color: var(--border);
     }
   </style>
 </head>
 
-<body class="min-h-screen bg-slate-950 text-slate-100 font-sans flex justify-center p-4 lg:p-8">
+<body>
+  <div class="ambient-bg"></div>
 
-  <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
+  <div class="container">
+    <header class="header">
+      <button class="back-btn" aria-label="Kembali" onclick="window.location.href='index.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+      </button>
+      <h1 class="header-title">Detail Order</h1>
+      <a href="https://discord.gg/3sDGqtZBcW" target="_blank" class="menu-btn" aria-label="Join Discord"
+        style="display:flex;align-items:center;justify-content:center;color:inherit;text-decoration:none;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+          <path
+            d="M13.545 2.907a13.2 13.2 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.2 12.2 0 0 0-3.658 0 8 8 0 0 0-.412-.833.05.05 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.04.04 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032q.003.022.021.037a13.3 13.3 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019q.463-.63.818-1.329a.05.05 0 0 0-.01-.059l-.018-.011a9 9 0 0 1-1.248-.595.05.05 0 0 1-.02-.066l.015-.019q.127-.095.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .053.007q.121.1.248.195a.05.05 0 0 1-.004.085 8 8 0 0 1-1.249.594.05.05 0 0 0-.03.03.05.05 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.2 13.2 0 0 0 4.001-2.02.05.05 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.03.03 0 0 0-.02-.019m-8.198 7.307c-.789 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612m5.316 0c-.788 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612" />
+        </svg>
+      </a>
+    </header>
 
-    <!-- ==================== LEFT COLUMN (Status & Info) ==================== -->
-    <div class="space-y-6 animate-fade-up lg:sticky lg:top-8 lg:h-fit">
-
-      <!-- 1. Status Header -->
-      <div id="status-header"
-        class="text-center lg:text-left bg-white/[0.03] backdrop-blur-sm border border-white/10 rounded-3xl p-6 lg:p-8 shadow-glow flex flex-col lg:flex-row items-center gap-6">
-        <!-- Animated Icon -->
-        <div class="relative w-20 h-20 shrink-0">
-          <div id="status-ring" class="absolute inset-0 rounded-full bg-emerald-500/20 animate-pulse-ring"></div>
-          <div id="status-icon"
-            class="relative grid h-20 w-20 place-items-center rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
+    <div class="main-grid">
+      <div class="main-content">
+        <section class="order-hero">
+          <div class="order-id-badge">
+            <span id="ref-id"
+              style="font-family: 'SF Mono','Monaco','Consolas',monospace; letter-spacing:0.06em;">...</span>
           </div>
-        </div>
-        <div class="text-center lg:text-left">
-          <h1 id="status-title-text" class="text-2xl font-bold tracking-tight" data-i18n="status_title">Memuat...</h1>
-          <p id="status-desc-text" class="mt-2 text-sm text-slate-400" data-i18n="status_desc">Sedang
-            memuat data pesanan Anda...</p>
-        </div>
-      </div>
+          <p class="order-date" id="order-date-text">Ringkasan pesanan & akses produk digital</p>
+          <p class="order-total" id="product-price">...</p>
+        </section>
 
-      <!-- 2. Order Info Section -->
-      <div
-        class="rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-sm shadow-glow p-6 space-y-3 delay-100">
-        <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Informasi Pesanan</h2>
+        <section class="status-section">
+          <h2 class="section-label">Status Pesanan</h2>
+          <div class="timeline">
+            <div class="status-headline">
+              <p id="status-title-text">Memuat...</p>
+              <p id="status-desc-text">Sedang memuat data pesanan Anda...</p>
+            </div>
 
-        <!-- Order ID -->
-        <div class="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-900/50 px-4 py-3">
-          <div>
-            <p class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Order ID</p>
-            <p id="ref-id" class="font-mono font-bold text-white text-sm tracking-wider mt-0.5">...</p>
-          </div>
-          <button onclick="copyText(document.getElementById('ref-id').textContent, this)"
-            class="text-slate-500 hover:text-emerald-400 transition p-1.5 rounded-lg hover:bg-white/5" title="Salin">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
-              <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
-            </svg>
-          </button>
-        </div>
+            <div class="timeline-item" id="tl-pending">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <p class="timeline-title">Menunggu Pembayaran</p>
+                <p class="timeline-time" id="tl-pending-time">—</p>
+              </div>
+            </div>
 
-        <!-- Product & Price Row -->
-        <div class="grid grid-cols-2 gap-3">
-          <div class="rounded-2xl border border-white/10 bg-slate-900/50 px-4 py-3">
-            <p class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Produk</p>
-            <p id="product-name" class="font-semibold text-white text-sm mt-0.5 truncate">...</p>
-          </div>
-          <div class="rounded-2xl border border-white/10 bg-slate-900/50 px-4 py-3">
-            <p class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Total</p>
-            <p id="product-price" class="font-bold text-emerald-400 text-sm mt-0.5">...</p>
-          </div>
-        </div>
-      </div>
+            <div class="timeline-item" id="tl-paid">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <p class="timeline-title">Pembayaran Diterima</p>
+                <p class="timeline-time" id="tl-paid-time">—</p>
+              </div>
+            </div>
 
-      <!-- 3. Support Info Box -->
-      <div class="p-6 rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-sm shadow-glow delay-200">
-        <div class="flex items-start gap-3 mb-4">
-          <div class="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd"
-                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                clip-rule="evenodd" />
-            </svg>
+            <div class="timeline-item" id="tl-delivered">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <p class="timeline-title">Kredensial Terkirim</p>
+                <p class="timeline-time" id="tl-delivered-time">Cek sidebar / inbox</p>
+              </div>
+            </div>
+
+            <div class="timeline-item" id="tl-completed">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <p class="timeline-title">Selesai</p>
+                <p class="timeline-time" id="tl-completed-time">—</p>
+              </div>
+            </div>
           </div>
-          <div>
-            <h3 class="text-sm font-bold text-slate-200 mb-1">Butuh Bantuan?</h3>
-            <p class="text-xs text-slate-400 leading-relaxed" data-i18n="status_info_desc">
-              Produk digital Anda akan ditampilkan di kolom sebelah kanan. Jika ada kendala, hubungi kami.
+        </section>
+
+        <section class="products-section">
+          <h2 class="section-label">Produk</h2>
+          <div class="product-card">
+            <div class="product-image" aria-hidden="true" style="overflow: hidden; position: relative;">
+              <img id="product-image-display" src="" alt="Product"
+                style="width: 100%; height: 100%; object-fit: cover; display: none;" />
+              <div id="product-image-placeholder"
+                style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
+                  class="bi bi-box-seam" viewBox="0 0 16 16">
+                  <path
+                    d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2zm3.564 1.426L5.596 5 8 5.961 14.154 3.5zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z" />
+                </svg>
+              </div>
+            </div>
+            <div class="product-info">
+              <p class="product-name" id="product-name">...</p>
+              <p class="product-variant">Akses produk digital dan kredensial akan muncul di bawah ini setelah pembayaran
+                terkonfirmasi.</p>
+              <div class="product-footer">
+                <span class="product-qty">Qty: 1</span>
+                <span class="product-price" id="product-price-inline">...</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="address-card credentials-card" id="delivered-items-section">
+          <div class="address-header">
+            <div class="address-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-cart3"
+                viewBox="0 0 16 16">
+                <path
+                  d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .49.598l-1 5a.5.5 0 0 1-.465.401l-9.397.472L4.415 11H13a.5.5 0 0 1 0 1H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l.84 4.479 9.144-.459L13.89 4zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
+              </svg>
+            </div>
+            <span class="address-label">Delivered Items</span>
+          </div>
+          <p class="address-detail" style="margin-bottom: 16px;">
+            Kredensial produk digital akan muncul otomatis setelah pembayaran dikonfirmasi. Simpan dengan aman dan
+            jangan
+            dibagikan.
+          </p>
+
+          <div id="delivered-items-placeholder">
+            <p class="credential-group-title" id="placeholder-title">Menunggu Proses</p>
+            <p class="address-detail" id="placeholder-desc">
+              Produk digital Anda akan otomatis dikirim setelah pembayaran dikonfirmasi. Halaman ini akan otomatis
+              terupdate.
             </p>
           </div>
-        </div>
 
-        <!-- Support Buttons -->
-        <div class="grid grid-cols-2 gap-3">
-          <a href="https://tawk.to/chat/698a62f02fb5be1c3a2b2e1e/1jh294vin" target="_blank"
-            class="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-semibold border border-emerald-500/20 transition group">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-75 group-hover:opacity-100 transition"
-              viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd"
-                d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"
-                clip-rule="evenodd" />
-            </svg>
-            Live Chat
-          </a>
-          <a href="https://discord.gg/3sDGqtZBcW" target="_blank"
-            class="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 text-xs font-semibold border border-indigo-500/20 transition group">
-            <svg class="w-4 h-4 opacity-75 group-hover:opacity-100 transition" fill="currentColor" viewBox="0 0 24 24">
-              <!-- Simple Discord Icon Path -->
-              <path
-                d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
-            </svg>
-            Discord
-          </a>
-        </div>
+          <div id="delivered-items-list" class="hidden"></div>
+        </section>
       </div>
 
-    </div>
-
-    <!-- ==================== RIGHT COLUMN (Deliveries & Actions) ==================== -->
-    <div class="space-y-6 animate-fade-up delay-300">
-
-      <!-- 4. Delivered Items Section -->
-      <div id="delivered-items-section"
-        class="rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-sm shadow-glow overflow-hidden flex flex-col min-h-[300px] max-h-[500px]">
-        <div class="p-6 border-b border-white/5 bg-white/[0.02] flex items-center justify-between shrink-0">
-          <div class="flex items-center gap-2">
-            <div class="h-5 w-5 rounded-full bg-emerald-500/20 grid place-items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-emerald-400" viewBox="0 0 20 20"
-                fill="currentColor">
-                <path fill-rule="evenodd"
-                  d="M5 4a3 3 0 00-3 3v6a3 3 0 003 3h10a3 3 0 003-3V7a3 3 0 00-3-3H5zm-1 9v-1h5v2H5a1 1 0 01-1-1zm7 1h4a1 1 0 001-1v-1h-5v2zm0-4h5V8h-5v2zM9 8H4v2h5V8z"
-                  clip-rule="evenodd" />
+      <aside class="sidebar-content">
+        <section class="address-card hidden" id="buyer-notes-section" style="border-color: rgba(251, 191, 36, 0.25);">
+          <div class="address-header" style="margin-bottom: 12px;">
+            <div class="address-icon" style="background: rgba(251, 191, 36, 0.12);" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-paperclip"
+                viewBox="0 0 16 16">
+                <path
+                  d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0z" />
               </svg>
             </div>
-            <h2 class="text-xs font-bold text-emerald-400 uppercase tracking-widest">Delivered Items</h2>
+            <span class="address-label" style="color: #fbbf24;">Catatan Admin</span>
           </div>
-        </div>
+          <p class="address-detail" id="buyer-notes-text" style="color: #fde68a; white-space: pre-wrap;"></p>
+        </section>
 
-        <div class="p-6 flex-1 relative overflow-y-auto custom-scrollbar">
-          <!-- Placeholder (shown when no items yet) -->
-          <div id="delivered-items-placeholder"
-            class="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
-            <div class="mx-auto w-12 h-12 rounded-full bg-slate-800 grid place-items-center mb-4 border border-white/5">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-500" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+        <div class="sticky-wrapper">
+          <section class="address-card hidden" id="review-section">
+            <div class="address-header" style="margin-bottom: 12px;">
+              <div class="address-icon" style="background: rgba(250, 204, 21, 0.16);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                  <path d="M12 3l2.6 5.26 5.8.84-4.2 4.09 1 5.78L12 16.9l-5.2 2.74 1-5.78L3.6 9.1l5.8-.84L12 3z" />
+                </svg>
+              </div>
+              <span class="address-label" style="color: #facc15;">Beri Ulasan</span>
             </div>
-            <p id="placeholder-title" class="text-sm text-slate-200 font-medium">Menunggu Proses</p>
-            <p id="placeholder-desc" class="text-xs text-slate-500 mt-2 max-w-xs">Produk digital Anda akan otomatis
-              dikirim setelah
-              pembayaran dikonfirmasi. Halaman ini akan otomatis terupdate.</p>
-          </div>
 
-          <!-- Items List (populated by JS) -->
-          <div id="delivered-items-list" class="space-y-3 hidden relative z-10 pb-2"></div>
-        </div>
-      </div>
+            <form id="review-form">
+              <div class="star-rating">
+                <input type="radio" id="star5" name="rating" value="5" />
+                <label for="star5" title="5">
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 3l2.6 5.26 5.8.84-4.2 4.09 1 5.78L12 16.9l-5.2 2.74 1-5.78L3.6 9.1l5.8-.84L12 3z" />
+                  </svg>
+                </label>
+                <input type="radio" id="star4" name="rating" value="4" />
+                <label for="star4" title="4">
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 3l2.6 5.26 5.8.84-4.2 4.09 1 5.78L12 16.9l-5.2 2.74 1-5.78L3.6 9.1l5.8-.84L12 3z" />
+                  </svg>
+                </label>
+                <input type="radio" id="star3" name="rating" value="3" />
+                <label for="star3" title="3">
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 3l2.6 5.26 5.8.84-4.2 4.09 1 5.78L12 16.9l-5.2 2.74 1-5.78L3.6 9.1l5.8-.84L12 3z" />
+                  </svg>
+                </label>
+                <input type="radio" id="star2" name="rating" value="2" />
+                <label for="star2" title="2">
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 3l2.6 5.26 5.8.84-4.2 4.09 1 5.78L12 16.9l-5.2 2.74 1-5.78L3.6 9.1l5.8-.84L12 3z" />
+                  </svg>
+                </label>
+                <input type="radio" id="star1" name="rating" value="1" />
+                <label for="star1" title="1">
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 3l2.6 5.26 5.8.84-4.2 4.09 1 5.78L12 16.9l-5.2 2.74 1-5.78L3.6 9.1l5.8-.84L12 3z" />
+                  </svg>
+                </label>
+              </div>
 
-      <!-- 5. Buyer Notes Section (hidden by default) -->
-      <div id="buyer-notes-section" class="hidden rounded-3xl border border-amber-500/20 bg-amber-950/10 p-6">
-        <div class="flex items-center gap-2 mb-3">
-          <div class="h-5 w-5 rounded-full bg-amber-500/20 grid place-items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-amber-400" viewBox="0 0 20 20"
-              fill="currentColor">
-              <path
-                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" />
-            </svg>
-          </div>
-          <h2 class="text-xs font-bold text-amber-400 uppercase tracking-widest">Catatan Admin</h2>
-        </div>
-        <div class="rounded-2xl border border-amber-500/10 bg-amber-500/5 px-4 py-3">
-          <p id="buyer-notes-text" class="text-sm text-amber-200 whitespace-pre-wrap leading-relaxed"></p>
-        </div>
-      </div>
+              <textarea id="review-text" rows="3" class="address-detail"
+                style="width:100%; background: var(--bg-primary); border:1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; color: var(--text-primary); font-size: 14px; resize: none;"
+                placeholder="Tulis ulasan Anda di sini... (Opsional)"></textarea>
 
-      <!-- 6. Review Section (New) -->
-      <div id="review-section"
-        class="hidden rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-sm shadow-glow p-6">
-        <div class="flex items-center gap-2 mb-4">
-          <div class="h-5 w-5 rounded-full bg-yellow-500/20 grid place-items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-yellow-400" viewBox="0 0 20 20"
-              fill="currentColor">
-              <path
-                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-            </svg>
-          </div>
-          <h2 class="text-xs font-bold text-yellow-400 uppercase tracking-widest">Beri Ulasan</h2>
-        </div>
+              <button type="submit" id="submit-review-btn" class="btn btn-primary" style="margin-top: 12px;">
+                Kirim Ulasan
+              </button>
+            </form>
 
-        <form id="review-form" class="space-y-4">
-          <div class="flex flex-col items-center justify-center py-2">
-            <div class="star-rating flex flex-row-reverse gap-1">
-              <input type="radio" id="star5" name="rating" value="5" /><label for="star5" title="5 stars">★</label>
-              <input type="radio" id="star4" name="rating" value="4" /><label for="star4" title="4 stars">★</label>
-              <input type="radio" id="star3" name="rating" value="3" /><label for="star3" title="3 stars">★</label>
-              <input type="radio" id="star2" name="rating" value="2" /><label for="star2" title="2 stars">★</label>
-              <input type="radio" id="star1" name="rating" value="1" /><label for="star1" title="1 star">★</label>
+            <div id="review-success" class="hidden" style="text-align:center;">
+              <p style="font-weight:600; margin-bottom:6px;">Terima kasih!</p>
+              <p class="address-detail">Ulasan Anda sangat berarti bagi kami.</p>
             </div>
-            <p class="text-xs text-slate-400 mt-1">Bagaimana pengalaman Anda?</p>
-          </div>
+          </section>
 
-          <textarea id="review-text" rows="3"
-            class="w-full bg-slate-900/50 border border-white/10 rounded-xl p-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 transition resize-none"
-            placeholder="Tulis ulasan Anda di sini... (Opsional)"></textarea>
-
-          <button type="submit" id="submit-review-btn"
-            class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold transition shadow-lg shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed">
-            Kirim Ulasan
-          </button>
-        </form>
-
-        <div id="review-success" class="hidden text-center py-4">
-          <div
-            class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 mb-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h3 class="text-white font-medium">Terima Kasih!</h3>
-          <p class="text-sm text-slate-400 mt-1">Ulasan Anda sangat berarti bagi kami.</p>
+          <section class="summary-card">
+            <h2 class="section-label">Ringkasan Pembayaran</h2>
+            <div class="summary-row">
+              <span class="summary-label">Subtotal</span>
+              <span class="summary-value" id="summary-subtotal">...</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">Biaya Layanan</span>
+              <span class="summary-value">Rp 0</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">Diskon</span>
+              <span class="summary-value" id="summary-discount" style="color: var(--success);">-Rp 0</span>
+            </div>
+            <div class="summary-row total">
+              <span class="summary-label">Total</span>
+              <span class="summary-value" id="summary-total">...</span>
+            </div>
+          </section>
         </div>
-      </div>
-
-      <!-- 7. Footer Actions -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <a href="index.html"
-          class="flex w-full justify-center items-center gap-2 rounded-2xl bg-white/[0.07] hover:bg-white/[0.12] py-4 text-sm font-semibold text-white transition border border-white/5">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-            <path
-              d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-          </svg>
-          <span data-i18n="btn_home">Kembali ke Beranda</span>
-        </a>
-        <button onclick="viewInvoice()"
-          class="flex w-full justify-center items-center gap-2 rounded-2xl bg-indigo-500/10 hover:bg-indigo-500/20 py-4 text-sm font-semibold text-indigo-400 transition border border-indigo-500/20"
-          data-i18n="btn_invoice">
-          Lihat Invoice
-        </button>
-      </div>
-
-      <!-- Branding -->
-      <p class="text-center text-[10px] text-slate-600 mt-4 lg:hidden">Arufkuy Store &copy; 2024</p>
-
+      </aside>
     </div>
-
   </div>
 
-  <!-- Simple encryption/decryption for local storage (optional) -->
+  <div class="bottom-actions">
+    <div class="cta-group">
+      <a class="btn btn-secondary" href="https://tawk.to/chat/698a62f02fb5be1c3a2b2e1e/1jh294vin" target="_blank"
+        rel="noreferrer">
+        Hubungi Penjual
+      </a>
+      <button class="btn btn-primary" onclick="viewInvoice()">Lihat Invoice</button>
+    </div>
+  </div>
+
   <script src="utils.js"></script>
 
-  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, doc, getDoc, onSnapshot, collection, query, where, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -369,43 +1004,64 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // --- CONFIGURATION ---
-    // Paste your Google Apps Script Web App URL here
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzYGA-rzPSIXOvLftbqCMhXDahn90HViWAqJuXxRTUn7kUYJEPlxot3w7P0JwgFpJdI/exec";
-    // ---------------------
 
     const params = new URLSearchParams(window.location.search);
     const orderId = params.get("orderId");
-    // Mayar sends ?id=...&status=...
-    // We treat 'id' as 'invoice' because we set redirectUrl to generic page
     const invoiceParam = params.get("invoice") || params.get("id");
-    let refId = params.get("ref"); // Invoice ID from Mayar (legacy)
-    const optionalRefId = params.get("refId"); // Optional refId from URL
+    let refId = params.get("ref");
 
-    // Check if refId is a placeholder and treat it as invalid
-    if (refId === '{invoiceId}' || refId === null || refId === '') {
+    if (refId === "{invoiceId}" || refId === null || refId === "") {
       refId = null;
     }
 
-    // Fallback for legacy URL (without orderId)
     const legacyProduct = params.get("product");
     const legacyPrice = params.get("price");
+
+    const timelineEls = {
+      pending: document.getElementById("tl-pending"),
+      paid: document.getElementById("tl-paid"),
+      delivered: document.getElementById("tl-delivered"),
+      completed: document.getElementById("tl-completed")
+    };
+
+    function clearTimeline() {
+      Object.values(timelineEls).forEach((el) => {
+        if (!el) return;
+        el.classList.remove("active", "completed", "danger");
+      });
+    }
+
+    function setTimelineState(state) {
+      clearTimeline();
+
+      // state: pending | paid | delivered | completed | danger
+      if (state === "danger") {
+        // Mark first dot as danger so user sees something
+        if (timelineEls.pending) timelineEls.pending.classList.add("danger", "active");
+        return;
+      }
+
+      const order = ["pending", "paid", "delivered", "completed"];
+      const idx = order.indexOf(state);
+      order.forEach((key, i) => {
+        const el = timelineEls[key];
+        if (!el) return;
+        if (i < idx) el.classList.add("completed");
+        if (i === idx) el.classList.add("active");
+      });
+    }
 
     // Global copy utility
     window.copyText = function (text, btn) {
       if (!text) return;
       navigator.clipboard.writeText(text).then(() => {
-        // Brief visual feedback
         if (btn) {
           const originalHTML = btn.innerHTML;
-          // Updated Checkmark - Brighter and properly centered
-          btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>';
-          // Add a small pulse effect class if desired, or just wait
-          btn.classList.add("bg-emerald-500/10", "border-emerald-500/20");
+          btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>';
           setTimeout(() => {
             btn.innerHTML = originalHTML;
-            btn.classList.remove("bg-emerald-500/10", "border-emerald-500/20");
-          }, 2000);
+          }, 1800);
         }
       });
     };
@@ -415,143 +1071,281 @@
     } else if (invoiceParam) {
       resolveInvoice(invoiceParam);
     } else if (legacyProduct) {
-      // Legacy mode (just display from URL)
       document.getElementById("ref-id").textContent = refId || "-";
       document.getElementById("product-name").textContent = legacyProduct;
-      document.getElementById("product-price").textContent = "Rp " + new Intl.NumberFormat("id-ID").format(legacyPrice);
-      setStatus('paid', false);
+      const formatted = "Rp " + new Intl.NumberFormat("id-ID").format(legacyPrice);
+      document.getElementById("product-price").textContent = formatted;
+      document.getElementById("product-price-inline").textContent = formatted;
+      setPaymentSummary(formatted);
+      setStatus("paid", false);
     } else {
-      setStatus('not-found');
+      setStatus("not-found");
+    }
+
+    function setPaymentSummary(totalText) {
+      const subtotal = document.getElementById("summary-subtotal");
+      const total = document.getElementById("summary-total");
+      if (subtotal) subtotal.textContent = totalText || "-";
+      if (total) total.textContent = totalText || "-";
     }
 
     function setStatus(status, hasItems) {
-      const icon = document.getElementById("status-icon");
-      const ring = document.getElementById("status-ring");
       const title = document.getElementById("status-title-text");
       const desc = document.getElementById("status-desc-text");
       const placeholderTitle = document.getElementById("placeholder-title");
       const placeholderDesc = document.getElementById("placeholder-desc");
+      const tlPendingTime = document.getElementById("tl-pending-time");
+      const tlPaidTime = document.getElementById("tl-paid-time");
+      const tlDeliveredTime = document.getElementById("tl-delivered-time");
+      const tlCompletedTime = document.getElementById("tl-completed-time");
 
-      if (status === 'paid' || status === 'completed') {
-        icon.className = "relative grid h-20 w-20 place-items-center rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
-        ring.className = "absolute inset-0 rounded-full bg-emerald-500/20 animate-pulse-ring";
-        icon.innerHTML = '<svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+      // Default descriptive text instead of "-"
+      if (tlPendingTime) tlPendingTime.textContent = "Menunggu pembayaran";
+      if (tlPaidTime) tlPaidTime.textContent = "Belum dibayar";
+      if (tlDeliveredTime) tlDeliveredTime.textContent = "Belum dikirim";
+      if (tlCompletedTime) tlCompletedTime.textContent = "Belum selesai";
 
+      if (status === "paid" || status === "completed") {
         if (hasItems) {
           if (title) title.textContent = "Pembayaran Berhasil";
-          if (desc) desc.textContent = "Terima kasih! Produk digital Anda sudah dikirim.";
+          if (desc) desc.textContent = "Produk digital Anda sudah dikirim. Transaksi selesai otomatis.";
+          if (tlPaidTime) tlPaidTime.textContent = "Pembayaran berhasil";
+          if (tlDeliveredTime) tlDeliveredTime.textContent = "Kredensial terkirim";
+          // Force completed state visual when items are delivered
+          if (tlCompletedTime) tlCompletedTime.textContent = "Transaksi selesai";
+          setTimelineState("completed");
         } else {
           if (title) title.textContent = "Pembayaran Diterima";
-          if (desc) desc.textContent = "Pembayaran berhasil! Produk Anda sedang diproses, halaman ini akan otomatis terupdate.";
+          if (desc) desc.textContent = "Pembayaran berhasil. Produk Anda sedang diproses dan akan muncul otomatis.";
           if (placeholderTitle) placeholderTitle.textContent = "Sedang Memproses";
-          if (placeholderDesc) placeholderDesc.textContent = "Pembayaran dikonfirmasi. Produk digital Anda sedang diproses dan akan segera muncul di sini.";
+          if (placeholderDesc) {
+            placeholderDesc.textContent =
+              "Pembayaran dikonfirmasi. Produk digital Anda sedang diproses dan akan segera muncul di sini.";
+          }
+          if (tlPendingTime) tlPendingTime.textContent = "Pembayaran dibuat";
+          if (tlPaidTime) tlPaidTime.textContent = "Pembayaran berhasil · produk diproses";
+          if (tlDeliveredTime) tlDeliveredTime.textContent = "Menunggu pengiriman kredensial";
+          if (tlCompletedTime) tlCompletedTime.textContent = "Menunggu selesai";
+          setTimelineState("paid");
         }
-      } else if (status === 'pending') {
-        icon.className = "relative grid h-20 w-20 place-items-center rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30";
-        ring.className = "absolute inset-0 rounded-full bg-amber-500/20 animate-pulse-ring";
-        icon.innerHTML = '<svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+      } else if (status === "pending") {
         if (title) title.textContent = "Menunggu Pembayaran";
-        if (desc) desc.textContent = "Silakan selesaikan pembayaran Anda. Setelah bayar, produk akan otomatis dikirim.";
+        if (desc) desc.textContent = "Silakan selesaikan pembayaran. Setelah bayar, produk akan otomatis dikirim.";
         if (placeholderTitle) placeholderTitle.textContent = "Menunggu Pembayaran";
-        if (placeholderDesc) placeholderDesc.textContent = "Produk digital Anda akan otomatis dikirim setelah pembayaran dikonfirmasi. Halaman ini akan otomatis terupdate.";
-      } else if (status === 'not-found') {
-        icon.className = "relative grid h-20 w-20 place-items-center rounded-full bg-red-500/20 text-red-400 border border-red-500/30";
-        ring.className = "absolute inset-0 rounded-full bg-red-500/20";
-        ring.style.animation = 'none';
-        icon.innerHTML = '<svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
-        if (title) title.textContent = "Pesanan Tidak Ditemukan";
-        if (desc) desc.textContent = "Mohon periksa kembali link Anda.";
-      } else if (status === 'cancelled') {
-        icon.className = "relative grid h-20 w-20 place-items-center rounded-full bg-red-500/20 text-red-400 border border-red-500/30";
-        ring.className = "absolute inset-0 rounded-full bg-red-500/20";
-        ring.style.animation = 'none';
-        icon.innerHTML = '<svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+        if (placeholderDesc) {
+          placeholderDesc.textContent =
+            "Produk digital Anda akan otomatis dikirim setelah pembayaran dikonfirmasi. Halaman ini akan otomatis terupdate.";
+        }
+        if (tlPendingTime) tlPendingTime.textContent = "Menunggu transfer / pembayaran";
+        if (tlPaidTime) tlPaidTime.textContent = "Belum ada konfirmasi";
+        if (tlDeliveredTime) tlDeliveredTime.textContent = "Belum dikirim";
+        if (tlCompletedTime) tlCompletedTime.textContent = "Belum selesai";
+        setTimelineState("pending");
+      } else if (status === "cancelled") {
         if (title) title.textContent = "Pesanan Dibatalkan";
         if (desc) desc.textContent = "Pesanan ini telah dibatalkan oleh sistem atau admin.";
         if (placeholderTitle) placeholderTitle.textContent = "Pesanan Dibatalkan";
         if (placeholderDesc) placeholderDesc.textContent = "Tidak ada produk untuk ditampilkan.";
+        if (tlPendingTime) tlPendingTime.textContent = "Pesanan dibatalkan";
+        if (tlPaidTime) tlPaidTime.textContent = "Tidak ada pembayaran aktif";
+        if (tlDeliveredTime) tlDeliveredTime.textContent = "Tidak ada pengiriman";
+        if (tlCompletedTime) tlCompletedTime.textContent = "Pesanan batal";
+        setTimelineState("danger");
+      } else if (status === "not-found") {
+        if (title) title.textContent = "Pesanan Tidak Ditemukan";
+        if (desc) desc.textContent = "Mohon periksa kembali link Anda.";
+        if (tlPendingTime) tlPendingTime.textContent = "ID pesanan tidak valid";
+        if (tlPaidTime) tlPaidTime.textContent = "Tidak ada data pembayaran";
+        if (tlDeliveredTime) tlDeliveredTime.textContent = "Tidak ada data pengiriman";
+        if (tlCompletedTime) tlCompletedTime.textContent = "—";
+        setTimelineState("danger");
       } else {
         if (title) title.textContent = "Status: " + status;
+        if (desc) desc.textContent = "Status pesanan terdeteksi namun belum dipetakan.";
+        setTimelineState("danger");
       }
     }
 
     async function resolveInvoice(invoice) {
       try {
-        console.log("Resolving invoice:", invoice);
-        // Find order by invoiceId
         const q = query(collection(db, "orders"), where("invoiceId", "==", invoice), limit(1));
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
           const docSnap = querySnapshot.docs[0];
           const realOrderId = docSnap.id;
-          console.log("Found orderId:", realOrderId);
           loadOrder(realOrderId);
         } else {
-          console.warn('Invoice not found:', invoice);
-          setStatus('not-found');
+          setStatus("not-found");
         }
       } catch (error) {
-        console.error('Error finding invoice:', error);
-        setStatus('not-found');
+        setStatus("not-found");
       }
+    }
+
+    async function fetchProductImage(prodId) {
+      if (!prodId) return;
+      try {
+        const prodSnap = await getDoc(doc(db, "products", prodId));
+        if (prodSnap.exists()) {
+          const prodData = prodSnap.data();
+          if (prodData.image) {
+            const imgEl = document.getElementById("product-image-display");
+            const placeholder = document.getElementById("product-image-placeholder");
+            if (imgEl && placeholder) {
+              imgEl.src = prodData.image;
+              imgEl.onload = () => {
+                imgEl.style.display = "block";
+                placeholder.style.display = "none";
+              };
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to load product image:", e);
+      }
+    }
+
+    function setupDetailsAnimation_OLD(details) {
+      const summary = details.querySelector('summary');
+      const content = details.querySelector('.details-content');
+
+      // Ensure content is hidden if closed default
+      if (!details.open) {
+        // No inline styles needed initially as CSS handles display:none for closed details usually
+        // But for animation we might need to be explicit if we use custom handling
+      }
+
+      summary.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (details.open) {
+          // Close
+          const startHeight = content.offsetHeight;
+          content.style.height = `${startHeight}px`;
+          content.style.opacity = '1';
+
+          // Force reflow
+          void content.offsetHeight;
+
+          content.style.height = '0px';
+          content.style.opacity = '0';
+          content.style.paddingTop = '0px';
+          content.style.paddingBottom = '0px';
+
+          setTimeout(() => {
+            details.open = false;
+            content.style = ''; // Clean up style
+            // Restore base styles (padding/border) that might be reset
+            content.style.padding = "10px 14px 12px";
+            content.style.borderTop = "1px solid var(--border)";
+          }, 300); // Match transition duration
+        } else {
+          // Open
+          details.open = true;
+          const targetHeight = content.scrollHeight; // This includes padding if box-sizing is border-box? 
+          // Actually scrollHeight gives full content height.
+
+          content.style.height = '0px';
+          content.style.opacity = '0';
+          content.style.paddingTop = '0px';
+          content.style.paddingBottom = '0px';
+          content.style.overflow = 'hidden';
+
+          void content.offsetHeight; // reflow
+
+          content.style.height = `${targetHeight}px`; // Approximate or exact
+          // Actually better to animate to auto? No, standard is pixels.
+          // Let's just set to scrollHeight.
+          // Re-apply padding for calculation? 
+          // contentWrap was created with inline padding.
+          content.style.padding = "10px 14px 12px";
+
+          // Recalculate height after padding reset?
+          const finalHeight = content.scrollHeight;
+
+          content.style.height = '0px'; // Reset for animation start
+          content.style.paddingTop = '0px';
+          content.style.paddingBottom = '0px';
+
+          void content.offsetHeight;
+
+          content.style.height = `${finalHeight}px`;
+          content.style.opacity = '1';
+          content.style.paddingTop = '10px';
+          content.style.paddingBottom = '12px';
+
+          setTimeout(() => {
+            content.style.height = 'auto'; // allow resizing
+            content.style.overflow = 'visible';
+          }, 300);
+        }
+      });
     }
 
     function loadOrder(id) {
       let pollInterval = null;
 
-      // Start auto-polling as fallback (will be cleared once realtime works)
       function startPolling() {
-        if (pollInterval) return; // Already polling
-        console.log('Starting auto-poll fallback every 5 seconds...');
+        if (pollInterval) return;
         pollInterval = setInterval(async () => {
           try {
             const docSnap = await getDoc(doc(db, "orders", id));
             if (docSnap.exists()) {
               processOrderData(docSnap.data());
             }
-          } catch (e) {
-            console.warn('Poll error:', e.code || e.message);
-          }
+          } catch { }
         }, 5000);
       }
 
       function processOrderData(data) {
-        // console.log("Order Data Loaded:", data); // REMOVED FOR SECURITY
-
-        // FEATURE: URL Masquerading
-        // If we loaded via orderId but have an invoiceId, switch URL to use invoice
-        // This makes the link shareable and hides the internal orderId
         if (data.invoiceId) {
           const currentUrl = new URL(window.location);
           if (currentUrl.searchParams.has("orderId")) {
             currentUrl.searchParams.delete("orderId");
             currentUrl.searchParams.set("invoice", data.invoiceId);
-            window.history.replaceState({}, '', currentUrl);
-            // Update params specific variables if needed, though page is already loading
+            window.history.replaceState({}, "", currentUrl);
           }
         }
 
         const displayRefId = data.invoiceId || refId || id;
         document.getElementById("ref-id").textContent = displayRefId;
-        document.getElementById("product-name").textContent = data.productName;
-        document.getElementById("product-price").textContent = "Rp " + new Intl.NumberFormat("id-ID").format(data.totalPrice);
+        document.getElementById("product-name").textContent = data.productName || "-";
+
+        if (data.productId) {
+          fetchProductImage(data.productId);
+        }
+
+        const formattedTotal = "Rp " + new Intl.NumberFormat("id-ID").format(data.totalPrice || 0);
+        document.getElementById("product-price").textContent = formattedTotal;
+        document.getElementById("product-price-inline").textContent = formattedTotal;
+        setPaymentSummary(formattedTotal);
+
+        // Handle discount display
+        const discountVal = data.discountAmount || 0;
+        if (discountVal > 0) {
+          const rawTotal = data.totalPrice || 0;
+          const rawSub = rawTotal + discountVal;
+          const fmt = (n) => "Rp " + new Intl.NumberFormat("id-ID").format(n);
+
+          const sSub = document.getElementById("summary-subtotal");
+          const sDisc = document.getElementById("summary-discount");
+
+          if (sSub) sSub.textContent = fmt(rawSub);
+          if (sDisc) sDisc.textContent = "-" + fmt(discountVal);
+        }
 
         const itemsToRender = data.deliveredItems || data.stockItems;
         const hasItems = Array.isArray(itemsToRender) && itemsToRender.length > 0;
 
-        // Update Status UI with item awareness
         setStatus(data.status, hasItems);
 
-        if (data.status === 'paid' || data.status === 'completed') {
+        if (data.status === "paid" || data.status === "completed") {
           if (hasItems) {
             renderDeliveredItems(itemsToRender);
-            // Items delivered — stop polling
-            if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
-
-            // Show Review Section if paid
-            // Pass the displayRefId (Invoice ID) to check against Google Sheet
-            // Also pass customerName to be stored in dataset
+            if (pollInterval) {
+              clearInterval(pollInterval);
+              pollInterval = null;
+            }
             checkAndShowReview(displayRefId, data.customerName);
           }
 
@@ -561,159 +1355,182 @@
         }
       }
 
-      // Try real-time listener first
-      onSnapshot(doc(db, "orders", id), (docSnap) => {
-        if (docSnap.exists()) {
-          processOrderData(docSnap.data());
-        } else {
-          setStatus('not-found');
-        }
-      }, (error) => {
-        console.warn("Realtime listener error:", error.code);
-
-        // Fallback: one-time fetch + start polling
-        getDoc(doc(db, "orders", id)).then((docSnap) => {
+      onSnapshot(
+        doc(db, "orders", id),
+        (docSnap) => {
           if (docSnap.exists()) {
             processOrderData(docSnap.data());
-            // If still pending, start polling
-            const data = docSnap.data();
-            if (data.status === 'pending' || (data.status === 'paid' && !data.deliveredItems)) {
-              startPolling();
-            }
           } else {
-            setStatus('not-found');
+            setStatus("not-found");
           }
-        }).catch(() => {
-          setStatus('not-found');
-        });
-      });
+        },
+        () => {
+          getDoc(doc(db, "orders", id))
+            .then((docSnap) => {
+              if (docSnap.exists()) {
+                processOrderData(docSnap.data());
+                const data = docSnap.data();
+                if (data.status === "pending" || (data.status === "paid" && !data.deliveredItems)) {
+                  startPolling();
+                }
+              } else {
+                setStatus("not-found");
+              }
+            })
+            .catch(() => {
+              setStatus("not-found");
+            });
+        }
+      );
     }
+
+    let lastCopyAllText = "";
 
     function renderDeliveredItems(items) {
       const placeholder = document.getElementById("delivered-items-placeholder");
       const list = document.getElementById("delivered-items-list");
+      if (!list) return;
 
       // Normalize items to array
       let itemsArray = [];
       if (Array.isArray(items)) {
-        itemsArray = items.map(item => {
-          if (typeof item === 'string') {
-            return { content: item, note: '' };
-          }
-          return item;
-        });
+        itemsArray = items.map((item) => (typeof item === "string" ? { content: item, note: "" } : item));
       } else if (items) {
-        if (typeof items === 'string') {
-          itemsArray = [{ content: items, note: '' }];
-        } else {
-          itemsArray = [items];
-        }
+        itemsArray = [typeof items === "string" ? { content: items, note: "" } : items];
       }
 
       if (itemsArray.length === 0) return;
 
-      // Hide placeholder, show list
-      placeholder.classList.add("hidden");
+      if (placeholder) placeholder.classList.add("hidden");
       list.classList.remove("hidden");
       list.innerHTML = "";
 
-      // Render Items using User's Preferred Style (Split Multi-line)
       itemsArray.forEach((item, index) => {
         const details = document.createElement("details");
-        details.className = "group bg-slate-950/30 rounded-xl border border-white/5 overflow-hidden";
-        if (index === 0) details.open = true;
+        details.open = false; // Default closed
+        details.style.marginBottom = "10px";
+        details.style.borderRadius = "14px";
+        details.style.border = "1px solid var(--border)";
+        details.style.background = "var(--bg-primary)";
+        details.style.overflow = "hidden"; // Clip content
 
-        // 1. Process Content: Split by Newline
-        const contentLines = (item.content || '').split(/\r?\n/).filter(line => line.trim() !== '');
+        const summary = document.createElement("summary");
+        summary.style.cursor = "pointer";
+        summary.style.listStyle = "none";
+        summary.style.padding = "10px 14px";
+        summary.style.display = "flex";
+        summary.style.alignItems = "center";
+        summary.style.justifyContent = "space-between";
+        // Remove default marker
+        summary.style.listStyle = "none";
+        summary.innerHTML = `
+          <span style="font-size:13px;font-weight:600;color:var(--text-secondary);">Item #${index + 1}</span>
+          <span style="font-size:11px;color:var(--text-muted);">Klik untuk lihat</span>
+        `;
+        // Hide webkit marker
+        const style = document.createElement('style');
+        style.textContent = 'summary::-webkit-details-marker { display: none; }';
+        details.appendChild(style);
 
-        let contentHtml = '';
-        if (contentLines.length > 0) {
-          contentHtml = contentLines.map(line => {
-            const parts = line.split('|');
-            // Check if it matches Label|Value pattern
-            if (parts.length > 1) {
-              const label = parts[0].trim();
-              const value = parts.slice(1).join('|').trim();
-              const cleanLabel = label.replace(/^\[/, '');
-              const cleanValue = value.replace(/\]$/, '');
+        const contentWrap = document.createElement("div");
+        contentWrap.className = "details-content"; // Class for selection
+        // Inline styles removed in favor of CSS class for persistent transition handling
+        // contentWrap.style.padding = "10px 14px 12px";
+        // contentWrap.style.borderTop = "1px solid var(--border)";
+        // contentWrap.style.transition = "all 0.3s ease";
+        // contentWrap.style.transformOrigin = "top";
 
-              return `
-                <div class="mb-2 last:mb-0">
-                  <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider mb-0.5">${cleanLabel}</div>
-                  <div class="relative group/copy">
-                     <div class="font-mono text-base text-emerald-300 font-medium bg-black/20 rounded-xl px-4 py-3 select-all break-all border border-emerald-500/10 cursor-text shadow-inner" onclick="copyText(this.innerText)">${cleanValue}</div>
-                     <button onclick="copyText(this.previousElementSibling.innerText, this)" class="absolute top-2 right-2 opacity-0 group-hover/copy:opacity-100 p-2 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition shadow-lg border border-white/5">
-                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                         <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
-                         <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
-                       </svg>
-                     </button>
-                  </div>
-                </div>
-               `;
-            } else {
-              // Normal line
-              return `
-                  <div class="bg-black/40 rounded-lg p-3 border border-emerald-500/10 relative group/copy mb-2 last:mb-0">
-                    <div class="font-mono text-sm text-emerald-300 break-all whitespace-pre-wrap select-all font-medium pr-8 leading-relaxed">${line}</div>
-                    <button onclick="copyText(this.previousElementSibling.innerText, this)" class="absolute top-2 right-2 text-slate-600 hover:text-emerald-400 bg-slate-800/50 hover:bg-slate-800 p-1.5 rounded-lg transition border border-white/5">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
-                        <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
-                      </svg>
-                    </button>
-                  </div>
-                `;
-            }
-          }).join('');
+
+        const contentLines = (item.content || "").split(/\r?\n/).filter((l) => l.trim() !== "");
+        if (contentLines.length === 0) {
+          const empty = document.createElement("p");
+          empty.className = "address-detail";
+          empty.textContent = "Konten tidak tersedia.";
+          contentWrap.appendChild(empty);
         } else {
-          // Fallback for empty content
-          contentHtml = `<div class="text-slate-500 italic text-xs">Konten tidak tersedia</div>`;
+          contentLines.forEach((line) => {
+            const parts = line.split("|");
+            let label = "Data";
+            let value = line;
+            if (parts.length > 1) {
+              label = parts[0].trim().replace(/^\[/, "");
+              value = parts.slice(1).join("|").trim().replace(/\]$/, "");
+            }
+
+            const field = document.createElement("div");
+            field.className = "credential-field";
+
+            const content = document.createElement("div");
+            content.className = "credential-field-content";
+
+            const l = document.createElement("div");
+            l.className = "credential-field-label";
+            l.textContent = label || "Data";
+
+            const v = document.createElement("div");
+            v.className = "credential-field-value";
+            v.textContent = value || "-";
+
+            content.appendChild(l);
+            content.appendChild(v);
+
+            const btn = document.createElement("button");
+            btn.className = "credential-copy-btn";
+            btn.type = "button";
+            btn.setAttribute("aria-label", `Salin ${label || "data"}`);
+            btn.innerHTML = `
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            `;
+            btn.addEventListener("click", (e) => {
+              e.preventDefault();
+              window.copyText(value, btn);
+            });
+
+            field.appendChild(content);
+            field.appendChild(btn);
+            contentWrap.appendChild(field);
+          });
         }
 
-        // 2. Note HTML
-        let noteHtml = '';
         if (item.note) {
-          noteHtml = `
-            <div class="mt-3 flex items-start gap-2 p-3 rounded-lg bg-amber-500/5 border border-amber-500/10">
-               <span class="text-amber-400 text-sm">📝</span>
-               <div class="text-xs text-amber-200/80 italic leading-relaxed whitespace-pre-wrap font-sans">${item.note}</div>
-            </div>
-          `;
+          const noteTitle = document.createElement("p");
+          noteTitle.className = "credential-group-title";
+          noteTitle.textContent = "Catatan";
+          noteTitle.style.marginBottom = "6px"; // Adjusted gap
+          contentWrap.appendChild(noteTitle);
+
+          const note = document.createElement("p");
+          note.className = "address-detail";
+          note.style.color = "#fde68a";
+          note.style.whiteSpace = "pre-wrap";
+          note.style.paddingLeft = "12px"; // Indented
+          note.style.borderLeft = "2px solid rgba(253, 230, 138, 0.2)";
+          note.textContent = item.note;
+          contentWrap.appendChild(note);
         }
 
-        details.innerHTML = `
-            <summary class="flex justify-between items-center p-4 cursor-pointer select-none bg-white/[0.02] hover:bg-white/[0.04] transition sticky top-0 backdrop-blur-md z-10">
-                <div class="flex items-center gap-3">
-                    <div class="h-6 w-6 rounded-full bg-emerald-500/10 border border-emerald-500/20 grid place-items-center text-xs font-bold text-emerald-400 font-mono">${index + 1}</div>
-                    <span class="text-sm font-medium text-slate-300 group-open:text-white transition">Item #${index + 1}</span>
-                </div>
-                <span class="text-slate-500 transition-transform duration-300 group-open:rotate-180">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                  </svg>
-                </span>
-            </summary >
-        <div class="p-4 border-t border-white/5 bg-black/20">
-          ${contentHtml}
-          ${noteHtml}
-        </div>
-      `;
+        details.appendChild(summary);
+        details.appendChild(contentWrap);
         list.appendChild(details);
+
+        setupDetailsAnimation(details);
       });
     }
 
     function renderBuyerNotes(notes) {
       const section = document.getElementById("buyer-notes-section");
       const text = document.getElementById("buyer-notes-text");
+      if (!section || !text) return;
       section.classList.remove("hidden");
       text.textContent = notes;
     }
 
     function viewInvoice() {
-      // Try to get invoiceId from displayed ref-id
-      const displayedRef = document.getElementById("ref-id").textContent;
-      const invoiceId = displayedRef && displayedRef !== '...' && displayedRef !== '-' ? displayedRef : refId;
+      const displayedRef = document.getElementById("ref-id")?.textContent;
+      const invoiceId = displayedRef && displayedRef !== "..." && displayedRef !== "-" ? displayedRef : refId;
 
       if (invoiceId) {
         window.location.href = `https://arufkuy.myr.id/invoice/${invoiceId}`;
@@ -726,36 +1543,30 @@
     async function checkAndShowReview(orderId, customerName) {
       if (!orderId) return;
 
-      // 1. Cek Server (Google Sheet) - PRIORITAS UTAMA
       try {
         const response = await fetch(`${GOOGLE_SCRIPT_URL}?checkId=${orderId}`);
         const data = await response.json();
 
         if (data.reviewed) {
-          console.log("Review found on Server");
-          document.getElementById('review-section').classList.add('hidden');
+          document.getElementById("review-section")?.classList.add("hidden");
         } else {
-          console.log("No review found on Server, showing form");
-          document.getElementById('review-section').classList.remove('hidden');
-          document.getElementById('review-form').dataset.orderId = orderId;
-          // Store customer name in dataset
-          document.getElementById('review-form').dataset.customerName = customerName || "Pelanggan";
+          document.getElementById("review-section")?.classList.remove("hidden");
+          document.getElementById("review-form").dataset.orderId = orderId;
+          document.getElementById("review-form").dataset.customerName = customerName || "Pelanggan";
         }
-      } catch (e) {
-        console.warn("Failed to check review status from server, falling back to local only", e);
-        // Jika server error/offline, cek local storage sebagai fallback
-        const storageKey = 'reviewed_' + orderId;
+      } catch {
+        const storageKey = "reviewed_" + orderId;
         if (localStorage.getItem(storageKey)) {
-          document.getElementById('review-section').classList.add('hidden');
+          document.getElementById("review-section")?.classList.add("hidden");
         } else {
-          document.getElementById('review-section').classList.remove('hidden');
-          document.getElementById('review-form').dataset.orderId = orderId;
-          document.getElementById('review-form').dataset.customerName = customerName || "Pelanggan";
+          document.getElementById("review-section")?.classList.remove("hidden");
+          document.getElementById("review-form").dataset.orderId = orderId;
+          document.getElementById("review-form").dataset.customerName = customerName || "Pelanggan";
         }
       }
     }
 
-    document.getElementById('review-form').addEventListener('submit', function (e) {
+    document.getElementById("review-form").addEventListener("submit", function (e) {
       e.preventDefault();
 
       const rating = document.querySelector('input[name="rating"]:checked');
@@ -766,49 +1577,119 @@
 
       const currentOrderId = this.dataset.orderId;
       const currentCustomerName = this.dataset.customerName;
-
       if (!currentOrderId) {
         alert("Terjadi kesalahan: Order ID tidak ditemukan.");
         return;
       }
 
-      const btn = document.getElementById('submit-review-btn');
+      const btn = document.getElementById("submit-review-btn");
       btn.disabled = true;
       btn.textContent = "Mengirim...";
 
       const reviewData = {
         orderId: currentOrderId,
-        customerName: currentCustomerName, // Kirim Nama
-        productName: document.getElementById('product-name').textContent,
+        customerName: currentCustomerName,
+        productName: document.getElementById("product-name").textContent,
         rating: rating.value,
-        review: document.getElementById('review-text').value
+        review: document.getElementById("review-text").value
       };
 
       fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {
-          'Content-Type': 'text/plain'
-        },
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain" },
         body: JSON.stringify(reviewData)
-      }).then(() => {
-        // Success handling
-        // Kita tetap simpan ke localStorage sebagai cache/optimasi, tapi pengecekan utama tetap ke server
-        localStorage.setItem('reviewed_' + currentOrderId, 'true');
-        document.getElementById('review-form').classList.add('hidden');
-        document.getElementById('review-success').classList.remove('hidden');
-      }).catch(err => {
-        console.error('Review Error:', err);
-        alert("Gagal mengirim ulasan. Silakan coba lagi.");
-        btn.disabled = false;
-        btn.textContent = "Kirim Ulasan";
-      });
+      })
+        .then(() => {
+          localStorage.setItem("reviewed_" + currentOrderId, "true");
+          document.getElementById("review-form").classList.add("hidden");
+          document.getElementById("review-success").classList.remove("hidden");
+        })
+        .catch(() => {
+          alert("Gagal mengirim ulasan. Silakan coba lagi.");
+          btn.disabled = false;
+          btn.textContent = "Kirim Ulasan";
+        });
     });
 
-    // Expose function to global scope for onclick
     window.viewInvoice = viewInvoice;
+
+    // Mirror total text into summary (legacy display updates too)
+    const priceEl = document.getElementById("product-price");
+    const inlinePriceEl = document.getElementById("product-price-inline");
+    const summarySubtotal = document.getElementById("summary-subtotal");
+    const summaryTotal = document.getElementById("summary-total");
+
+    const observer = new MutationObserver(() => {
+      const t = priceEl?.textContent || "-";
+      if (inlinePriceEl) inlinePriceEl.textContent = t;
+      if (summarySubtotal) summarySubtotal.textContent = t;
+      if (summaryTotal) summaryTotal.textContent = t;
+    });
+    if (priceEl) observer.observe(priceEl, { childList: true, characterData: true, subtree: true });
+
+    // FIXED ANIMATION FUNCTION
+    function setupDetailsAnimation(details) {
+      const summary = details.querySelector('summary');
+      const content = details.querySelector('.details-content');
+
+      summary.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        if (details.open) {
+          // Closing
+          const startHeight = content.scrollHeight;
+          content.style.height = `${startHeight}px`;
+          content.style.padding = "10px 14px 12px";
+          content.style.opacity = '1';
+
+          void content.offsetHeight; // Force reflow
+
+          requestAnimationFrame(() => {
+            content.style.height = '0px';
+            content.style.paddingTop = '0px';
+            content.style.paddingBottom = '0px';
+            content.style.opacity = '0';
+          });
+
+          setTimeout(() => {
+            details.open = false;
+            content.style = ''; // Clean up style
+          }, 300);
+
+        } else {
+          // Opening
+          details.open = true;
+          content.style.height = '0px';
+          content.style.paddingTop = '0px';
+          content.style.paddingBottom = '0px';
+          content.style.opacity = '0';
+
+          void content.offsetHeight; // Force reflow
+
+          requestAnimationFrame(() => {
+            const h = content.scrollHeight;
+            content.style.height = `${h}px`;
+            content.style.padding = "10px 14px 12px";
+            content.style.opacity = '1';
+          });
+
+          setTimeout(() => {
+            content.style.height = 'auto';
+            content.style.overflow = 'visible';
+
+            // Refined Scroll Logic
+            const allDetails = details.parentNode.querySelectorAll('details');
+            if (allDetails.length === 1) {
+              details.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+              details.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+          }, 300);
+        }
+      });
+    }
   </script>
 </body>
-
 
 </html>

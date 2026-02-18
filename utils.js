@@ -200,6 +200,14 @@ function updateDropdownUI() {
     currText.textContent = currentCurrency;
     currSymbol.textContent = CURRENCY_MAP[currentCurrency].symbol;
   }
+
+  // Also sync mobile bottom-sheet currency button
+  const mobileCurrText = document.getElementById('mobile-curr-text');
+  const mobileCurrSymbol = document.getElementById('mobile-curr-symbol');
+  if (mobileCurrText && mobileCurrSymbol && CURRENCY_MAP[currentCurrency]) {
+    mobileCurrText.textContent = currentCurrency;
+    mobileCurrSymbol.textContent = CURRENCY_MAP[currentCurrency].symbol;
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
