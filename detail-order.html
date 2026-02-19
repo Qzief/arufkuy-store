@@ -1313,13 +1313,33 @@
         document.getElementById("ref-id").textContent = displayRefId;
         document.getElementById("product-name").textContent = data.productName || "-";
 
+        // Update Quantity
+        const qtyEl = document.querySelector(".product-qty");
+        if (qtyEl) {
+          qtyEl.textContent = `Qty: ${data.quantity || 1}`;
+        }
+
         if (data.productId) {
           fetchProductImage(data.productId);
         }
 
-        const formattedTotal = "Rp " + new Intl.NumberFormat("id-ID").format(data.totalPrice || 0);
+        const totalVal = data.totalPrice || 0;
+        const qtyVal = data.quantity || 1;
+        const formattedTotal = "Rp " + new Intl.NumberFormat("id-ID").format(totalVal);
+
         document.getElementById("product-price").textContent = formattedTotal;
-        document.getElementById("product-price-inline").textContent = formattedTotal;
+
+        // Inline Price: Show unit price if qty > 1
+        let inlineText = formattedTotal;
+        if (qtyVal > 1) {
+          const unitVal = Math.floor(totalVal / qtyVal);
+          const formattedUnit = "Rp " + new Intl.NumberFormat("id-ID").format(unitVal);
+          inlineText = `Total: ${formattedTotal} (@ ${formattedUnit})`;
+        } else {
+          inlineText = `Total: ${formattedTotal}`;
+        }
+        document.getElementById("product-price-inline").textContent = inlineText;
+
         setPaymentSummary(formattedTotal);
 
         // Handle discount display
