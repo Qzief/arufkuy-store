@@ -1426,7 +1426,13 @@
           if (cData.expiredAt && new Date(cData.expiredAt.toDate()) < new Date()) {
             showToast('Kupon kadaluarsa', 'error');
             appliedCoupon = null;
-          } else {
+          }
+          // Product Restriction Check
+          else if (cData.allowedProductIds && cData.allowedProductIds.length > 0 && !cData.allowedProductIds.includes(productId)) {
+            showToast('Kupon tidak berlaku untuk produk ini', 'error');
+            appliedCoupon = null;
+          }
+          else {
             appliedCoupon = { ...cData, code: code, id: snap.docs[0].id };
             showToast('Kupon diterapkan!', 'success');
             document.getElementById('coupon').disabled = true;
