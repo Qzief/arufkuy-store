@@ -1,545 +1,1060 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Detail Produk - Arufkuy Store</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Detail Produk | Arufkuy Store</title>
   <link rel="icon" type="image/png" href="/icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap"
+    rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          boxShadow: {
-            glow: "0 0 0 1px rgba(148,163,184,.12), 0 12px 40px rgba(2,6,23,.55)"
-          }
-        }
+  <style>
+    :root {
+      --bg-primary: #03040e;
+      --bg-card: #080c18;
+      --bg-elevated: #0d1424;
+      --accent: #818cf8;
+      --accent-soft: rgba(129, 140, 248, 0.12);
+      --accent-glow: rgba(99, 102, 241, 0.35);
+      --text-primary: #e2e8f0;
+      --text-secondary: #94a3b8;
+      --text-muted: #475569;
+      --success: #34d399;
+      --error: #ef4444;
+      --border: rgba(255, 255, 255, 0.07);
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --glass-bg: rgba(8, 12, 24, 0.7);
+      --glass-border: rgba(255, 255, 255, 0.07);
+      --glass-blur: 20px;
+    }
+
+    * {
+      text-decoration: none;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding-bottom: 40px;
+    }
+
+    /* Helper classes */
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid var(--glass-border);
+    }
+
+    /* Ambient background — matches index.html glow */
+    .ambient-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 70vh;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.20), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 0%, rgba(6, 182, 212, 0.12), transparent);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Header */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      z-index: 100;
+      transition: background 0.3s ease;
+    }
+
+    .header.scrolled {
+      background: rgba(3, 4, 14, 0.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      color: var(--text-primary);
+    }
+
+    .nav-btn:active {
+      transform: scale(0.9);
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    /* Product Gallery */
+    .product-gallery {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/9;
+      overflow: hidden;
+      margin-bottom: -40px;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+      background: radial-gradient(circle at center, #0d1424 0%, #03040e 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .product-gallery img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+    }
+
+    .gallery-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 120px;
+      background: linear-gradient(to top, var(--bg-primary) 10%, transparent);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .gallery-image-svg {
+      width: 180px;
+      height: 180px;
+      filter: drop-shadow(0 0 40px rgba(99, 102, 241, 0.2));
+      color: var(--text-primary);
+      z-index: 1;
+    }
+
+    /* Main Container */
+    .main-container {
+      position: relative;
+      z-index: 10;
+      background: linear-gradient(180deg, rgba(8, 12, 24, 0.9) 0%, var(--bg-primary) 100%);
+      backdrop-filter: blur(20px);
+      border-radius: 32px 32px 0 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 32px 24px;
+      min-height: 60vh;
+      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Product Title & Rating */
+    .product-header {
+      margin-bottom: 28px;
+    }
+
+    .product-badges {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .badge-accent {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid rgba(129, 140, 248, 0.2);
+    }
+
+    .badge-dark {
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    .badge-success {
+      background: rgba(52, 211, 153, 0.1);
+      color: var(--success);
+      border: 1px solid rgba(52, 211, 153, 0.2);
+    }
+
+    .badge-warning {
+      background: rgba(245, 158, 11, 0.1);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .badge-error {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--error);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .product-title {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+      background: linear-gradient(180deg, #f1f5f9 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .product-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .product-price {
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--accent) 0%, #c084fc 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .price-container {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .price-original {
+      font-size: 15px;
+      color: var(--text-muted);
+      text-decoration: line-through;
+      opacity: 0.8;
+    }
+
+    /* Variants / Options */
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title svg {
+      width: 16px;
+      height: 16px;
+      opacity: 0.7;
+    }
+
+    .options-grid {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .option-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .option-card.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      background: rgba(8, 12, 24, 0.5);
+    }
+
+    .option-card:not(.disabled):hover {
+      background: var(--bg-card);
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .option-card.selected {
+      border-color: var(--accent);
+      background: rgba(129, 140, 248, 0.08);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+
+    .option-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .option-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .option-status {
+      font-size: 13px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .status-available {
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+    }
+
+    .status-out {
+      background: var(--error);
+    }
+
+    .status-low {
+      background: #f59e0b;
+      box-shadow: 0 0 8px #f59e0b;
+    }
+
+
+    /* Input Form */
+    .form-section {
+      margin-bottom: 32px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+    }
+
+    .input-group {
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    .input-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .input-label {
+      display: block;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .input-field {
+      width: 100%;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 15px;
+      transition: all 0.2s ease;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+      background: var(--bg-primary);
+    }
+
+    .input-with-action {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-check {
+      padding: 0 20px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--accent);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .btn-check:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+
+    .btn-check:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-qty {
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-qty:hover:not(:disabled) {
+      background: var(--bg-card);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-qty:active:not(:disabled) {
+      transform: scale(0.95);
+    }
+
+    .btn-qty:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: rgba(8, 12, 24, 0.5);
+    }
+
+
+    /* Description */
+    .description-section {
+      margin-bottom: 32px;
+    }
+
+    .description-content {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      position: relative;
+      max-height: 1000px;
+      /* Default expanded */
+      padding-bottom: 10px;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+    }
+
+    .description-content.collapsed {
+      max-height: 100px;
+    }
+
+    /* Gradient overlay for truncated text */
+    .description-content.collapsed::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: linear-gradient(to bottom, transparent, var(--bg-primary));
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+
+    .read-more-btn {
+      background: transparent;
+      border: none;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 0;
+      margin-top: 4px;
+    }
+
+    .read-more-btn svg {
+      transition: transform 0.3s ease;
+    }
+
+    .read-more-btn.expanded svg {
+      transform: rotate(180deg);
+    }
+
+    .btn-buy {
+      flex: 1;
+      height: 56px;
+      border: none;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 24px var(--accent-glow);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-buy:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px var(--accent-glow);
+    }
+
+    .btn-buy:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn-buy:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      background: #333;
+      box-shadow: none;
+    }
+
+    /* Desktop adjustments */
+    @media (min-width: 900px) {
+      .page-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+        padding: 40px;
+        align-items: start;
+      }
+
+      .main-container {
+        background: transparent;
+        border: none;
+        min-height: auto;
+        box-shadow: none;
+        backdrop-filter: none;
+        padding: 0;
+      }
+
+      .left-col {
+        position: sticky;
+        top: 100px;
+        height: fit-content;
+      }
+
+      .product-gallery {
+        height: auto;
+        aspect-ratio: 16/9;
+        margin-bottom: 24px;
+        border-radius: var(--radius-lg);
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        position: relative;
+        top: auto;
+      }
+
+      .description-section {
+        margin-top: 0;
+      }
+
+      .bottom-bar {
+        position: static;
+        background: transparent;
+        border-top: none;
+        padding: 0;
+        margin-top: 40px;
+      }
+
+      /* Header Position */
+      /* Header Position */
+      .header {
+        position: absolute;
+        background: transparent !important;
+        border-bottom: none !important;
+        backdrop-filter: none !important;
+        padding: 30px 50px;
+        width: 100%;
+        max-width: none;
+        left: 0;
+        transform: none;
       }
     }
-  </script>
-  <style>
-    html {
-      scroll-behavior: smooth;
-    }
 
-    .grid-bg {
-      background-image: radial-gradient(circle at 1px 1px, rgba(148, 163, 184, .14) 1px, transparent 0);
-      background-size: 26px 26px;
-    }
-
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-
-    /* Bottom Sheet Mobile Menu */
-    .mobile-overlay {
+    /* Modern Menu Modal */
+    .menu-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      z-index: 200;
       opacity: 0;
       visibility: hidden;
-      transition: opacity 0.3s ease, visibility 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
     }
 
-    .mobile-overlay.active {
+    .menu-overlay.active {
       opacity: 1;
       visibility: visible;
     }
 
-    .mobile-sheet {
-      transform: translateY(100%);
-      transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    .menu-card {
+      background: linear-gradient(145deg, rgba(13, 20, 36, 0.95) 0%, rgba(3, 4, 14, 0.98) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      /* Subtle border */
+      border-radius: 24px;
+      width: 100%;
+      max-width: 400px;
+      padding: 24px;
+      box-shadow:
+        0 20px 50px -10px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+      transform: scale(0.95) translateY(10px);
+      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      overflow: hidden;
     }
 
-    .mobile-overlay.active .mobile-sheet {
-      transform: translateY(0);
+    .menu-overlay.active .menu-card {
+      transform: scale(1) translateY(0);
     }
 
-    .mobile-nav-item {
-      transition: background 0.2s ease, transform 0.15s ease;
+    /* Decorative glow for menu */
+    .menu-card::before {
+      content: '';
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 150px;
+      height: 150px;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      opacity: 0.5;
+      pointer-events: none;
     }
 
-    .mobile-nav-item:active {
-      transform: scale(0.95);
+    .menu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    /* Skeleton Loading Animation */
-    @keyframes shimmer {
-      0% {
-        background-position: -1000px 0;
-      }
-
-      100% {
-        background-position: 1000px 0;
-      }
+    .menu-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    .skeleton {
-      background: linear-gradient(to right, rgba(255, 255, 255, 0.05) 8%, rgba(255, 255, 255, 0.1) 18%, rgba(255, 255, 255, 0.05) 33%);
-      background-size: 1000px 100%;
-      animation: shimmer 2s infinite linear;
+    .close-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+      border: none;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .close-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+      transform: rotate(90deg);
+    }
+
+    .menu-section {
+      margin-bottom: 24px;
+    }
+
+    .menu-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .menu-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .menu-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      text-align: center;
+      position: relative;
+    }
+
+    .menu-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .menu-item.active {
+      background: rgba(99, 102, 241, 0.15);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .menu-item.active .menu-icon {
+      color: var(--accent);
+    }
+
+    .menu-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      transition: 0.2s;
+    }
+
+    .menu-text {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .menu-item-row {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      gap: 14px;
+      color: var(--text-primary);
+    }
+
+    .menu-item-row:hover {
+      background: rgba(255, 255, 255, 0.06);
+      transform: translateX(4px);
+    }
+
+    .menu-item-row svg.arrow-icon {
+      margin-left: auto;
+      opacity: 0.5;
+      width: 16px;
+      height: 16px;
     }
   </style>
 </head>
 
-<body class="min-h-screen bg-slate-950 text-slate-100 font-sans flex flex-col">
-
-  <!-- Top gradient -->
-  <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-    <div class="absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-indigo-500/20 blur-3xl">
-    </div>
-    <div class="absolute top-40 right-[-140px] h-[380px] w-[380px] rounded-full bg-cyan-500/15 blur-3xl"></div>
-  </div>
+<body>
+  <div class="ambient-bg"></div>
 
   <!-- Header -->
-  <header class="sticky top-0 z-50 border-b border-white/10 bg-slate-950/70 backdrop-blur">
-    <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-      <a href="/" class="flex items-center gap-3">
-        <div class="grid h-10 w-10 place-items-center rounded-xl bg-white/5 shadow-glow overflow-hidden">
-          <img src="/icon.png" alt="A" class="h-8 w-8 object-contain">
-        </div>
-        <div class="leading-tight">
-          <p class="text-sm font-semibold tracking-wide">Arufkuy Store</p>
-          <p class="text-xs text-slate-400">Digital Goods</p>
-        </div>
-      </a>
-
-      <nav class="hidden items-center gap-6 text-sm text-slate-300 md:flex">
-        <a href="/#products" class="hover:text-white transition">Produk</a>
-        <a href="/order-guide.html" class="hover:text-white transition">Cara Order</a>
-        <a href="/help-center.html" class="hover:text-white transition">Pusat Bantuan</a>
-        <a href="/contact.html" class="hover:text-white transition">Kontak</a>
-      </nav>
-
-      <div class="flex items-center gap-3">
-        <!-- Desktop Controls -->
-        <div class="hidden md:flex items-center gap-3">
-          <!-- Language Dropdown -->
-          <div class="relative group">
-            <button
-              class="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-white/10 transition">
-              <span id="current-lang-flag">🇮🇩</span>
-              <span id="current-lang-text">ID</span>
-              <svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-              </svg>
-            </button>
-            <div
-              class="absolute right-0 mt-2 w-32 origin-top-right rounded-xl border border-white/10 bg-slate-900 p-1 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-              <button onclick="setLanguage('id')"
-                class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-xs text-slate-300 hover:bg-white/10 hover:text-white transition"><span>🇮🇩</span>
-                Indonesia</button>
-              <button onclick="setLanguage('en')"
-                class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-xs text-slate-300 hover:bg-white/10 hover:text-white transition"><span>🇺🇸</span>
-                English</button>
-            </div>
-          </div>
-
-          <!-- Currency Dropdown -->
-          <div class="relative group">
-            <button
-              class="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-white/10 transition">
-              <span id="current-curr-symbol" class="text-emerald-400 font-bold">Rp</span>
-              <span id="current-curr-text">IDR</span>
-              <svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-              </svg>
-            </button>
-            <div
-              class="absolute right-0 mt-2 w-48 max-h-72 overflow-y-auto no-scrollbar origin-top-right rounded-xl border border-white/10 bg-slate-900 p-1 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-              <div id="currency-dropdown-menu"></div>
-            </div>
-          </div>
-
-          <a href="https://arufkuy.myr.id/portal"
-            class="hidden md:inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/40 shadow-lg shadow-indigo-500/30">
-            <span>Login</span>
-          </a>
-        </div>
-
-        <!-- Mobile Hamburger Button -->
-        <button onclick="toggleMobileMenu()" class="md:hidden rounded-xl bg-white/5 p-2 hover:bg-white/10 transition">
-          <svg id="hamburger-icon" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-          </svg>
-          <svg id="close-icon" class="h-6 w-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
+  <header class="header" id="header">
+    <button class="nav-btn" onclick="history.back()" aria-label="Kembali">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7" />
+      </svg>
+    </button>
+    <div class="nav-actions">
+      <button class="nav-btn" aria-label="Menu" onclick="toggleMenu()">
+        <!-- Hamburger Icon -->
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="4" y1="12" x2="20" y2="12"></line>
+          <line x1="4" y1="6" x2="20" y2="6"></line>
+          <line x1="4" y1="18" x2="20" y2="18"></line>
+        </svg>
+      </button>
     </div>
   </header>
 
-  <!-- Mobile Bottom Sheet Menu -->
-  <div id="mobile-overlay" class="mobile-overlay fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm md:hidden"
-    onclick="closeMobileMenu()">
-    <div
-      class="mobile-sheet fixed bottom-0 left-0 right-0 max-h-[85vh] rounded-t-3xl border-t border-white/10 bg-slate-950/95 backdrop-blur-xl shadow-2xl overflow-y-auto no-scrollbar"
-      onclick="event.stopPropagation()">
-      <div class="sticky top-0 z-10 flex justify-center pt-3 pb-2 bg-slate-950/95 backdrop-blur-xl">
-        <div class="h-1 w-10 rounded-full bg-white/20"></div>
-      </div>
-      <div class="px-5 pb-6">
-        <div class="grid grid-cols-3 gap-2 mb-5">
-          <a href="/index.html#products" onclick="closeMobileMenu()"
-            class="mobile-nav-item flex flex-col items-center gap-2 rounded-2xl bg-white/5 border border-white/5 px-2 py-4 hover:bg-white/10">
-            <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-            </svg>
-            <span class="text-xs font-medium text-slate-300">Produk</span>
-          </a>
-          <a href="/order-guide.html" onclick="closeMobileMenu()"
-            class="mobile-nav-item flex flex-col items-center gap-2 rounded-2xl bg-white/5 border border-white/5 px-2 py-4 hover:bg-white/10">
-            <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
-              </path>
-            </svg>
-            <span class="text-xs font-medium text-slate-300">Cara Order</span>
-          </a>
-          <a href="/feedback.html" onclick="closeMobileMenu()"
-            class="mobile-nav-item flex flex-col items-center gap-2 rounded-2xl bg-white/5 border border-white/5 px-2 py-4 hover:bg-white/10">
-            <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
-              </path>
-            </svg>
-            <span class="text-xs font-medium text-slate-300">Feedback</span>
-          </a>
-          <a href="/help-center.html" onclick="closeMobileMenu()"
-            class="mobile-nav-item flex flex-col items-center gap-2 rounded-2xl bg-white/5 border border-white/5 px-2 py-4 hover:bg-white/10">
-            <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-              </path>
-            </svg>
-            <span class="text-xs font-medium text-slate-300">Bantuan</span>
-          </a>
-          <a href="/contact.html" onclick="closeMobileMenu()"
-            class="mobile-nav-item flex flex-col items-center gap-2 rounded-2xl bg-white/5 border border-white/5 px-2 py-4 hover:bg-white/10">
-            <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
-              </path>
-            </svg>
-            <span class="text-xs font-medium text-slate-300">Kontak</span>
-          </a>
-          <a href="https://arufkuy.myr.id/portal" onclick="closeMobileMenu()"
-            class="mobile-nav-item flex flex-col items-center gap-2 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 border border-indigo-500/20 px-2 py-4 hover:from-indigo-500/30 hover:to-cyan-500/30">
-            <svg class="w-6 h-6 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
-            </svg>
-            <span class="text-xs font-medium text-indigo-300">Login</span>
-          </a>
+  <div class="page-wrapper">
+    <!-- ... Content unchanged ... -->
+    <div class="left-col">
+      <!-- Product Gallery -->
+      <section class="product-gallery" id="product-gallery">
+        <div class="gallery-overlay"></div>
+        <div id="product-image-container" class="w-full h-full flex items-center justify-center">
+          <svg class="gallery-image-svg" id="gallery-placeholder" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+          </svg>
+          <img id="product-image" src="" alt="Product Image" class="hidden absolute inset-0 w-full h-full object-cover">
         </div>
-        <div class="border-t border-white/5 mb-4"></div>
-        <div class="flex gap-2 items-stretch">
-          <div class="w-1/2 rounded-xl bg-white/5 border border-white/5 p-1.5 flex gap-1">
-            <button onclick="setLanguage('id'); closeMobileMenu();"
-              class="flex-1 flex items-center justify-center gap-1.5 rounded-lg px-2 text-xs font-medium text-slate-300 hover:bg-white/10 transition"><span>🇮🇩</span>
-              ID</button>
-            <button onclick="setLanguage('en'); closeMobileMenu();"
-              class="flex-1 flex items-center justify-center gap-1.5 rounded-lg px-2 text-xs font-medium text-slate-300 hover:bg-white/10 transition"><span>🇺🇸</span>
-              EN</button>
-          </div>
-          <div class="w-1/2 relative rounded-xl bg-white/5 border border-white/5 p-1.5">
-            <button onclick="toggleMobileCurrency()" id="mobile-curr-btn"
-              class="w-full h-full flex items-center justify-between rounded-lg px-2 text-xs font-medium text-slate-300 hover:bg-white/10 transition">
-              <div class="flex items-center gap-1.5"><span id="mobile-curr-symbol"
-                  class="text-emerald-400 font-bold">Rp</span><span id="mobile-curr-text">IDR</span></div>
-              <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-              </svg>
-            </button>
-            <div id="mobile-currency-popup"
-              class="hidden absolute bottom-full left-0 right-0 mb-2 max-h-48 overflow-y-auto no-scrollbar rounded-xl border border-white/10 bg-slate-900/95 backdrop-blur-xl p-1 shadow-xl z-10">
-              <div id="mobile-currency-menu"></div>
+      </section>
+      <!-- Description moved here on Desktop -->
+    </div>
+
+    <div class="right-col">
+      <main class="main-container">
+        <!-- ... Product details unchanged ... -->
+        <div class="product-header">
+          <div class="product-badges" id="product-badges"></div>
+          <h1 class="product-title" id="product-name">Loading...</h1>
+          <div class="product-meta">
+            <div class="price-container" id="price-container">
+              <span class="product-price" id="product-price">Rp 0</span>
+              <span class="price-original" id="product-original-price"></span>
             </div>
           </div>
         </div>
-      </div>
+
+        <input type="hidden" id="base-price-idr" value="0">
+        <input type="hidden" id="original-price-idr" value="0">
+        <input type="hidden" id="total-price-idr" value="0">
+
+        <section class="description-section">
+          <h3 class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
+            Deskripsi Produk
+          </h3>
+          <div class="description-content" id="product-desc"></div>
+          <button class="read-more-btn hidden" onclick="toggleDescription()" id="readMoreBtn">
+            Baca Selengkapnya
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
+        </section>
+
+        <section class="options-section hidden" id="variant-section">
+          <h3 class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path
+                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+            </svg>
+            Pilih Varian
+          </h3>
+          <div class="options-grid" id="variant-options"></div>
+          <p id="variant-error" class="text-xs text-error mt-2 hidden">Silakan pilih varian terlebih dahulu.</p>
+        </section>
+
+        <p id="product-stock" class="hidden"></p>
+
+        <form id="order-form" class="form-section">
+          <h3 class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            Detail Pembeli
+          </h3>
+
+          <div class="input-group">
+            <label class="input-label">Jumlah</label>
+            <div class="flex items-center gap-3 w-full">
+              <button type="button" id="qty-minus" class="btn-qty flex-shrink-0">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 12h14" />
+                </svg>
+              </button>
+              <input type="number" id="quantity" value="1" class="input-field flex-1 text-center font-semibold"
+                readonly>
+              <button type="button" id="qty-plus" class="btn-qty flex-shrink-0">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label class="input-label">Nama Lengkap</label>
+            <input type="text" id="name" required class="input-field" placeholder="Masukkan nama anda">
+          </div>
+
+          <div class="input-group">
+            <label class="input-label">Email Address</label>
+            <input type="email" id="email" required class="input-field" placeholder="contoh@email.com">
+          </div>
+
+          <div class="input-group">
+            <label class="input-label">Nomor WhatsApp</label>
+            <input type="tel" id="phone" required class="input-field" placeholder="08xxxxxxxxxx">
+          </div>
+
+          <div class="input-group">
+            <label class="input-label">Kode Kupon</label>
+            <div class="input-with-action">
+              <input type="text" id="coupon" class="input-field" placeholder="Punya kode promo?">
+              <button type="button" id="check-coupon-btn" class="btn-check">Cek</button>
+            </div>
+          </div>
+
+          <button type="submit" id="pay-btn" class="btn-buy" style="margin-top: 24px; width: 100%;">
+            Beli Sekarang
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </button>
+        </form>
+
+        <div id="out-of-stock-notice" class="hidden text-center py-10">
+          <p class="font-bold text-error text-xl">Stok Habis</p>
+          <p class="text-sm text-muted mt-1">Produk ini tidak tersedia saat ini.</p>
+        </div>
+      </main>
     </div>
   </div>
 
-  <main class="grid-bg min-h-screen flex-grow">
-    <div class="mx-auto max-w-6xl px-4 py-10">
-
-      <!-- Breadcrumb -->
-      <div class="mb-8 flex items-center gap-2 text-sm text-slate-400">
-        <a href="/" class="hover:text-white transition">Home</a>
-        <span>/</span>
-        <span class="text-slate-200">Detail Product</span>
+  <!-- Modern Card Menu Overlay -->
+  <div id="menu-overlay" class="menu-overlay" onclick="toggleMenu()">
+    <div class="menu-card" onclick="event.stopPropagation()">
+      <div class="menu-header">
+        <div class="menu-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            class="text-indigo-400">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+            </path>
+          </svg>
+          Pengaturan
+        </div>
+        <button class="close-btn" onclick="toggleMenu()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
       </div>
 
-      <div id="loading-skeleton" class="grid grid-cols-1 lg:grid-cols-12 gap-10 animate-pulse">
-        <!-- Left Column Skeleton -->
-        <div class="lg:col-span-7 space-y-6">
-          <div class="aspect-video w-full rounded-3xl bg-white/5 border border-white/10 skeleton"></div>
-          <div class="px-2 space-y-4">
-            <div class="h-8 w-3/4 rounded-xl skeleton bg-white/5"></div>
-            <div class="space-y-2">
-              <div class="h-4 w-full rounded-lg skeleton bg-white/5"></div>
-              <div class="h-4 w-5/6 rounded-lg skeleton bg-white/5"></div>
-              <div class="h-4 w-4/6 rounded-lg skeleton bg-white/5"></div>
-            </div>
+      <!-- Language -->
+      <div class="menu-section">
+        <div class="menu-label">Bahasa / Language</div>
+        <div class="menu-grid">
+          <div class="menu-item" id="lang-id" onclick="setLanguage('id')">
+            <div class="menu-icon"><span class="font-bold text-xs">ID</span></div>
+            <div class="menu-text">Indonesia</div>
           </div>
-        </div>
-        <!-- Right Column Skeleton -->
-        <div class="lg:col-span-5 mt-8 lg:mt-0">
-          <div
-            class="lg:sticky lg:top-24 rounded-3xl border border-white/10 bg-white/5 p-5 md:p-8 shadow-glow backdrop-blur-sm">
-            <div class="mb-6 pb-6 border-b border-white/10 space-y-4">
-              <div class="flex justify-between">
-                <div class="h-10 w-32 rounded-lg skeleton bg-white/5"></div>
-                <div class="h-10 w-16 rounded-lg skeleton bg-white/5"></div>
-              </div>
-            </div>
-            <div class="space-y-4">
-              <div class="h-10 w-full rounded-xl skeleton bg-white/5"></div>
-              <div class="h-10 w-full rounded-xl skeleton bg-white/5"></div>
-              <div class="h-10 w-full rounded-xl skeleton bg-white/5"></div>
-              <div class="h-12 w-full rounded-xl skeleton mt-6 bg-white/5"></div>
-            </div>
+          <div class="menu-item" id="lang-en" onclick="setLanguage('en')">
+            <div class="menu-icon"><span class="font-bold text-xs">EN</span></div>
+            <div class="menu-text">English</div>
           </div>
         </div>
       </div>
 
-      <div id="product-container" class="hidden gap-10 lg:grid-cols-12">
-        <!-- Left Column -->
-        <div class="lg:col-span-7 space-y-6">
+      <!-- Currency -->
+      <div class="menu-section">
+        <div class="menu-label">Mata Uang / Currency</div>
+        <div class="menu-item-row active">
           <div
-            class="aspect-video w-full rounded-3xl bg-slate-900 border border-white/10 overflow-hidden shadow-glow relative group">
-            <span id="product-image-placeholder"
-              class="absolute inset-0 flex items-center justify-center text-slate-500">No Image</span>
-            <img id="product-image" src="" alt=""
-              class="hidden w-full h-full object-cover transition duration-700 group-hover:scale-105" />
-          </div>
-          <div class="px-2">
-            <h1 id="product-name" class="text-2xl font-bold md:text-3xl lg:text-4xl">Nama Produk</h1>
-            <div class="mt-4 prose prose-invert prose-sm max-w-none text-slate-300 leading-relaxed">
-              <div id="product-desc"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right Column: Sticky Order Form -->
-        <div class="lg:col-span-5 mt-8 lg:mt-0">
-          <div
-            class="lg:sticky lg:top-24 rounded-3xl border border-white/10 bg-white/5 p-5 md:p-8 shadow-glow backdrop-blur-sm">
-            <div class="mb-6 border-b border-white/10 pb-6">
-              <div class="flex justify-between items-start">
-                <div>
-                  <p class="text-sm text-slate-400 mb-1">Harga</p>
-                  <div id="price-container">
-                    <p id="product-price" class="text-3xl font-bold text-white">Rp 0</p>
-                  </div>
-                </div>
-                <div class="text-right">
-                  <p class="text-sm text-slate-400 mb-1">Stok</p>
-                  <div id="product-stock" class="text-lg font-bold"></div>
-                </div>
-              </div>
-              <input type="hidden" id="base-price-idr" value="0">
-              <input type="hidden" id="original-price-idr" value="0">
-              <input type="hidden" id="total-price-idr" value="0">
-            </div>
-
-            <div id="out-of-stock-notice" class="hidden text-center py-10">
-              <p class="font-bold text-red-400">Stok Habis</p>
-              <p class="text-sm text-slate-400 mt-1">Produk ini tidak tersedia saat ini.</p>
-            </div>
-
-            <form id="order-form" class="space-y-4">
-              <!-- Variant Selector (Hidden by default) -->
-              <div id="variant-section" class="hidden">
-                <label class="block text-xs font-medium text-slate-400 mb-2">Pilih Varian</label>
-                <div id="variant-options" class="grid grid-cols-1 gap-2">
-                  <!-- Options injected here -->
-                </div>
-                <p id="variant-error" class="text-xs text-red-400 mt-1 hidden">Silakan pilih varian terlebih dahulu.</p>
-              </div>
-              <!-- Quantity -->
-              <div>
-                <label class="block text-xs font-medium text-slate-400 mb-1">Jumlah</label>
-                <div class="flex items-center gap-3">
-                  <button type="button" id="qty-minus"
-                    class="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-slate-800 hover:bg-slate-700 transition disabled:opacity-50 text-lg font-bold">-</button>
-                  <input type="text" id="quantity" value="1" readonly
-                    class="w-full h-10 rounded-xl border border-white/10 bg-slate-950/50 px-4 text-center text-sm text-white focus:outline-none">
-                  <button type="button" id="qty-plus"
-                    class="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-slate-800 hover:bg-slate-700 transition disabled:opacity-50 text-lg font-bold">+</button>
-                </div>
-              </div>
-              <!-- Nama -->
-              <div>
-                <label class="block text-xs font-medium text-slate-400 mb-1">Nama Lengkap</label>
-                <input type="text" id="name" required
-                  class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none transition focus:bg-slate-900"
-                  placeholder="Nama Lengkap">
-              </div>
-              <!-- Email -->
-              <div>
-                <label class="block text-xs font-medium text-slate-400 mb-1">Alamat Email</label>
-                <input type="email" id="email" required
-                  class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none transition focus:bg-slate-900"
-                  placeholder="contoh@email.com">
-              </div>
-              <!-- WhatsApp -->
-              <div>
-                <label class="block text-xs font-medium text-slate-400 mb-1">Nomor WhatsApp</label>
-                <input type="tel" id="phone" required
-                  class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none transition focus:bg-slate-900"
-                  placeholder="0812xxxx">
-              </div>
-              <!-- Kupon -->
-              <div>
-                <label class="block text-xs font-medium text-slate-400 mb-1">Kode Kupon</label>
-                <div class="flex items-center gap-2">
-                  <input type="text" id="coupon"
-                    class="flex-grow rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none transition focus:bg-slate-900"
-                    placeholder="Jika ada">
-                  <button type="button" id="check-coupon-btn"
-                    class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-sm font-semibold text-slate-300 hover:bg-white/10 transition">Cek</button>
-                </div>
-              </div>
-
-              <div class="pt-4">
-                <button type="submit" id="pay-btn"
-                  class="w-full rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 py-4 text-sm font-bold text-white transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/40 shadow-md shadow-indigo-500/30 disabled:opacity-50 disabled:cursor-not-allowed">Beli
-                  Sekarang</button>
-              </div>
-
-              <div class="flex items-center justify-center gap-2 text-xs text-slate-500 mt-4">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
-                  </path>
-                </svg>
-                <span>Pembayaran via Mayar.</span>
-              </div>
-            </form>
-          </div>
+            class="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-400 font-bold text-xs">
+            Rp</div>
+          <span>IDR - Indonesia Rupiah</span>
+          <!-- Check icon -->
+          <svg class="arrow-icon !opacity-100 !text-indigo-400" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
         </div>
       </div>
+
+      <!-- Support -->
+      <div class="menu-section">
+        <div class="menu-label">Bantuan</div>
+        <a href="https://tawk.to/chat/698a62f02fb5be1c3a2b2e1e/1jh294vin" target="_blank" class="menu-item-row">
+          <div class="flex items-center justify-center w-8 h-8 rounded-full bg-green-500/20 text-green-400">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path
+                d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">
+              </path>
+            </svg>
+          </div>
+          <span>Hubungi Support</span>
+          <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
+      </div>
+
     </div>
-  </main>
+  </div>
 
-  <!-- Footer -->
-  <footer class="border-t border-white/10 bg-slate-950 pt-16 pb-8">
-    <div class="mx-auto max-w-6xl px-4">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-        <div class="col-span-1 md:col-span-2">
-          <a href="/" class="flex items-center gap-3 mb-6">
-            <div class="grid h-10 w-10 place-items-center rounded-xl bg-white/5 shadow-glow">
-              <span class="text-lg font-bold text-indigo-300">A</span>
-            </div>
-            <span class="text-lg font-bold text-white">Arufkuy Store</span>
-          </a>
-          <p class="text-slate-400 text-sm leading-relaxed max-w-sm">
-            Platform penyedia produk digital otomatis, cepat, dan terpercaya. Solusi terbaik untuk kebutuhan digital
-            Anda.
-          </p>
-        </div>
-        <div>
-          <h4 class="text-white font-bold mb-6">Menu</h4>
-          <ul class="space-y-4 text-sm text-slate-400">
-            <li><a href="/" class="hover:text-indigo-400 transition">Beranda</a></li>
-            <li><a href="/#products" class="hover:text-indigo-400 transition">Produk</a></li>
-            <li><a href="/order-guide.html" class="hover:text-indigo-400 transition">Cara Order</a></li>
-            <li><a href="/contact.html" class="hover:text-indigo-400 transition">Kontak</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="text-white font-bold mb-6">Informasi</h4>
-          <ul class="space-y-4 text-sm text-slate-400">
-            <li><a href="/about-us.html" class="hover:text-indigo-400 transition">Tentang Kami</a></li>
-            <li><a href="/privacy-policy.html" class="hover:text-indigo-400 transition">Kebijakan Privasi</a></li>
-            <li><a href="/terms-of-service.html" class="hover:text-indigo-400 transition">Syarat & Ketentuan</a></li>
-            <li><a href="/disclaimer.html" class="hover:text-indigo-400 transition">Disclaimer</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-        <p class="text-xs text-slate-500">© <span id="year"></span> Arufkuy Store. All rights reserved.</p>
-        <div class="flex items-center gap-5">
-          <a href="https://discord.gg/3sDGqtZBcW" class="text-slate-400 hover:text-white transition">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-discord"
-              viewBox="0 0 16 16">
-              <path
-                d="M13.545 2.907a13.2 13.2 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.2 12.2 0 0 0-3.658 0 8 8 0 0 0-.412-.833.05.05 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.04.04 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032q.003.022.021.037a13.3 13.3 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019q.463-.63.818-1.329a.05.05 0 0 0-.01-.059l-.018-.011a9 9 0 0 1-1.248-.595.05.05 0 0 1-.02-.066l.015-.019q.127-.095.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .053.007q.121.1.248.195a.05.05 0 0 1-.004.085 8 8 0 0 1-1.249.594.05.05 0 0 0-.03.03.05.05 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.2 13.2 0 0 0 4.001-2.02.05.05 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.03.03 0 0 0-.02-.019m-8.198 7.307c-.789 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612m5.316 0c-.788 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612" />
-            </svg>
-          </a>
-          <a href="https://www.instagram.com/arufkuystore" class="text-slate-400 hover:text-white transition">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-instagram"
-              viewBox="0 0 16 16">
-              <path
-                d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334" />
-            </svg>
-          </a>
-          <a href="https://www.tiktok.com/@arufkuy.digital.store" class="text-slate-400 hover:text-white transition">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-tiktok"
-              viewBox="0 0 16 16">
-              <path
-                d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3z" />
-            </svg>
-          </a>
-        </div>
-      </div>
-    </div>
-  </footer>
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
 
-  <!-- Mobile Menu Toggle Functions -->
-  <script>
-    // Mobile Menu Toggle
-    // Mobile Bottom Sheet Menu (Updated)
-    function toggleMobileMenu() {
-      const overlay = document.getElementById('mobile-overlay');
-      const hamburgerIcon = document.getElementById('hamburger-icon');
-      const closeIcon = document.getElementById('close-icon');
-      if (overlay.classList.contains('active')) {
-        closeMobileMenu();
-      } else {
-        overlay.classList.add('active');
-        hamburgerIcon.classList.add('hidden');
-        closeIcon.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-        if (typeof Tawk_API !== 'undefined' && Tawk_API.hideWidget) Tawk_API.hideWidget();
-      }
-    }
-
-    function closeMobileMenu() {
-      const overlay = document.getElementById('mobile-overlay');
-      const hamburgerIcon = document.getElementById('hamburger-icon');
-      const closeIcon = document.getElementById('close-icon');
-      overlay.classList.remove('active');
-      hamburgerIcon.classList.remove('hidden');
-      closeIcon.classList.add('hidden');
-      document.body.style.overflow = '';
-      if (typeof Tawk_API !== 'undefined' && Tawk_API.showWidget) Tawk_API.showWidget();
-      const currPopup = document.getElementById('mobile-currency-popup');
-      if (currPopup) currPopup.classList.add('hidden');
-    }
-
-    function toggleMobileCurrency() {
-      const popup = document.getElementById('mobile-currency-popup');
-      popup.classList.toggle('hidden');
-    }
-  </script>
-  <!-- Google Translate & Utils -->
+  <!-- Scripts -->
   <div id="google_translate_element" style="display:none;"></div>
   <script src="/utils.js"></script>
   <script type="text/javascript"
     src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-  <!-- Toast Notification Container -->
-  <div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
-
-  <!-- Firebase & Page Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, doc, getDoc, addDoc, setDoc, collection, query, where, getDocs, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -559,13 +1074,7 @@
     // Helper to get stock count safely
     function getStock(item) {
       let val = 0;
-      // 1. Prefer explicit stock metadata
-      if (typeof item.stock !== 'undefined') {
-        val = Number(item.stock);
-      }
-
-      // 2. If stockItems exists (legacy or sync issue), trust its length if it's greater than current val
-      // OR if we have no stock metadata. This handles the case where stock=0 but items exist.
+      if (typeof item.stock !== 'undefined') val = Number(item.stock);
       if (Array.isArray(item.stockItems) && item.stockItems.length > 0) {
         if (item.stockItems.length > val || typeof item.stock === 'undefined') {
           val = item.stockItems.length;
@@ -574,60 +1083,41 @@
       return val;
     }
 
-    // Toast Notification System
-    function showToast(message, type = 'info') {
-      const container = document.getElementById('toast-container');
-      const toast = document.createElement('div');
-
-      const colors = {
-        success: 'bg-emerald-500/90 border-emerald-400/50',
-        error: 'bg-red-500/90 border-red-400/50',
-        warning: 'bg-amber-500/90 border-amber-400/50',
-        info: 'bg-indigo-500/90 border-indigo-400/50'
-      };
-
-      const icons = {
-        success: '✓',
-        error: '✕',
-        warning: '⚠',
-        info: 'ℹ'
-      };
-
-      toast.className = `${colors[type]} border backdrop-blur-sm text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[300px] max-w-md pointer-events-auto transform transition-all duration-300 translate-x-full opacity-0`;
-      toast.innerHTML = `
-        <span class="text-2xl font-bold">${icons[type]}</span>
-        <p class="text-sm font-medium flex-1">${message}</p>
-        <button onclick="this.parentElement.remove()" class="text-white/80 hover:text-white text-xl font-bold">×</button>
-      `;
-
-      container.appendChild(toast);
-
-      // Trigger animation
-      setTimeout(() => {
-        toast.classList.remove('translate-x-full', 'opacity-0');
-      }, 10);
-
-      // Auto remove after 5 seconds
-      setTimeout(() => {
-        toast.classList.add('translate-x-full', 'opacity-0');
-        setTimeout(() => toast.remove(), 300);
-      }, 5000);
+    // Helper to format price
+    function formatPrice(num) {
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
     }
 
-    // --- URL Detection: Legacy (?id=) ---
-    console.log("VERSION: STOCK-RESERVATION-Fix-V4 (404) loaded");
+    // Toast Notification System
+    window.showToast = function (message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      // Simplified standard toast styles compatible with new CSS
+      const colors = {
+        success: 'background:#065f46; border:1px solid #34d399;',
+        error: 'background:#7f1d1d; border:1px solid #ef4444;',
+        warning: 'background:#78350f; border:1px solid #f59e0b;',
+        info: 'background:#1e1b4b; border:1px solid #6366f1;'
+      };
+      const msgColors = { success: '#d1fae5', error: '#fee2e2', warning: '#fef3c7', info: '#e0e7ff' };
+
+      toast.style.cssText = `${colors[type]} color:${msgColors[type]}; padding:12px 16px; border-radius:12px; margin-bottom:8px; display:flex; gap:12px; align-items:center; box-shadow:0 10px 15px -3px rgba(0,0,0,0.5); pointer-events:auto; font-size:14px;`;
+      toast.innerHTML = `<span>${message}</span>`;
+
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+
+    // --- Logic Variables ---
     const params = new URLSearchParams(window.location.search);
     let productId = params.get("id");
     let productSlug = null;
 
-    // Check for slug in path /p/SLUG
+    // Path slug detection
     const pathParts = window.location.pathname.split('/');
-    if (pathParts.includes('p') && pathParts.length > 2) {
-      // Find index of 'p' and take next element
+    if (pathParts.includes('p')) {
       const pIndex = pathParts.indexOf('p');
-      if (pathParts[pIndex + 1]) {
-        productSlug = pathParts[pIndex + 1];
-      }
+      if (pathParts[pIndex + 1]) productSlug = pathParts[pIndex + 1];
     }
 
     let productStock = 0;
@@ -638,139 +1128,110 @@
     let selectedVariant = null;
     let appliedCoupon = null;
 
-    function updateTotalPrice() {
-      const quantity = parseInt(document.getElementById('quantity').value);
-
-      // Determine effective price
-      let effectivePrice = basePrice;
-      let effectiveOriginal = originalPrice;
-      const quantVal = parseInt(document.getElementById('quantity').value) || 1;
-
-      if (isVariableProduct) {
-        if (!selectedVariant) return;
-        effectivePrice = selectedVariant.price;
-        effectiveOriginal = selectedVariant.original_price || 0;
-      }
-
-      const totalPrice = effectivePrice * quantVal;
-      const totalOriginalPrice = effectiveOriginal * quantVal;
-
-      let displayPrice = totalPrice;
-      let discountAmount = 0;
-
-      // Calculate discount for display purposes (Mayar will apply actual discount)
-      if (appliedCoupon) {
-        if (appliedCoupon.type === 'fixed') {
-          discountAmount = appliedCoupon.value;
-        } else if (appliedCoupon.type === 'percent') {
-          discountAmount = Math.floor(totalPrice * (appliedCoupon.value / 100));
-        }
-
-        if (discountAmount > totalPrice) discountAmount = totalPrice;
-        displayPrice = totalPrice - discountAmount;
-      }
-
-      document.getElementById('total-price-idr').value = totalPrice; // Store original price
-
-      const priceContainer = document.getElementById('price-container');
-      let priceHtml = '';
-
-      if (appliedCoupon) {
-        // Show discounted price
-        priceHtml = `
-           <div class="flex flex-col items-end">
-             <div class="flex items-end gap-2">
-               <p class="text-3xl font-bold text-emerald-400">${formatPrice(displayPrice)}</p>
-               <p class="text-sm text-slate-500 line-through">${formatPrice(totalPrice)}</p>
-             </div>
-             <p class="text-xs text-emerald-400">Hemat ${formatPrice(discountAmount)} (${appliedCoupon.code})</p>
-           </div>
-         `;
-      } else {
-        priceHtml = `<p class="text-3xl font-bold text-white">${formatPrice(totalPrice)}</p>`;
-        if (totalOriginalPrice > totalPrice) {
-          priceHtml = `
-             <div class="flex items-end gap-2">
-               <p class="text-3xl font-bold text-indigo-400">${formatPrice(totalPrice)}</p>
-               <p class="text-xl text-slate-500 line-through">${formatPrice(totalOriginalPrice)}</p>
-             </div>
-           `;
-        }
-      }
-
-      priceContainer.innerHTML = priceHtml;
-
-      document.getElementById('qty-minus').disabled = (quantity <= 1);
-      // For variants, use generic stock count
-      const limit = isVariableProduct && selectedVariant
-        ? getStock(selectedVariant)
-        : productStock;
-      document.getElementById('qty-plus').disabled = (quantity >= limit);
-    }
-
-    function selectVariant(index) {
+    // Expose selectVariant to global scope
+    window.selectVariant = function (index) {
       selectedVariant = currentVariants[index];
 
       // Visual Update
-      document.querySelectorAll('.variant-btn').forEach((btn, idx) => {
+      // Visual Update
+      document.querySelectorAll('.option-card').forEach((card, idx) => {
         if (idx === index) {
-          btn.classList.add('border-indigo-500', 'bg-indigo-500/20', 'text-white');
-          btn.classList.remove('border-white/10', 'bg-slate-900', 'text-slate-300');
+          card.classList.add('selected');
         } else {
-          btn.classList.remove('border-indigo-500', 'bg-indigo-500/20', 'text-white');
-          btn.classList.add('border-white/10', 'bg-slate-900', 'text-slate-300');
+          card.classList.remove('selected');
         }
       });
 
       document.getElementById("variant-error").classList.add("hidden");
 
-      // Update Stock Display
+      // Update Stock & Price
       const vStock = getStock(selectedVariant);
-
-      const stockElement = document.getElementById("product-stock");
-
       if (vStock === 0) {
-        stockElement.innerHTML = `<span class="text-slate-500">Habis</span>`;
-        document.getElementById('pay-btn').disabled = true;
-        document.getElementById('pay-btn').innerText = "Stok Habis";
+        const payBtn = document.getElementById('pay-btn');
+        if (payBtn) { payBtn.disabled = true; payBtn.innerText = "Stok Habis"; }
       } else {
-        stockElement.innerHTML = `<span class="text-emerald-400">${vStock}</span>`;
-        document.getElementById('pay-btn').disabled = false;
-        document.getElementById('pay-btn').innerText = "Beli Sekarang";
+        const payBtn = document.getElementById('pay-btn');
+        if (payBtn) { payBtn.disabled = false; payBtn.innerHTML = `Beli Sekarang <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>`; }
       }
 
-      // Update Price
       document.getElementById('quantity').value = 1;
       updateTotalPrice();
     }
 
+    function updateTotalPrice() {
+      const quantVal = parseInt(document.getElementById('quantity').value) || 1;
+
+      let effectivePrice = basePrice;
+      let effectiveOriginal = originalPrice;
+
+      if (isVariableProduct) {
+        if (!selectedVariant) return; // Wait for selection
+        effectivePrice = selectedVariant.price;
+        effectiveOriginal = selectedVariant.original_price || 0;
+      }
+
+      let totalPrice = effectivePrice * quantVal;
+      // Discount Logic
+      let discountAmount = 0;
+      if (appliedCoupon) {
+        if (appliedCoupon.type === 'fixed') discountAmount = appliedCoupon.value;
+        else if (appliedCoupon.type === 'percent') discountAmount = Math.floor(totalPrice * (appliedCoupon.value / 100));
+
+        if (discountAmount > totalPrice) discountAmount = totalPrice;
+      }
+
+      const finalDisplayPrice = totalPrice - discountAmount;
+
+      // Update UI
+      const priceEl = document.getElementById('product-price');
+      const originalEl = document.getElementById('product-original-price');
+
+      priceEl.innerText = formatPrice(finalDisplayPrice);
+
+      if (effectiveOriginal > effectivePrice) {
+        originalEl.innerText = formatPrice(effectiveOriginal * quantVal);
+        originalEl.style.display = 'inline';
+      } else {
+        originalEl.style.display = 'none';
+      }
+
+      if (appliedCoupon) {
+        // Add indicator
+        if (!document.getElementById('coupon-badge')) {
+          priceEl.insertAdjacentHTML('afterend', `<span id="coupon-badge" class="badge badge-accent ml-2">HEMAT ${formatPrice(discountAmount)}</span>`);
+        } else {
+          document.getElementById('coupon-badge').innerText = `HEMAT ${formatPrice(discountAmount)}`;
+        }
+      }
+
+      // Update stock limit logic for buttons
+      const limit = (isVariableProduct && selectedVariant) ? getStock(selectedVariant) : productStock;
+      document.getElementById('qty-plus').disabled = (quantVal >= limit);
+      document.getElementById('qty-minus').disabled = (quantVal <= 1);
+    }
+
     function setupQuantityButtons() {
-      document.getElementById('qty-plus').addEventListener('click', () => {
-        const qtyInput = document.getElementById('quantity');
-        let currentQty = parseInt(qtyInput.value);
+      const qtyInput = document.getElementById('quantity');
 
-        const limit = isVariableProduct && selectedVariant
-          ? getStock(selectedVariant)
-          : productStock;
-
-        if (currentQty < limit) {
-          qtyInput.value = currentQty + 1;
+      document.getElementById('qty-plus').onclick = () => {
+        let val = parseInt(qtyInput.value);
+        const limit = (isVariableProduct && selectedVariant) ? getStock(selectedVariant) : productStock;
+        if (val < limit) {
+          qtyInput.value = val + 1;
           updateTotalPrice();
         }
-      });
+      };
 
-      document.getElementById('qty-minus').addEventListener('click', () => {
-        const qtyInput = document.getElementById('quantity');
-        let currentQty = parseInt(qtyInput.value);
-        if (currentQty > 1) {
-          qtyInput.value = currentQty - 1;
+      document.getElementById('qty-minus').onclick = () => {
+        let val = parseInt(qtyInput.value);
+        if (val > 1) {
+          qtyInput.value = val - 1;
           updateTotalPrice();
         }
-      });
+      };
     }
 
     async function loadProduct() {
-
       if (!productId && !productSlug) {
         alert("Produk tidak ditemukan metadata");
         window.location.href = "/";
@@ -779,147 +1240,224 @@
 
       try {
         let data = null;
-
-        // 1. Try fetching by Slug
+        // Slug Fetch
         if (productSlug) {
-          console.log("Fetching by Slug:", productSlug);
           const q = query(collection(db, "products"), where("slug", "==", productSlug));
           const querySnap = await getDocs(q);
           if (!querySnap.empty) {
             const docSnap = querySnap.docs[0];
             data = docSnap.data();
-            productId = docSnap.id; // Important: Set ID for order processing
-            // Backup: Store in DOM to ensure accessibility
-            const orderForm = document.getElementById('order-form');
-            if (orderForm) orderForm.dataset.productId = productId;
-          } else {
-            console.warn("Slug not found in DB");
+            productId = docSnap.id;
+            document.getElementById('order-form').dataset.productId = productId;
           }
         }
 
-        // 2. Fallback: Fetch by ID (Legacy)
+        // ID Fetch
         if (!data && productId) {
-          const docRef = doc(db, "products", productId);
-          const docSnap = await getDoc(docRef);
+          const docSnap = await getDoc(doc(db, "products", productId));
           if (docSnap.exists()) {
             data = docSnap.data();
+            document.getElementById('order-form').dataset.productId = productId;
           }
         }
 
         if (data) {
-
           isVariableProduct = !!data.hasVariants;
 
-          document.getElementById("product-name").textContent = data.name;
-          document.title = data.name + " - Arufkuy Store";
+          document.getElementById("product-name").innerText = data.name;
+          document.title = data.name + " | Arufkuy Store";
 
-          const description = data.description || "Tidak ada deskripsi.";
-          document.getElementById("product-desc").innerHTML = description.replace(/\n/g, '<br>');
+          if (data.description) {
+            document.getElementById("product-desc").innerHTML = data.description.replace(/\n/g, '<br>');
+          }
+
+          // Toggle Read More logic checks height, but simple check:
+          if (data.description && data.description.length > 300) {
+            document.querySelector('.read-more-btn').classList.remove('hidden');
+            document.getElementById('product-desc').classList.add('collapsed');
+          }
 
           if (data.image) {
             const img = document.getElementById("product-image");
             img.src = data.image;
             img.classList.remove("hidden");
-            document.getElementById("product-image-placeholder").classList.add("hidden");
+            const ph = document.getElementById("gallery-placeholder");
+            if (ph) ph.classList.add("hidden");
           }
+
+          // Badges Logic
+          const badgeContainer = document.getElementById('product-badges');
+          badgeContainer.innerHTML = '';
+
+          // 1. Tags
+          if (data.tag) {
+            data.tag.split(',').forEach(tag => {
+              const t = tag.trim();
+              if (t && t !== 'Normal') {
+                // Use badge-dark for generic tags, or map specific ones if needed
+                badgeContainer.innerHTML += `<span class="badge badge-dark">${t}</span>`;
+              }
+            });
+          }
+
+          // 2. Stock Status (Dynamic)
+          let totalStock = 0;
+          if (isVariableProduct) {
+            totalStock = currentVariants.reduce((acc, v) => acc + getStock(v), 0);
+          } else {
+            totalStock = getStock(data);
+          }
+
+          let stockBadge = '';
+          if (totalStock === 0) {
+            stockBadge = `<span class="badge badge-error">Stok Habis</span>`;
+          } else if (totalStock <= 5) {
+            stockBadge = `<span class="badge badge-warning">Sisa ${totalStock}</span>`;
+          } else {
+            stockBadge = `<span class="badge badge-success">Ready Stock</span>`;
+          }
+          // Stock Badge Logic REMOVED as per user request
+          // badgeContainer.innerHTML += stockBadge;
+
+          if (data.instant_delivery !== false) { // Default to showing if undefined, or check logic
+            // Only show if explicitly true or if logic requires
+            // badgeContainer.innerHTML += `<span class="badge badge-accent">Instant</span>`;
+          }
+
+          // Universal Variant Rendering (Single or Multiple)
+          document.getElementById("variant-section").classList.remove("hidden");
+          const vContainer = document.getElementById("variant-options");
+          vContainer.innerHTML = "";
 
           if (isVariableProduct) {
             currentVariants = data.variants || [];
-            document.getElementById("variant-section").classList.remove("hidden");
-
-            // Render Variants
-            const vContainer = document.getElementById("variant-options");
-            vContainer.innerHTML = "";
-
-            if (currentVariants.length === 0) {
-              vContainer.innerHTML = "<p class='text-sm text-slate-500'>Tidak ada varian tersedia.</p>";
-            }
-
-            currentVariants.forEach((v, index) => {
-              const btn = document.createElement("button");
-              btn.type = "button";
-              btn.className = "variant-btn rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm font-medium text-slate-300 hover:border-indigo-500/50 hover:bg-white/5 transition text-left flex justify-between items-center group";
-              btn.onclick = () => selectVariant(index);
-
-              const vStock = getStock(v);
-              const stockStatus = vStock > 0 ? `<span class='text-emerald-400 text-[10px]'>${vStock} Tersedia</span>` : `<span class='text-red-400 text-[10px]'>Stok Habis</span>`;
-
-              btn.innerHTML = `
-                   <span>${v.name}</span>
-                   ${stockStatus}
-                `;
-              vContainer.appendChild(btn);
-            });
-
-            // Base Display for Variable Product (Before Selection)
-            document.getElementById("price-container").innerHTML = `<p class="text-xl text-slate-400">Pilih varian...</p>`;
-            document.getElementById("product-stock").innerHTML = `-`;
-
-            setupQuantityButtons();
-
           } else {
-            // Simple Product Logic
-            productStock = getStock(data);
+            // Treat single product as a single variant
+            currentVariants = [{
+              name: data.name, // Or a generic name like "Standard"
+              price: Number(data.price) || 0,
+              original_price: Number(data.original_price) || 0,
+              stock: getStock(data),
+              // Add other properties if needed
+            }];
+            // Set basePrice and originalPrice for single products
             basePrice = Number(data.price) || 0;
             originalPrice = Number(data.original_price) || 0;
-
-            const stockElement = document.getElementById("product-stock");
-            if (productStock === 0) {
-              stockElement.innerHTML = `<span class="text-slate-500">Stok Habis</span>`;
-            } else if (productStock <= 5) {
-              stockElement.innerHTML = `<span class="text-red-400">${productStock}</span>`;
-            } else if (productStock <= 10) {
-              stockElement.innerHTML = `<span class="text-amber-400">${productStock}</span>`;
-            } else {
-              stockElement.innerHTML = `<span class="text-emerald-400">${productStock}</span>`;
-            }
-
             document.getElementById("base-price-idr").value = basePrice;
-            document.getElementById("original-price-idr").value = originalPrice;
+          }
 
-            if (productStock > 0) {
-              setupQuantityButtons();
-              updateTotalPrice();
-            } else {
-              document.getElementById('order-form').classList.add('hidden');
-              document.getElementById('out-of-stock-notice').classList.remove('hidden');
-              document.getElementById('price-container').innerHTML = `<p class="text-3xl font-bold text-slate-500">Stok Habis</p>`;
+          currentVariants.forEach((v, index) => {
+            const vStock = getStock(v);
+            const statusClass = vStock > 0 ? (vStock < 5 ? 'status-low' : 'status-available') : 'status-out';
+            const statusText = vStock > 0 ? `${vStock} Tersedia` : 'Stok Habis';
+            const disabledClass = vStock === 0 ? 'disabled' : ''; // Keep visual disable style but handle click
+
+            // For single product, we might want to select it automatically
+            const isSelected = (!isVariableProduct && index === 0);
+
+            const html = `
+                             <div class="option-card ${disabledClass} ${isSelected ? 'selected' : ''}" onclick="${vStock > 0 ? `selectVariant(${index})` : ''}">
+                                <div class="w-full flex justify-between items-center bg-transparent p-0 border-none m-0 shadow-none">
+                                    <div class="option-info">
+                                        <span class="option-name">${isVariableProduct ? v.name : 'Varian Standar'}</span>
+                                        <div class="option-status">
+                                            <span class="status-dot ${statusClass}"></span>
+                                            <span class="text-xs text-muted">${statusText}</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-sm font-bold text-white">${formatPrice(v.price)}</div>
+                                    </div>
+                                </div>
+                            </div>`;
+            vContainer.insertAdjacentHTML('beforeend', html);
+
+            if (isSelected) {
+              selectVariant(0);
             }
+          });
+
+          if (isVariableProduct) {
+            // For variable products, prompt selection
+            document.getElementById("product-price").innerHTML = `<span class="text-lg text-muted">Pilih Varian</span>`;
           }
 
-          const loading = document.getElementById("loading-skeleton");
-          if (loading) {
-            loading.remove();
+          setupQuantityButtons();
+
+          // Check if any variant is available for purchase
+          const totalAvailableStock = currentVariants.reduce((acc, v) => acc + getStock(v), 0);
+          if (totalAvailableStock === 0) {
+            document.getElementById('order-form').classList.add('hidden');
+            document.getElementById('out-of-stock-notice').classList.remove('hidden');
           } else {
-            console.warn("Skeleton loader not found to remove");
           }
 
-          const container = document.getElementById("product-container");
-          container.classList.remove("hidden");
-          container.classList.add("grid"); // Ensure grid is active
+          // Remove loading states handled by static HTML (Loading... text)
         } else {
-          alert("Produk tidak ditemukan di database.");
-          window.location.href = "/";
+          alert("Produk tidak ditemukan");
         }
-      } catch (error) {
-        console.error("Error fetching product:", error);
-        alert("Gagal memuat produk.");
+
+      } catch (e) {
+        console.error("Load Error", e);
       }
     }
 
+    // --- Event Listeners ---
+
+    // Coupon
+    document.getElementById('check-coupon-btn').addEventListener('click', async () => {
+      const code = document.getElementById('coupon').value.trim().toUpperCase();
+      if (!code) return showToast('Masukkan kode kupon', 'warning');
+
+      // ... Existing Coupon Logic ...
+      const btn = document.getElementById('check-coupon-btn');
+      btn.innerText = '...';
+
+      try {
+        const q = query(collection(db, "coupons"), where("code", "==", code), where("isActive", "==", true));
+        const snap = await getDocs(q);
+
+        if (snap.empty) {
+          showToast('Kupon tidak valid', 'error');
+          appliedCoupon = null;
+        } else {
+          const cData = snap.docs[0].data();
+          // Basic expiry check
+          if (cData.expiredAt && new Date(cData.expiredAt.toDate()) < new Date()) {
+            showToast('Kupon kadaluarsa', 'error');
+            appliedCoupon = null;
+          } else {
+            appliedCoupon = { ...cData, code: code, id: snap.docs[0].id };
+            showToast('Kupon diterapkan!', 'success');
+            document.getElementById('coupon').disabled = true;
+            btn.disabled = true;
+            btn.innerText = '✓';
+          }
+        }
+        updateTotalPrice();
+        if (!btn.disabled) btn.innerText = 'Cek';
+      } catch (e) {
+        console.error(e);
+        btn.innerText = 'Cek';
+      }
+    });
+
+    // Form Submit
     document.getElementById("order-form").addEventListener("submit", async (e) => {
       e.preventDefault();
 
       // Validation for Variant
       if (isVariableProduct && !selectedVariant) {
         document.getElementById("variant-error").classList.remove("hidden");
-        // Scroll to variant section
         document.getElementById("variant-section").scrollIntoView({ behavior: 'smooth' });
         return;
       }
 
+      const submitBtn = document.getElementById('pay-btn'); // Renamed for consistency with old file logic
+      const btn = submitBtn; // Alias for existing code if any
+
       // Get form values
-      const quantity = parseInt(document.getElementById('quantity').value);
+      const quantity = parseInt(document.getElementById('quantity').value); // Rename qty -> quantity
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
       const phone = document.getElementById('phone').value.trim();
@@ -931,7 +1469,6 @@
         return;
       }
 
-      // Specific Validation
       if (name.length < 3) {
         showToast('Nama lengkap minimal 3 karakter', 'warning');
         return;
@@ -942,9 +1479,15 @@
         return;
       }
 
-      // Basic Phone Format Validation (only numbers)
       if (!/^\d+$/.test(phone)) {
         showToast('Nomor WhatsApp harus berupa angka', 'warning');
+        return;
+      }
+
+      // Ensure Product ID is present before proceeds
+      const finalProductId = productId || document.getElementById('order-form')?.dataset.productId;
+      if (!finalProductId) {
+        showToast("Error: Product ID lost. Refresh page.", "error");
         return;
       }
 
@@ -956,12 +1499,14 @@
       if (isVariableProduct && selectedVariant) {
         finalProductName = `${productName} - ${selectedVariant.name}`;
         finalPrice = selectedVariant.price;
+      } else if (selectedVariant) {
+        // Fallback for single product treated as variant
+        finalPrice = selectedVariant.price;
       }
 
       const totalPriceIDR = finalPrice * quantity;
 
-      // Disable submit button and show loading
-      const submitBtn = document.getElementById('pay-btn');
+      // Disable submit button
       const originalBtnText = submitBtn.innerHTML;
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<span class="inline-block animate-spin mr-2">⏳</span> Memproses...';
@@ -972,825 +1517,182 @@
         if (coupon) {
           description += ` - Kupon: ${coupon}`;
         }
-        description += ` - Product ID: ${productId}`;
+        description += ` - Product ID: ${finalProductId}`;
 
-        // Calculate final price with discount BEFORE transaction
+        // Calculate final price
         let finalTotal = totalPriceIDR;
         let discountValue = 0;
 
         if (appliedCoupon) {
-          if (appliedCoupon.type === 'fixed') {
-            discountValue = appliedCoupon.value;
-          } else if (appliedCoupon.type === 'percent') {
-            discountValue = Math.floor(totalPriceIDR * (appliedCoupon.value / 100));
-          }
+          if (appliedCoupon.type === 'fixed') discountValue = appliedCoupon.value;
+          else discountValue = Math.floor(totalPriceIDR * (appliedCoupon.value / 100));
           if (discountValue > totalPriceIDR) discountValue = totalPriceIDR;
           finalTotal = totalPriceIDR - discountValue;
         }
 
-        // Create pending order in Firestore
-        // Create pending order using TRANSACTION to reserve stock
-        let orderId = 'pending';
-
-        // --- CLIENT-SIDE ORDER CREATION (No Stock Deduction) ---
-        // Stock deduction is now handled by the Server (Worker) or Admin upon payment/processing.
-        // We only create the 'orders' document here as a request.
-
-        try {
-          // 1. Prepare Order Payload
-          const orderPayload = {
-            customerName: name,
-            customerEmail: email,
-            customerPhone: phone,
-            productName: finalProductName,
-            productId: productId,
-            quantity: quantity,
-            totalPrice: finalTotal,
-            originalTotalPrice: totalPriceIDR,
-            discountAmount: discountValue,
-            status: 'pending',
-            createdAt: new Date(), // Client timestamp
-            coupon: coupon || null,
-            description: description,
-            bookedItems: [] // NO SENSITIVE DATA
-          };
-
-          if (isVariableProduct && selectedVariant) {
-            orderPayload.variantId = selectedVariant.id;
-            orderPayload.variantName = selectedVariant.name;
-          }
-
-          // 2. Create Order Doc
-          const orderRef = doc(collection(db, "orders"));
-          orderId = orderRef.id;
-
-          // Just set the document. disallowed fields (like stock updates on product) are avoided.
-          await setDoc(orderRef, orderPayload);
-
-        } catch (error) {
-          console.error('Order creation failed:', error);
-          showToast(`Gagal membuat pesanan: ${error.message}`, 'error');
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = originalBtnText;
-          return;
-        }
-
-        // Build payload for Cloudflare Worker
-        // Calculate net price (Mayar doesn't support couponCode in API)
-        let finalItemPrice = finalPrice;
-        let itemName = finalProductName;
-
-        if (appliedCoupon) {
-          let totalBeforeDiscount = finalPrice * quantity;
-          let discountAmount = 0;
-
-          if (appliedCoupon.type === 'fixed') {
-            discountAmount = appliedCoupon.value;
-          } else if (appliedCoupon.type === 'percent') {
-            discountAmount = Math.floor(totalBeforeDiscount * (appliedCoupon.value / 100));
-          }
-
-          if (discountAmount > totalBeforeDiscount) discountAmount = totalBeforeDiscount;
-
-          // Calculate price per unit after discount
-          finalItemPrice = Math.floor((totalBeforeDiscount - discountAmount) / quantity);
-          itemName = `${finalProductName} (Diskon ${appliedCoupon.code})`;
-        }
-
-        // --- DEBUG & FIX: Ensure IDs are present ---
-        // Prioritize: 1. Variable from this scope (if any) -> 2. Global Variable -> 3. Dataset
-        const finalProductId = productId || document.getElementById('order-form')?.dataset.productId || '';
-
-        console.log("DEBUG PAYLOAD VARS (404):", {
-          orderId,
+        // 1. Create Firestore Order
+        const orderDocData = {
+          customerName: name,
+          customerEmail: email,
+          customerPhone: phone,
+          productName: finalProductName,
           productId: finalProductId,
-          globalProductId: productId,
-          datasetId: document.getElementById('order-form')?.dataset.productId
-        });
+          quantity: quantity,
+          totalPrice: finalTotal,
+          originalTotalPrice: totalPriceIDR,
+          discountAmount: discountValue,
+          status: 'pending',
+          createdAt: new Date(),
+          coupon: coupon || null,
+          description: description,
+          bookedItems: []
+        };
 
-        if (!finalProductId) {
-          alert("Error: Product ID lost. Refresh page.");
-          throw new Error("Product ID missing");
+        if (isVariableProduct && selectedVariant) {
+          orderDocData.variantId = selectedVariant.id;
+          orderDocData.variantName = selectedVariant.name;
         }
 
+        const orderRef = doc(collection(db, "orders"));
+        const orderId = orderRef.id; // Get ID immediately
+
+        await setDoc(orderRef, orderDocData);
+
+        // Worker Payload
         const payload = {
           name: name,
           email: email,
           mobile: phone,
-          description: `Order ID: ${orderId} - ${description || 'Digital Product'}`, // Embed Order ID for robust matching
-          redirectUrl: `${window.location.origin}/detail-order.html?orderId=${orderId}`, // Use orderId for initial lookup, page will swap to invoiceId
-          // New Fields for Stock Reservation
+          description: `Order ID: ${orderId} - ${description || 'Digital Product'}`,
+          redirectUrl: `${window.location.origin}/detail-order.html?orderId=${orderId}`,
           orderId: orderId,
-          productId: finalProductId, // Use ensured valuable
+          productId: finalProductId,
           variantId: isVariableProduct && selectedVariant ? selectedVariant.id : null,
-          items: [
-            {
-              name: itemName,
-              quantity: quantity,
-              price: finalItemPrice
-            }
-          ]
+          items: [{
+            name: finalProductName,
+            quantity: quantity,
+            price: Math.floor(finalTotal / quantity)
+          }]
         };
+
+        if (appliedCoupon) {
+          // Recalculate item name for Worker/Mayar just like in old code
+          let totalBeforeDiscount = finalPrice * quantity;
+          let discountAmount = 0; // use different var to not mess up
+          if (appliedCoupon.type === 'fixed') discountAmount = appliedCoupon.value;
+          else if (appliedCoupon.type === 'percent') discountAmount = Math.floor(totalBeforeDiscount * (appliedCoupon.value / 100));
+          if (discountAmount > totalBeforeDiscount) discountAmount = totalBeforeDiscount;
+
+          const finalItemPrice = Math.floor((totalBeforeDiscount - discountAmount) / quantity);
+          payload.items[0].price = finalItemPrice;
+          payload.items[0].name = `${finalProductName} (Diskon ${appliedCoupon.code})`;
+        }
 
         console.log('Sending invoice request:', payload);
 
-        // TODO: Replace with your actual Cloudflare Worker URL
+        // 2. Call Worker
         const WORKER_URL = 'https://payment.arufkuy.workers.dev/create-invoice';
-
-        // Send request to Cloudflare Worker
-        const response = await fetch(WORKER_URL, {
+        const res = await fetch(WORKER_URL, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          headers: { 'Content-Type': 'application/json' }
         });
+        const resData = await res.json();
+        console.log('Worker response:', resData);
 
-        const data = await response.json();
-        console.log('Worker response:', data);
-
-        // Mayar API returns 'link' not 'url'
-        if (response.ok && data.data && data.data.link) {
-          // Success!
-          const invoiceId = data.data.id;
+        if (res.ok && resData.data && resData.data.link) {
+          const invoiceId = resData.data.id;
           console.log('Invoice created:', invoiceId);
 
-          // CRITICAL: Save Invoice ID to Firestore immediately
-          // This ensures detail-order.html can find the order by invoice
-          // even before the webhook fires.
+          // Save invoiceId to Firestore (silent catch — matches old file pattern)
+          // Security rules may not allow updateDoc; this is non-critical for payment flow
           try {
-            const orderRef = doc(db, "orders", orderId);
-            await runTransaction(db, async (transaction) => {
-              // We use a transaction or just update? Update is fine here as we just created it.
-              // But let's use simple update.
-              // Actually, we are outside the previous transaction.
-            });
-            // Simple update is sufficient
             const { updateDoc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
             await updateDoc(orderRef, { invoiceId: invoiceId });
             console.log('Invoice ID saved to Firestore.');
           } catch (dbError) {
             console.error('Failed to save invoiceId to Firestore:', dbError);
-            // Proceed anyway, webhook will fix it later or we have orderId backup?
-            // But user relies on invoice link...
+            // Non-blocking: webhook will sync invoiceId later
           }
 
-          // Redirect to Mayar payment page
-          console.log('Redirecting to payment page:', data.data.link);
-          window.location.href = data.data.link;
+          // Redirect to payment page
+          console.log('Redirecting to payment page:', resData.data.link);
+          window.location.href = resData.data.link;
         } else {
-          // Error from API
-          throw new Error(data.message || data.error || 'Gagal membuat invoice');
+          throw new Error(resData.message || resData.error || "Gagal membuat invoice");
         }
 
-      } catch (error) {
-        console.error('Error submitting order:', error);
-
-        // Show error message to user
-        showToast(`Terjadi kesalahan: ${error.message}. Silakan coba lagi atau hubungi admin.`, 'error');
-
-        // Re-enable submit button
+      } catch (err) {
+        console.error(err);
+        showToast(`Error: ${err.message}`, 'error');
         submitBtn.disabled = false;
-        submitBtn.innerHTML = originalBtnText;
+        submitBtn.innerHTML = originalBtnText; // Restore original text
       }
     });
 
-    // Check coupon button handler
-    document.getElementById('check-coupon-btn').addEventListener('click', async () => {
-      const couponInput = document.getElementById('coupon');
-      const couponCode = couponInput.value.trim().toUpperCase();
+    // Init
+    loadProduct();
 
-      if (!couponCode) {
-        showToast('Masukkan kode kupon terlebih dahulu', 'warning');
-        return;
-      }
+    // Layout Handler
+    function handleLayout() {
+      const isDesktop = window.innerWidth >= 900;
+      const desc = document.querySelector('.description-section');
+      const leftCol = document.querySelector('.left-col');
+      const header = document.querySelector('.product-header'); // This is the H1 part
 
-      const checkBtn = document.getElementById('check-coupon-btn');
-      const originalText = checkBtn.textContent;
-      checkBtn.disabled = true;
-      checkBtn.textContent = '...';
+      if (!desc || !leftCol || !header) return;
 
-      try {
-        // Validate against Firestore for instant UI feedback
-        const q = query(collection(db, "coupons"), where("code", "==", couponCode), where("isActive", "==", true));
-        const querySnapshot = await getDocs(q);
-
-        if (querySnapshot.empty) {
-          showToast('Kupon tidak ditemukan atau tidak aktif', 'error');
-          appliedCoupon = null;
-          updateTotalPrice();
-          checkBtn.disabled = false;
-          checkBtn.textContent = originalText;
-        } else {
-          const couponData = querySnapshot.docs[0].data();
-
-          // Validate expiration
-          if (couponData.expiredAt && new Date(couponData.expiredAt.toDate()) < new Date()) {
-            showToast('Kupon sudah kadaluarsa', 'error');
-            appliedCoupon = null;
-            updateTotalPrice();
-            checkBtn.disabled = false;
-            checkBtn.textContent = originalText;
-            return;
-          }
-
-          // Validate Product Restriction
-          if (couponData.allowedProductIds && Array.isArray(couponData.allowedProductIds) && couponData.allowedProductIds.length > 0) {
-            // Try to get ID from variable, fallback to dataset
-            let currentProdId = productId;
-            if (!currentProdId) {
-              const orderForm = document.getElementById('order-form');
-              if (orderForm) currentProdId = orderForm.dataset.productId;
-            }
-
-            if (currentProdId && !couponData.allowedProductIds.includes(currentProdId)) {
-              showToast('Kupon tidak berlaku untuk produk ini', 'error');
-              appliedCoupon = null;
-              updateTotalPrice();
-              checkBtn.disabled = false;
-              checkBtn.textContent = originalText;
-              return;
-            }
-          }
-
-          // Store coupon (both Firestore data for UI and code for Mayar)
-          appliedCoupon = { ...couponData, code: couponCode, id: querySnapshot.docs[0].id };
-          showToast(`Kupon ${couponCode} berhasil diterapkan! 🎉`, 'success');
-
-          // Update price display immediately
-          updateTotalPrice();
-
-          // Disable further changes
-          couponInput.disabled = true;
-          checkBtn.textContent = '✓';
-          checkBtn.disabled = true;
+      if (isDesktop) {
+        if (desc.parentElement !== leftCol) {
+          leftCol.appendChild(desc);
+          desc.style.marginTop = '24px';
         }
-
-      } catch (error) {
-        console.error('Error checking coupon:', error);
-        showToast('Gagal memeriksa kupon: ' + error.message, 'error');
-        checkBtn.disabled = false;
-        checkBtn.textContent = originalText;
-      }
-    });
-
-    document.getElementById('year').textContent = new Date().getFullYear();
-
-    async function init() {
-      try {
-        if (typeof fetchAndUpdateExchangeRate === 'function') {
-          await fetchAndUpdateExchangeRate();
-        } else {
-          console.warn("fetchAndUpdateExchangeRate not defined. Skipping.");
-        }
-      } catch (err) {
-        console.error("Error fetching exchange rate:", err);
-      }
-
-      try {
-        await loadProduct(); // Await to ensure we catch errors here too
-      } catch (err) {
-        console.error("Critical: loadProduct failed", err);
-      }
-
-      try {
-        initThemeEngine();
-      } catch (e) {
-        console.warn("Theme engine failed", e);
-      }
-    }
-
-    // ========== THEME ENGINE ==========
-    async function initThemeEngine() {
-      try {
-        // We already have top-level imports, but index.html used dynamic imports. 
-        // We'll stick to our existing standard usage of top-level imports where possible, 
-        // but to match index.html logic exactly, we'll adapt its structure.
-
-        const themesSnapshot = await getDocs(collection(db, "themes"));
-        if (themesSnapshot.empty) return;
-
-        let activeTheme = null;
-        const now = new Date();
-
-        themesSnapshot.forEach(themeDoc => {
-          const theme = themeDoc.data();
-
-          // Check auto mode (date based)
-          if (theme.activationMode === 'auto' && theme.startDate && theme.endDate) {
-            const start = new Date(theme.startDate);
-            const end = new Date(theme.endDate);
-            if (now >= start && now <= end) {
-              activeTheme = theme;
-            }
-          }
-
-          // Check manual mode
-          if (theme.isActive) {
-            activeTheme = theme;
-          }
-        });
-
-        if (activeTheme && activeTheme.particle && activeTheme.particle !== 'none') {
-          initParticles(activeTheme.particle, { primary: activeTheme.primaryColor, accent: activeTheme.secondaryColor });
-        }
-      } catch (error) {
-        console.error('Theme engine error:', error);
-      }
-    }
-
-    function initParticles(type, colors) {
-      if (!type || type === 'none') return;
-
-      const canvas = document.createElement('canvas');
-      canvas.id = 'theme-particles';
-      canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;';
-      document.body.appendChild(canvas);
-
-      const ctx = canvas.getContext('2d');
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-
-      // Responsive scaling based on screen size
-      const isMobile = window.innerWidth < 768;
-      const scaleFactor = isMobile ? 0.5 : 1; // 50% smaller on mobile
-      const densityFactor = isMobile ? 0.6 : 1; // 40% fewer particles on mobile
-
-      const particles = [];
-      let baseCount = type === 'lanterns' ? 25 : type === 'leaves' ? 40 : 50;
-      const maxParticles = Math.floor(baseCount * densityFactor);
-
-      for (let i = 0; i < maxParticles; i++) {
-        particles.push(createParticle(type, canvas, colors, scaleFactor));
-      }
-
-      let time = 0;
-
-      function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        time += 0.01;
-
-        particles.forEach((p, i) => {
-          // Movement with sway
-          p.y += p.speed;
-          p.x += Math.sin(time + p.swayOffset) * p.sway;
-          p.rotation += p.rotationSpeed;
-          p.twinkle = 0.7 + Math.sin(time * 3 + p.twinkleOffset) * 0.3;
-
-          if (p.y > canvas.height + 50) {
-            particles[i] = createParticle(type, canvas, colors, scaleFactor);
-            particles[i].y = -50;
-          }
-
-          ctx.save();
-          ctx.globalAlpha = p.opacity * p.twinkle;
-          ctx.translate(p.x, p.y);
-          ctx.rotate(p.rotation);
-
-          if (type === 'snow') {
-            drawSnowflake(ctx, p.size, colors?.primary || '#fff');
-          } else if (type === 'stars') {
-            drawGlowingStar(ctx, p.size, colors?.primary || '#FFD700');
-          } else if (type === 'hearts') {
-            drawBeautifulHeart(ctx, p.size, colors?.primary || '#FF6B6B');
-          } else if (type === 'leaves') {
-            drawAutumnLeaf(ctx, p.size, p.leafColor);
-          } else if (type === 'lanterns') {
-            drawLantern(ctx, p.size, colors?.accent || '#FFD700', colors?.primary || '#FF4500');
-          } else if (type === 'crescent') {
-            drawCrescentMoon(ctx, p.size, colors?.primary || '#FFD700', colors?.accent || '#FFF');
-          } else if (type === 'ketupat') {
-            drawKetupat(ctx, p.size, colors?.primary || '#228B22', colors?.accent || '#90EE90');
-          } else if (type === 'confetti') {
-            drawConfetti(ctx, p.size, p.confettiColor);
-          }
-
-          ctx.restore();
-        });
-
-        requestAnimationFrame(animate);
-      }
-
-      animate();
-
-      window.addEventListener('resize', () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      });
-    }
-
-    function createParticle(type, canvas, colors, scaleFactor = 1) {
-      const leafColors = ['#D2691E', '#8B4513', '#CD853F', '#B8860B', '#DAA520', '#FF8C00', '#FF6347'];
-      const confettiColors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE'];
-
-      let speed, size;
-      switch (type) {
-        case 'lanterns': speed = Math.random() * 0.5 + 0.3; size = Math.random() * 15 + 20; break;
-        case 'crescent': speed = Math.random() * 0.8 + 0.4; size = Math.random() * 6 + 8; break;
-        case 'ketupat': speed = Math.random() * 1 + 0.5; size = Math.random() * 6 + 8; break;
-        case 'confetti': speed = Math.random() * 2 + 1; size = Math.random() * 6 + 4; break;
-        case 'snow': speed = Math.random() * 1.2 + 0.4; size = Math.random() * 8 + 4; break;
-        case 'leaves': speed = Math.random() * 1.5 + 0.5; size = Math.random() * 12 + 8; break;
-        default: speed = Math.random() * 1.5 + 0.5; size = Math.random() * 10 + 6;
-      }
-
-      // Apply responsive scaling
-      size = size * scaleFactor;
-
-      return {
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height - canvas.height,
-        speed,
-        size,
-        opacity: Math.random() * 0.4 + 0.5,
-        sway: type === 'leaves' || type === 'confetti' ? Math.random() * 2 + 1 : Math.random() * 0.8,
-        swayOffset: Math.random() * Math.PI * 2,
-        rotation: Math.random() * Math.PI * 2,
-        rotationSpeed: type === 'leaves' || type === 'confetti' ? (Math.random() - 0.5) * 0.08 : (Math.random() - 0.5) * 0.02,
-        twinkle: 1,
-        twinkleOffset: Math.random() * Math.PI * 2,
-        leafColor: leafColors[Math.floor(Math.random() * leafColors.length)],
-        confettiColor: confettiColors[Math.floor(Math.random() * confettiColors.length)]
-      };
-    }
-
-    // ❄️ Snowflake
-    function drawSnowflake(ctx, size, color) {
-      ctx.strokeStyle = color;
-      ctx.fillStyle = color;
-      ctx.lineWidth = size / 8;
-      ctx.lineCap = 'round';
-
-      for (let i = 0; i < 6; i++) {
-        ctx.save();
-        ctx.rotate((i * Math.PI) / 3);
-
-        // Main branch
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(0, -size);
-        ctx.stroke();
-
-        // Side branches
-        ctx.beginPath();
-        ctx.moveTo(0, -size * 0.4);
-        ctx.lineTo(-size * 0.25, -size * 0.6);
-        ctx.moveTo(0, -size * 0.4);
-        ctx.lineTo(size * 0.25, -size * 0.6);
-        ctx.moveTo(0, -size * 0.7);
-        ctx.lineTo(-size * 0.15, -size * 0.85);
-        ctx.moveTo(0, -size * 0.7);
-        ctx.lineTo(size * 0.15, -size * 0.85);
-        ctx.stroke();
-
-        ctx.restore();
-      }
-
-      // Center dot
-      ctx.beginPath();
-      ctx.arc(0, 0, size / 6, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // ⭐ Glowing Star
-    function drawGlowingStar(ctx, size, color) {
-      // Outer glow
-      const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 2);
-      gradient.addColorStop(0, color);
-      gradient.addColorStop(0.3, color + '80');
-      gradient.addColorStop(1, 'transparent');
-      ctx.fillStyle = gradient;
-      ctx.beginPath();
-      ctx.arc(0, 0, size * 2, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Star shape
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      for (let i = 0; i < 5; i++) {
-        const outerAngle = (i * 4 * Math.PI) / 5 - Math.PI / 2;
-        const innerAngle = outerAngle + Math.PI / 5;
-        const outerX = Math.cos(outerAngle) * size;
-        const outerY = Math.sin(outerAngle) * size;
-        const innerX = Math.cos(innerAngle) * (size * 0.4);
-        const innerY = Math.sin(innerAngle) * (size * 0.4);
-
-        if (i === 0) ctx.moveTo(outerX, outerY);
-        else ctx.lineTo(outerX, outerY);
-        ctx.lineTo(innerX, innerY);
-      }
-      ctx.closePath();
-      ctx.fill();
-
-      // Sparkle lines
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 1;
-      ctx.globalAlpha = 0.5;
-      for (let i = 0; i < 4; i++) {
-        ctx.save();
-        ctx.rotate((i * Math.PI) / 2);
-        ctx.beginPath();
-        ctx.moveTo(0, -size * 1.3);
-        ctx.lineTo(0, -size * 1.8);
-        ctx.stroke();
-        ctx.restore();
-      }
-    }
-
-    // ❤️ Beautiful Heart
-    function drawBeautifulHeart(ctx, size, color) {
-      const gradient = ctx.createRadialGradient(-size * 0.3, -size * 0.3, 0, 0, 0, size * 2);
-      gradient.addColorStop(0, '#FF9999');
-      gradient.addColorStop(0.5, color);
-      gradient.addColorStop(1, '#CC0000');
-
-      ctx.fillStyle = gradient;
-      ctx.beginPath();
-      ctx.moveTo(0, size * 0.3);
-      ctx.bezierCurveTo(-size * 0.1, 0, -size * 0.5, -size * 0.3, -size * 0.5, -size * 0.5);
-      ctx.bezierCurveTo(-size * 0.5, -size * 0.8, -size * 0.25, -size, 0, -size * 0.7);
-      ctx.bezierCurveTo(size * 0.25, -size, size * 0.5, -size * 0.8, size * 0.5, -size * 0.5);
-      ctx.bezierCurveTo(size * 0.5, -size * 0.3, size * 0.1, 0, 0, size * 0.3);
-      ctx.fill();
-
-      // Shine effect
-      ctx.fillStyle = 'rgba(255,255,255,0.4)';
-      ctx.beginPath();
-      ctx.ellipse(-size * 0.2, -size * 0.5, size * 0.1, size * 0.15, -Math.PI / 4, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // 🍂 Autumn Leaf
-    function drawAutumnLeaf(ctx, size, color) {
-      ctx.fillStyle = color;
-      ctx.strokeStyle = '#5D4037';
-      ctx.lineWidth = 1;
-
-      // Leaf shape
-      ctx.beginPath();
-      ctx.moveTo(0, size);
-      ctx.bezierCurveTo(-size * 0.3, size * 0.7, -size * 0.7, size * 0.3, -size * 0.5, 0);
-      ctx.bezierCurveTo(-size * 0.6, -size * 0.3, -size * 0.3, -size * 0.5, 0, -size * 0.8);
-      ctx.bezierCurveTo(size * 0.3, -size * 0.5, size * 0.6, -size * 0.3, size * 0.5, 0);
-      ctx.bezierCurveTo(size * 0.7, size * 0.3, size * 0.3, size * 0.7, 0, size);
-      ctx.fill();
-      ctx.stroke();
-
-      // Stem
-      ctx.strokeStyle = '#3E2723';
-      ctx.lineWidth = size / 10;
-      ctx.beginPath();
-      ctx.moveTo(0, size);
-      ctx.lineTo(0, size * 1.5);
-      ctx.stroke();
-
-      // Veins
-      ctx.strokeStyle = '#5D4037';
-      ctx.lineWidth = size / 15;
-      ctx.beginPath();
-      ctx.moveTo(0, size);
-      ctx.lineTo(0, -size * 0.6);
-      ctx.moveTo(0, size * 0.3);
-      ctx.lineTo(-size * 0.3, 0);
-      ctx.moveTo(0, size * 0.3);
-      ctx.lineTo(size * 0.3, 0);
-      ctx.moveTo(0, -size * 0.2);
-      ctx.lineTo(-size * 0.25, -size * 0.4);
-      ctx.moveTo(0, -size * 0.2);
-      ctx.lineTo(size * 0.25, -size * 0.4);
-      ctx.stroke();
-    }
-
-    // 🏮 Lantern (Ramadan/Eid/Chinese New Year)
-    function drawLantern(ctx, size, goldColor, redColor) {
-      // Glow effect
-      const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 2);
-      glow.addColorStop(0, goldColor + '60');
-      glow.addColorStop(0.5, goldColor + '20');
-      glow.addColorStop(1, 'transparent');
-      ctx.fillStyle = glow;
-      ctx.beginPath();
-      ctx.arc(0, 0, size * 2, 0, Math.PI * 2);
-      ctx.fill();
-
-      // String
-      ctx.strokeStyle = '#8B4513';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(0, -size * 1.5);
-      ctx.lineTo(0, -size * 0.8);
-      ctx.stroke();
-
-      // Top cap
-      ctx.fillStyle = goldColor;
-      ctx.beginPath();
-      ctx.ellipse(0, -size * 0.7, size * 0.4, size * 0.15, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Main body
-      const bodyGradient = ctx.createLinearGradient(-size * 0.5, 0, size * 0.5, 0);
-      bodyGradient.addColorStop(0, '#8B0000');
-      bodyGradient.addColorStop(0.3, redColor);
-      bodyGradient.addColorStop(0.7, redColor);
-      bodyGradient.addColorStop(1, '#8B0000');
-      ctx.fillStyle = bodyGradient;
-
-      ctx.beginPath();
-      ctx.moveTo(-size * 0.3, -size * 0.6);
-      ctx.bezierCurveTo(-size * 0.6, -size * 0.3, -size * 0.6, size * 0.3, -size * 0.3, size * 0.6);
-      ctx.lineTo(size * 0.3, size * 0.6);
-      ctx.bezierCurveTo(size * 0.6, size * 0.3, size * 0.6, -size * 0.3, size * 0.3, -size * 0.6);
-      ctx.closePath();
-      ctx.fill();
-
-      // Decorative lines
-      ctx.strokeStyle = goldColor;
-      ctx.lineWidth = 1.5;
-      for (let i = -2; i <= 2; i++) {
-        ctx.beginPath();
-        ctx.moveTo(i * size * 0.15, -size * 0.5);
-        ctx.bezierCurveTo(i * size * 0.18, 0, i * size * 0.18, 0, i * size * 0.15, size * 0.5);
-        ctx.stroke();
-      }
-
-      // Bottom cap
-      ctx.fillStyle = goldColor;
-      ctx.beginPath();
-      ctx.ellipse(0, size * 0.6, size * 0.35, size * 0.12, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Tassel
-      ctx.strokeStyle = goldColor;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(0, size * 0.7);
-      ctx.lineTo(0, size * 1.2);
-      ctx.stroke();
-
-      for (let i = -2; i <= 2; i++) {
-        ctx.beginPath();
-        ctx.moveTo(0, size * 1.2);
-        ctx.lineTo(i * size * 0.08, size * 1.5);
-        ctx.stroke();
-      }
-
-      // Inner glow
-      ctx.fillStyle = 'rgba(255, 200, 100, 0.3)';
-      ctx.beginPath();
-      ctx.ellipse(0, 0, size * 0.25, size * 0.4, 0, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // 🌙 Crescent Moon (Ramadan)
-    function drawCrescentMoon(ctx, size, color, accentColor) {
-      // Outer glow with softer effect
-      const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 2.5);
-      glow.addColorStop(0, color + '50');
-      glow.addColorStop(0.5, color + '20');
-      glow.addColorStop(1, 'transparent');
-      ctx.fillStyle = glow;
-      ctx.beginPath();
-      ctx.arc(0, 0, size * 2.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Crescent shape
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      ctx.arc(0, 0, size, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Cut out inner circle for crescent
-      ctx.globalCompositeOperation = 'destination-out';
-      ctx.beginPath();
-      ctx.arc(size * 0.35, -size * 0.1, size * 0.75, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.globalCompositeOperation = 'source-over';
-
-      // Star next to moon - use accent color if provided
-      ctx.fillStyle = accentColor || color;
-      const starX = -size * 0.8;
-      const starY = -size * 0.3;
-      const starSize = size * 0.25;
-      ctx.beginPath();
-      for (let i = 0; i < 5; i++) {
-        const outerAngle = (i * 4 * Math.PI) / 5 - Math.PI / 2;
-        const innerAngle = outerAngle + Math.PI / 5;
-        const outerPx = starX + Math.cos(outerAngle) * starSize;
-        const outerPy = starY + Math.sin(outerAngle) * starSize;
-        const innerPx = starX + Math.cos(innerAngle) * (starSize * 0.4);
-        const innerPy = starY + Math.sin(innerAngle) * (starSize * 0.4);
-        if (i === 0) ctx.moveTo(outerPx, outerPy);
-        else ctx.lineTo(outerPx, outerPy);
-        ctx.lineTo(innerPx, innerPy);
-      }
-      ctx.closePath();
-      ctx.fill();
-    }
-
-    // 🧧 Ketupat (Eid/Lebaran)
-    function drawKetupat(ctx, size, greenColor, lightGreenColor) {
-      // Diamond shape with better color usage
-      const gradient = ctx.createLinearGradient(-size, 0, size, 0);
-      gradient.addColorStop(0, '#1B5E20');
-      gradient.addColorStop(0.3, greenColor || '#228B22');
-      gradient.addColorStop(0.7, lightGreenColor || '#90EE90');
-      gradient.addColorStop(1, '#1B5E20');
-
-      ctx.fillStyle = gradient;
-      ctx.beginPath();
-      ctx.moveTo(0, -size);
-      ctx.lineTo(size * 0.7, 0);
-      ctx.lineTo(0, size);
-      ctx.lineTo(-size * 0.7, 0);
-      ctx.closePath();
-      ctx.fill();
-
-      // Weave pattern
-      ctx.strokeStyle = '#2E7D32';
-      ctx.lineWidth = 1;
-
-      // Horizontal weave lines
-      for (let i = -0.6; i <= 0.6; i += 0.3) {
-        ctx.beginPath();
-        ctx.moveTo(-size * 0.5, size * i);
-        ctx.lineTo(size * 0.5, size * i);
-        ctx.stroke();
-      }
-
-      // Diagonal weave lines
-      for (let i = -0.5; i <= 0.5; i += 0.25) {
-        ctx.beginPath();
-        ctx.moveTo(size * i, -size * 0.8);
-        ctx.lineTo(size * (i + 0.3), size * 0.8);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(size * i, -size * 0.8);
-        ctx.lineTo(size * (i - 0.3), size * 0.8);
-        ctx.stroke();
-      }
-
-      // Hanging rope
-      ctx.strokeStyle = '#5D4037';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(0, -size);
-      ctx.lineTo(0, -size * 1.4);
-      ctx.stroke();
-
-      // Top loop
-      ctx.beginPath();
-      ctx.arc(0, -size * 1.5, size * 0.1, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-
-    // 🎊 Confetti
-    function drawConfetti(ctx, size, color) {
-      ctx.fillStyle = color;
-
-      // Random shape type
-      const shapeType = Math.floor(Math.random() * 3);
-
-      if (shapeType === 0) {
-        // Rectangle ribbon
-        ctx.fillRect(-size / 2, -size, size, size * 2);
-      } else if (shapeType === 1) {
-        // Circle
-        ctx.beginPath();
-        ctx.arc(0, 0, size, 0, Math.PI * 2);
-        ctx.fill();
       } else {
-        // Squiggly ribbon
-        ctx.beginPath();
-        ctx.moveTo(-size, -size);
-        ctx.bezierCurveTo(-size / 2, 0, size / 2, 0, size, size);
-        ctx.lineTo(size, size + size / 3);
-        ctx.bezierCurveTo(size / 2, size / 3, -size / 2, size / 3, -size, -size + size / 3);
-        ctx.closePath();
-        ctx.fill();
+        const main = document.querySelector('.main-container');
+        if (desc.parentElement !== main) {
+          header.after(desc);
+        }
       }
+    }
+    window.addEventListener('resize', handleLayout);
+    document.addEventListener('DOMContentLoaded', handleLayout);
+    setTimeout(handleLayout, 500); // safety
+  </script>
 
-      // Shine
-      ctx.fillStyle = 'rgba(255,255,255,0.3)';
-      ctx.fillRect(-size / 4, -size / 2, size / 4, size / 2);
+  <script>
+    function toggleMenu() {
+      const overlay = document.getElementById('menu-overlay');
+      if (overlay) {
+        overlay.classList.toggle('active');
+
+        // Update Active Language State when opening
+        if (overlay.classList.contains('active')) {
+          const currentLang = localStorage.getItem('app_lang') || 'id';
+
+          document.querySelectorAll('.menu-item[id^="lang-"]').forEach(el => el.classList.remove('active'));
+
+          const activeEl = document.getElementById(`lang-${currentLang}`);
+          if (activeEl) activeEl.classList.add('active');
+        }
+      }
     }
 
-    init();
-  </script>
+    function toggleDescription() {
+      const content = document.getElementById('product-desc');
+      const btn = document.getElementById('readMoreBtn');
+      const isCollapsed = content.classList.contains('collapsed');
 
-  <!--Start of Tawk.to Script-->
-  <script type="text/javascript">
-    var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
-    (function () {
-      var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
-      s1.async = true;
-      s1.src = 'https://embed.tawk.to/698a62f02fb5be1c3a2b2e1e/1jh294vin';
-      s1.charset = 'UTF-8';
-      s1.setAttribute('crossorigin', '*');
-      s0.parentNode.insertBefore(s1, s0);
-    })();
+      if (isCollapsed) {
+        content.classList.remove('collapsed');
+        btn.classList.add('expanded');
+        btn.innerHTML = `Tutup Deskripsi <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transform: rotate(180deg);"><path d="M6 9l6 6 6-6"/></svg>`;
+      } else {
+        content.classList.add('collapsed');
+        btn.classList.remove('expanded');
+        btn.innerHTML = `Baca Selengkapnya <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>`;
+      }
+    }
   </script>
-  <!--End of Tawk.to Script-->
 </body>
 
 </html>
