@@ -1,1 +1,1 @@
-/p/* /detail-product 200
+# /p/* routing is handled by functions/p/[slug].js (Cloudflare Pages Function)
