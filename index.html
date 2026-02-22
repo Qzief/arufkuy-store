@@ -1396,7 +1396,7 @@
         }
       }
 
-      const productLink = data.slug ? `/p/${data.slug}` : `detail-product.html?id=${data.id}`;
+      const productLink = data.slug ? `detail-product.html?slug=${data.slug}` : `detail-product.html?id=${data.id}`;
 
       return `
         <a href="${productLink}" class="block rounded-2xl md:rounded-3xl border border-white/10 bg-white/5 p-3 md:p-5 hover:bg-white/10 transition-all duration-300 hover:border-white/20 hover:-translate-y-1 group">

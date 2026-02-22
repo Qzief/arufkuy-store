@@ -1120,13 +1120,15 @@
     // --- Logic Variables ---
     const params = new URLSearchParams(window.location.search);
     let productId = params.get("id");
-    let productSlug = null;
+    let productSlug = params.get("slug") || null; // Support ?slug= query param (Cloudflare Pages)
 
-    // Path slug detection
-    const pathParts = window.location.pathname.split('/');
-    if (pathParts.includes('p')) {
-      const pIndex = pathParts.indexOf('p');
-      if (pathParts[pIndex + 1]) productSlug = pathParts[pIndex + 1];
+    // Path slug detection (Firebase Hosting /p/slug format)
+    if (!productSlug) {
+      const pathParts = window.location.pathname.split('/');
+      if (pathParts.includes('p')) {
+        const pIndex = pathParts.indexOf('p');
+        if (pathParts[pIndex + 1]) productSlug = pathParts[pIndex + 1];
+      }
     }
 
     let productStock = 0;

@@ -1,1 +1,2 @@
-# /p/* routing is handled by functions/p/[slug].js (Cloudflare Pages Function)
+# Tidak ada redirect rules yang diperlukan.
+# Slug produk sekarang menggunakan query param: detail-product.html?slug=nama-produk
