@@ -18,6 +18,227 @@
       }
     }
   </script>
+  <style>
+    /* Custom Scrollbar */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(99, 102, 241, .3);
+      border-radius: 99px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(99, 102, 241, .5);
+    }
+
+    /* Fade In Animation */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-fade-in {
+      animation: fadeIn .3s ease-out;
+    }
+
+    /* ======== MOBILE RESPONSIVE TABLES ======== */
+    @media (max-width: 767px) {
+
+      /* Main content: reduce padding on mobile */
+      main.flex-1 {
+        padding: 1rem !important;
+      }
+
+      /* Page title responsive */
+      #page-title {
+        font-size: 1.25rem !important;
+      }
+
+      /* Product toolbar: stack search and buttons */
+      #tab-products>.flex.justify-between {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: stretch !important;
+      }
+
+      #tab-products>.flex.justify-between .relative {
+        width: 100%;
+      }
+
+      #tab-products>.flex.justify-between .relative input {
+        width: 100% !important;
+      }
+
+      #tab-products>.flex.justify-between .relative input:focus {
+        width: 100% !important;
+      }
+
+      #tab-products>.flex.justify-between>.flex.items-center.gap-2 {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      #tab-products>.flex.justify-between>.flex.items-center.gap-2 button {
+        flex: 1 1 auto;
+        justify-content: center;
+        font-size: 0.75rem;
+        padding: 0.5rem 0.75rem;
+      }
+
+      /* Orders filter: allow wrap */
+      #tab-orders>.flex.justify-between {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      #tab-orders>.flex.justify-between>.flex.gap-2 {
+        flex-wrap: wrap;
+      }
+
+      /* Coupons/Sections/Popups/Themes toolbar: stack */
+      #tab-coupons>.flex.justify-between,
+      #tab-sections>.flex.justify-between,
+      #tab-popups>.flex.justify-between,
+      #tab-themes>.flex.justify-between {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: stretch !important;
+      }
+
+      #tab-themes>.flex.justify-between>div:first-child {
+        width: 100%;
+      }
+
+      #tab-coupons>.flex.justify-between>button,
+      #tab-sections>.flex.justify-between>button,
+      #tab-popups>.flex.justify-between>button,
+      #tab-themes>.flex.justify-between>button {
+        width: 100%;
+        justify-content: center;
+      }
+
+      /* History toolbar */
+      #tab-history>.flex.justify-between {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      /* ======== Card-style table rows ======== */
+
+      /* Table wrapper: horizontal scroll fallback removed, use card layout instead */
+      table {
+        display: block;
+      }
+
+      thead {
+        display: none !important;
+      }
+
+      tbody {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      tbody tr {
+        display: flex;
+        flex-direction: column;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 1rem;
+        padding: 0;
+        overflow: hidden;
+      }
+
+      tbody tr:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      tbody tr td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.625rem 1rem !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        text-align: left !important;
+        gap: 0.5rem;
+      }
+
+      tbody tr td:last-child {
+        border-bottom: none;
+        justify-content: flex-end;
+      }
+
+      tbody tr td::before {
+        content: attr(data-label);
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: rgb(148, 163, 184);
+        white-space: nowrap;
+        min-width: 80px;
+        flex-shrink: 0;
+      }
+
+      tbody tr td:last-child::before {
+        display: none;
+      }
+
+      tbody tr td[data-label=""]::before {
+        display: none;
+      }
+
+      /* Product table: special handling for flex layout in first cell */
+      #product-table-body td:first-child {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+      }
+
+      #product-table-body td:first-child::before {
+        display: none;
+      }
+
+      #product-table-body td:first-child>.flex {
+        gap: 0.75rem;
+      }
+
+      /* Actions cell: show buttons always */
+      td .flex.justify-end {
+        opacity: 1 !important;
+      }
+
+      /* Dashboard stat cards mobile: keep 1 col (already handled by grid-cols-1) */
+
+      /* Modals: full width on mobile */
+      .fixed.inset-0>div {
+        max-width: 100% !important;
+        margin: 0.5rem;
+        border-radius: 1.5rem;
+      }
+
+      /* Product modal grid: single column */
+      .grid.md\:grid-cols-12 {
+        grid-template-columns: 1fr !important;
+      }
+    }
+  </style>
 </head>
 
 <body class="min-h-screen bg-slate-950 text-slate-100 font-sans">
@@ -1248,11 +1469,11 @@
 
           const row = `
               <tr class="hover:bg-white/5 transition">
-                 <td class="px-6 py-4 font-mono font-bold text-indigo-300">${data.code}</td>
-                 <td class="px-6 py-4">${value}</td>
-                 <td class="px-6 py-4">${isActive}</td>
-                 <td class="px-6 py-4 text-xs text-slate-400">${expire}</td>
-                 <td class="px-6 py-4 text-right">
+                 <td class="px-6 py-4 font-mono font-bold text-indigo-300" data-label="Kode">${data.code}</td>
+                 <td class="px-6 py-4" data-label="Nilai">${value}</td>
+                 <td class="px-6 py-4" data-label="Status">${isActive}</td>
+                 <td class="px-6 py-4 text-xs text-slate-400" data-label="Expired">${expire}</td>
+                 <td class="px-6 py-4 text-right" data-label="">
                     <button onclick="deleteCoupon('${doc.id}')" class="text-slate-400 hover:text-red-400 text-xs border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/5 transition">Hapus</button>
                  </td>
               </tr>
@@ -1651,16 +1872,16 @@
 
         const row = `
             <tr class="hover:bg-white/5 transition group">
-              <td class="px-6 py-4 flex items-center gap-3">
+              <td class="px-6 py-4 flex items-center gap-3" data-label="">
                  ${imgHtml}
                  <div>
                     <div class="font-medium text-white">${data.name}</div>
                     ${data.tag ? `<div class="text-[10px] text-slate-400 border border-white/5 inline-block px-1 rounded">${data.tag}</div>` : ''}
                  </div>
               </td>
-              <td class="px-6 py-4 text-slate-300 font-mono text-xs">${priceDisplay}</td>
-              <td class="px-6 py-4">${stockDisplay}</td>
-              <td class="px-6 py-4 text-right">
+              <td class="px-6 py-4 text-slate-300 font-mono text-xs" data-label="Harga">${priceDisplay}</td>
+              <td class="px-6 py-4" data-label="Stok">${stockDisplay}</td>
+              <td class="px-6 py-4 text-right" data-label="">
                 <div class="flex justify-end gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition">
                    <button onclick="editProduct('${data.id}')" class="p-1.5 rounded-lg bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500 hover:text-white transition">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
@@ -1904,15 +2125,15 @@
 
           const row = `
             <tr class="hover:bg-white/5 transition">
-              <td class="px-6 py-4 text-xs text-slate-400">${date}</td>
-              <td class="px-6 py-4 font-medium text-white">
+              <td class="px-6 py-4 text-xs text-slate-400" data-label="Tanggal">${date}</td>
+              <td class="px-6 py-4 font-medium text-white" data-label="Produk">
                 ${data.productName || "-"}
                 <div class="text-[10px] text-slate-500 mt-0.5">Qty: ${data.quantity || 1} ${statusBadge}</div>
               </td>
-              <td class="px-6 py-4 font-mono text-sm text-indigo-300">Rp ${new Intl.NumberFormat("id-ID").format(data.totalPrice || 0)}</td>
-              <td class="px-6 py-4 text-xs">${itemDisplay}</td>
-              <td class="px-6 py-4 text-xs text-slate-400">${data.customerEmail || "-"}</td>
-              <td class="px-6 py-4 text-right">
+              <td class="px-6 py-4 font-mono text-sm text-indigo-300" data-label="Harga">Rp ${new Intl.NumberFormat("id-ID").format(data.totalPrice || 0)}</td>
+              <td class="px-6 py-4 text-xs" data-label="Item">${itemDisplay}</td>
+              <td class="px-6 py-4 text-xs text-slate-400" data-label="Pembeli">${data.customerEmail || "-"}</td>
+              <td class="px-6 py-4 text-right" data-label="">
                   <button onclick="openOrderModal('${docSnap.id}')" class="text-indigo-400 hover:text-indigo-300 text-xs border border-indigo-500/30 px-3 py-1.5 rounded-lg hover:bg-indigo-500/10 transition">Kelola</button>
               </td>
             </tr>
@@ -1992,18 +2213,18 @@
 
           const row = `
             <tr class="hover:bg-white/5 transition">
-               <td class="px-6 py-4">${statusBadge}</td>
-               <td class="px-6 py-4">
+               <td class="px-6 py-4" data-label="Status">${statusBadge}</td>
+               <td class="px-6 py-4" data-label="Customer">
                  <div class="font-medium text-white">${data.customerName || "-"}</div>
                  <div class="text-xs text-slate-500">${data.customerEmail || "-"}</div>
                  <div class="text-[10px] text-slate-600 mt-1">${date}</div>
                </td>
-               <td class="px-6 py-4">
+               <td class="px-6 py-4" data-label="Produk">
                  <div class="text-sm text-white">${data.productName}</div>
                  <div class="text-xs text-slate-500">Qty: ${data.quantity}</div>
                </td>
-               <td class="px-6 py-4 text-sm font-mono text-indigo-300">Rp ${new Intl.NumberFormat("id-ID").format(data.totalPrice)}</td>
-               <td class="px-6 py-4 text-right">
+               <td class="px-6 py-4 text-sm font-mono text-indigo-300" data-label="Total">Rp ${new Intl.NumberFormat("id-ID").format(data.totalPrice)}</td>
+               <td class="px-6 py-4 text-right" data-label="">
                  <button onclick="openOrderModal('${doc.id}')" class="text-indigo-400 hover:text-indigo-300 text-xs border border-indigo-500/30 px-3 py-1.5 rounded-lg hover:bg-indigo-500/10 transition">Kelola</button>
                </td>
             </tr>
@@ -2815,11 +3036,11 @@
 
           const row = `
             <tr class="hover:bg-white/5 transition">
-              <td class="px-6 py-4 font-bold text-white">${data.title}</td>
-              <td class="px-6 py-4 text-xs"><span class="bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded">${typeLabels[data.type]}</span></td>
-              <td class="px-6 py-4 text-xs text-slate-400">${freqLabels[data.frequency]}</td>
-              <td class="px-6 py-4">${isActive}</td>
-              <td class="px-6 py-4 text-right space-x-2">
+              <td class="px-6 py-4 font-bold text-white" data-label="Judul">${data.title}</td>
+              <td class="px-6 py-4 text-xs" data-label="Tipe"><span class="bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded">${typeLabels[data.type]}</span></td>
+              <td class="px-6 py-4 text-xs text-slate-400" data-label="Frekuensi">${freqLabels[data.frequency]}</td>
+              <td class="px-6 py-4" data-label="Status">${isActive}</td>
+              <td class="px-6 py-4 text-right space-x-2" data-label="">
                 <button onclick="editPopup('${doc.id}')" class="text-slate-400 hover:text-indigo-400 text-xs border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/5 transition">Edit</button>
                 <button onclick="deletePopup('${doc.id}')" class="text-slate-400 hover:text-red-400 text-xs border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/5 transition">Hapus</button>
               </td>
@@ -2985,11 +3206,11 @@
 
           const row = `
             <tr class="hover:bg-white/5 transition">
-              <td class="px-6 py-4 font-bold text-white">${data.name}</td>
-              <td class="px-6 py-4 text-xs text-slate-400">${startDate} - ${endDate}</td>
-              <td class="px-6 py-4 text-xs"><span class="bg-cyan-500/20 text-cyan-300 px-2 py-1 rounded">${particleLabels[data.particle]}</span></td>
-              <td class="px-6 py-4">${isActive}</td>
-              <td class="px-6 py-4 text-right space-x-2">
+              <td class="px-6 py-4 font-bold text-white" data-label="Nama">${data.name}</td>
+              <td class="px-6 py-4 text-xs text-slate-400" data-label="Periode">${startDate} - ${endDate}</td>
+              <td class="px-6 py-4 text-xs" data-label="Efek"><span class="bg-cyan-500/20 text-cyan-300 px-2 py-1 rounded">${particleLabels[data.particle]}</span></td>
+              <td class="px-6 py-4" data-label="Status">${isActive}</td>
+              <td class="px-6 py-4 text-right space-x-2" data-label="">
                 <button onclick="editTheme('${doc.id}')" class="text-slate-400 hover:text-indigo-400 text-xs border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/5 transition">Edit</button>
                 <button onclick="deleteTheme('${doc.id}')" class="text-slate-400 hover:text-red-400 text-xs border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/5 transition">Hapus</button>
               </td>
@@ -3140,13 +3361,13 @@
 
           return `
             <tr class="hover:bg-white/5 transition">
-              <td class="px-6 py-4 text-sm text-slate-300">${section.order || 0}</td>
-              <td class="px-6 py-4">
+              <td class="px-6 py-4 text-sm text-slate-300" data-label="Order">${section.order || 0}</td>
+              <td class="px-6 py-4" data-label="Nama">
                 <p class="font-semibold text-white">${section.name || '-'}</p>
               </td>
-              <td class="px-6 py-4 text-sm text-slate-400">${section.description || '-'}</td>
-              <td class="px-6 py-4">${statusBadge}</td>
-              <td class="px-6 py-4 text-right space-x-2">
+              <td class="px-6 py-4 text-sm text-slate-400" data-label="Deskripsi">${section.description || '-'}</td>
+              <td class="px-6 py-4" data-label="Status">${statusBadge}</td>
+              <td class="px-6 py-4 text-right space-x-2" data-label="">
                 <button onclick="editSection('${section.id}')"
                   class="px-3 py-1.5 rounded-lg bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30 text-xs font-medium transition">
                   Edit
