@@ -1070,7 +1070,22 @@
     };
 
     if (orderId) {
-      loadOrder(orderId);
+      // orderId is the Master Key - always refresh 6-hour access window first
+      (async () => {
+        try {
+          const WORKER_URL = 'https://payment.arufkuy.workers.dev/refresh-access-by-order';
+          await fetch(WORKER_URL, {
+            method: 'POST',
+            body: JSON.stringify({ orderId: orderId }),
+            headers: { 'Content-Type': 'application/json' }
+          });
+          // Jeda sejenak agar Firestore sempat sinkronisasi
+          await new Promise(resolve => setTimeout(resolve, 300));
+        } catch (e) {
+          console.warn("Failed to refresh access by orderId:", e);
+        }
+        loadOrder(orderId);
+      })();
     } else if (invoiceParam) {
       const cached = localStorage.getItem("order_mapping_" + invoiceParam);
       let isValidCache = false;
@@ -1199,18 +1214,6 @@
 
     async function resolveInvoice(invoice) {
       try {
-        // Try to refresh access by pinging the Worker first
-        try {
-          const WORKER_URL = 'https://payment.arufkuy.workers.dev/refresh-access';
-          await fetch(WORKER_URL, {
-            method: 'POST',
-            body: JSON.stringify({ invoiceId: invoice }),
-            headers: { 'Content-Type': 'application/json' }
-          });
-        } catch (workerError) {
-          console.warn("Failed to ping refresh-access:", workerError);
-        }
-
         const q = query(collection(db, "orders"), where("invoiceId", "==", invoice), limit(1));
         const querySnapshot = await getDocs(q);
 
