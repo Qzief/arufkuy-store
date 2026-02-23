@@ -1072,7 +1072,27 @@
     if (orderId) {
       loadOrder(orderId);
     } else if (invoiceParam) {
-      resolveInvoice(invoiceParam);
+      const cached = localStorage.getItem("order_mapping_" + invoiceParam);
+      let isValidCache = false;
+
+      if (cached) {
+        try {
+          const cacheData = JSON.parse(cached);
+          const now = Date.now();
+          const sixHours = 6 * 60 * 60 * 1000;
+
+          if (now - cacheData.timestamp < sixHours) {
+            loadOrder(cacheData.orderId);
+            isValidCache = true;
+          } else {
+            localStorage.removeItem("order_mapping_" + invoiceParam);
+          }
+        } catch (e) { }
+      }
+
+      if (!isValidCache) {
+        resolveInvoice(invoiceParam);
+      }
     } else if (legacyProduct) {
       document.getElementById("ref-id").textContent = refId || "-";
       document.getElementById("product-name").textContent = legacyProduct;
@@ -1155,11 +1175,19 @@
         if (tlCompletedTime) tlCompletedTime.textContent = "Pesanan batal";
         setTimelineState("danger");
       } else if (status === "not-found") {
-        if (title) title.textContent = "Pesanan Tidak Ditemukan";
-        if (desc) desc.textContent = "Mohon periksa kembali link Anda.";
-        if (tlPendingTime) tlPendingTime.textContent = "ID pesanan tidak valid";
-        if (tlPaidTime) tlPaidTime.textContent = "Tidak ada data pembayaran";
+        if (title) title.textContent = "Pesanan Tidak Ditemukan / Kedaluwarsa";
+        if (desc) desc.textContent = "Data tidak ditemukan atau sesi akses telah ditutup demi keamanan.";
+        if (tlPendingTime) tlPendingTime.textContent = "ID pesanan invalid / kedaluwarsa";
+        if (tlPaidTime) tlPaidTime.textContent = "Tidak ada data pembayaran / tertutup";
         if (tlDeliveredTime) tlDeliveredTime.textContent = "Tidak ada data pengiriman";
+        if (tlCompletedTime) tlCompletedTime.textContent = "—";
+        setTimelineState("danger");
+      } else if (status === "expired") {
+        if (title) title.textContent = "Sesi Link Terkunci (Lebih dari 6 Jam)";
+        if (desc) desc.textContent = "Demi keamanan, akses link ini telah ditutup. Silakan buka kembali pesanan langsung dari link Invoice/Email Mayar Anda untuk mendapatkan 6 jam akses baru.";
+        if (tlPendingTime) tlPendingTime.textContent = "Sesi kedaluwarsa";
+        if (tlPaidTime) tlPaidTime.textContent = "—";
+        if (tlDeliveredTime) tlDeliveredTime.textContent = "—";
         if (tlCompletedTime) tlCompletedTime.textContent = "—";
         setTimelineState("danger");
       } else {
@@ -1179,10 +1207,10 @@
           const realOrderId = docSnap.id;
           loadOrder(realOrderId);
         } else {
-          setStatus("not-found");
+          setStatus("expired");
         }
       } catch (error) {
-        setStatus("not-found");
+        setStatus("expired");
       }
     }
 
@@ -1245,7 +1273,7 @@
         } else {
           // Open
           details.open = true;
-          const targetHeight = content.scrollHeight; // This includes padding if box-sizing is border-box? 
+          const targetHeight = content.scrollHeight; // This includes padding if box-sizing is border-box?
           // Actually scrollHeight gives full content height.
 
           content.style.height = '0px';
@@ -1259,7 +1287,7 @@
           content.style.height = `${targetHeight}px`; // Approximate or exact
           // Actually better to animate to auto? No, standard is pixels.
           // Let's just set to scrollHeight.
-          // Re-apply padding for calculation? 
+          // Re-apply padding for calculation?
           // contentWrap was created with inline padding.
           content.style.padding = "10px 14px 12px";
 
@@ -1302,6 +1330,11 @@
 
       function processOrderData(data) {
         if (data.invoiceId) {
+          localStorage.setItem("order_mapping_" + data.invoiceId, JSON.stringify({
+            orderId: id,
+            timestamp: Date.now()
+          }));
+
           const currentUrl = new URL(window.location);
           if (currentUrl.searchParams.has("orderId")) {
             currentUrl.searchParams.delete("orderId");
@@ -1400,8 +1433,12 @@
                 setStatus("not-found");
               }
             })
-            .catch(() => {
-              setStatus("not-found");
+            .catch((error) => {
+              if (error.code === 'permission-denied') {
+                setStatus("expired");
+              } else {
+                setStatus("not-found");
+              }
             });
         }
       );

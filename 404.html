@@ -1569,6 +1569,7 @@
           discountAmount: discountValue,
           status: 'pending',
           createdAt: new Date(),
+          publicAccessUntil: new Date(Date.now() + 6 * 60 * 60 * 1000), // + 6 Jam akses publik
           coupon: coupon || null,
           description: description,
           bookedItems: []
