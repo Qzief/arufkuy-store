@@ -1310,7 +1310,7 @@
           }
         }
 
-        const displayRefId = data.invoiceId || refId || id;
+        const displayRefId = id || refId || data.invoiceId;
         document.getElementById("ref-id").textContent = displayRefId;
         document.getElementById("product-name").textContent = data.productName || "-";
 
