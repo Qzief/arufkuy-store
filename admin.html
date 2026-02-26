@@ -1098,6 +1098,15 @@
           </div>
         </div>
 
+        <!-- Total Terjual -->
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Total Terjual</label>
+          <input type="number" id="prod-total-sold" value="0" min="0"
+            class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none"
+            placeholder="0">
+          <p class="text-xs text-slate-500 mt-1">Jumlah produk yang sudah terjual (ditampilkan di halaman produk)</p>
+        </div>
+
         <div class="h-px bg-white/10 my-4"></div>
 
         <!-- Variation Toggle -->
@@ -2601,6 +2610,8 @@
           slug = await ensureUniqueSlug(baseSlug, id || null);
         }
 
+        const totalSold = Math.max(0, parseInt(document.getElementById("prod-total-sold").value) || 0);
+
         let productData = {
           name,
           slug,
@@ -2610,6 +2621,7 @@
           hasVariants: isVariableProduct,
           sectionId: sectionId || null,
           orderInSection: orderInSection,
+          totalSold: totalSold,
           updatedAt: serverTimestamp()
         };
 
@@ -2771,6 +2783,9 @@
       // Section & Order
       document.getElementById("prod-section").value = product.sectionId || "";
       document.getElementById("prod-order").value = product.orderInSection || 0;
+
+      // Total Terjual
+      document.getElementById("prod-total-sold").value = product.totalSold || 0;
 
       // Check Mode
       isVariableProduct = !!product.hasVariants;

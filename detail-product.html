@@ -240,6 +240,15 @@
       justify-content: space-between;
     }
 
+    .product-sold {
+      font-size: 13px;
+      color: rgba(148, 163, 184, 0.8);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
     .product-price {
       font-size: 24px;
       font-weight: 700;
@@ -863,6 +872,7 @@
               <span class="product-price" id="product-price">Rp 0</span>
               <span class="price-original" id="product-original-price"></span>
             </div>
+            <span class="product-sold" id="product-sold"></span>
           </div>
         </div>
 
@@ -1303,6 +1313,13 @@
             img.classList.remove("hidden");
             const ph = document.getElementById("gallery-placeholder");
             if (ph) ph.classList.add("hidden");
+          }
+
+          // Sold Count
+          const soldEl = document.getElementById('product-sold');
+          const soldCount = parseInt(data.totalSold) || 0;
+          if (soldCount > 0) {
+            soldEl.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>${soldCount.toLocaleString('id-ID')} Terjual`;
           }
 
           // Badges Logic
