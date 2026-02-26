@@ -2540,7 +2540,22 @@
         if (confirm("Membatalkan pesanan akan mengembalikan stok (jika ada booked items). Lanjutkan?")) {
           // Pass orderId for V4 reservation lookup
           await returnStockFromOrder(currentData, null, orderId);
-          // After stock returned, we proceed to update order
+
+          // Decrement totalSold if order was previously counted as sold
+          const soldStatuses = ['paid', 'completed', 'delivered'];
+          if (soldStatuses.includes(currentData.status) && currentData.productId) {
+            try {
+              const qty = parseInt(currentData.quantity) || 1;
+              const prodRef = doc(db, "products", currentData.productId);
+              const prodSnap = await getDoc(prodRef);
+              if (prodSnap.exists()) {
+                const currentSold = parseInt(prodSnap.data().totalSold) || 0;
+                await updateDoc(prodRef, { totalSold: Math.max(0, currentSold - qty) });
+              }
+            } catch (soldErr) {
+              console.error("Error decrementing totalSold:", soldErr);
+            }
+          }
         } else {
           return; // Cancel action
         }
@@ -2560,6 +2575,27 @@
         }
 
         await updateDoc(orderRef, updateData);
+
+        // Auto-increment totalSold when order transitions to paid/completed
+        // Only increment if previous status was NOT already paid/completed (prevent double-counting)
+        const soldStatuses = ['paid', 'completed', 'delivered'];
+        const wasAlreadySold = soldStatuses.includes(currentData.status);
+        const isNowSold = soldStatuses.includes(status);
+
+        if (isNowSold && !wasAlreadySold && currentData.productId) {
+          try {
+            const qty = parseInt(currentData.quantity) || 1;
+            const prodRef = doc(db, "products", currentData.productId);
+            const prodSnap = await getDoc(prodRef);
+            if (prodSnap.exists()) {
+              const currentSold = parseInt(prodSnap.data().totalSold) || 0;
+              await updateDoc(prodRef, { totalSold: currentSold + qty });
+            }
+          } catch (soldErr) {
+            console.error("Error updating totalSold:", soldErr);
+          }
+        }
+
         alert("Pesanan berhasil diupdate!");
         closeOrderModal();
         loadOrders(); // Refresh table

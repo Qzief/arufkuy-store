@@ -242,11 +242,15 @@
 
     .product-sold {
       font-size: 13px;
-      color: rgba(148, 163, 184, 0.8);
+      color: #cbd5e1;
       display: flex;
       align-items: center;
       gap: 6px;
       white-space: nowrap;
+    }
+
+    .product-sold svg {
+      color: #818cf8;
     }
 
     .product-price {
@@ -1612,6 +1616,7 @@
           orderId: orderId,
           productId: finalProductId,
           variantId: isVariableProduct && selectedVariant ? selectedVariant.id : null,
+          coupon: coupon || null,
           items: [{
             name: finalProductName,
             quantity: quantity,
