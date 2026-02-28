@@ -87,6 +87,31 @@
       background-size: 1000px 100%;
       animation: shimmer 2s infinite linear;
     }
+
+    /* Line clamp untuk teks review */
+    .line-clamp-4 {
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      line-clamp: 4;
+      overflow: hidden;
+    }
+
+    /* Rating bar animation */
+    @keyframes bar-grow {
+      from {
+        width: 0%;
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .rating-bar-fill {
+      animation: bar-grow 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
   </style>
 </head>
 
@@ -286,33 +311,59 @@
       </div>
     </section>
 
+    <!-- Rating Summary Diagram -->
+    <section class="mx-auto max-w-6xl px-4 pb-10">
+      <div id="rating-diagram" class="hidden">
+        <div class="rounded-lg border border-white/10 bg-white/5 backdrop-blur-sm p-6 md:p-8">
+          <div class="flex flex-col md:flex-row gap-8 items-center">
+
+            <!-- Score besar kiri -->
+            <div class="flex flex-col items-center shrink-0 text-center">
+              <p id="avg-score" class="text-6xl font-bold text-white">-</p>
+              <div id="avg-stars" class="flex my-2"></div>
+              <p id="total-count" class="text-xs text-slate-400"></p>
+            </div>
+
+            <!-- Divider vertikal -->
+            <div class="hidden md:block w-px self-stretch bg-white/10"></div>
+            <div class="block md:hidden h-px w-full bg-white/10"></div>
+
+            <!-- Bar horizontal kanan -->
+            <div id="rating-bars" class="flex-1 w-full space-y-3">
+              <!-- diisi JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Reviews Grid -->
     <section class="mx-auto max-w-6xl px-4 pb-24">
       <!-- Loading State (Skeleton) -->
       <div id="loading-reviews" class="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        <!-- Generate 6 skeleton cards -->
         <script>
-          for (let i = 0; i < 6; i++) {
+          for (let i = 0; i < 9; i++) {
             document.write(`
-              <div class="rounded-3xl border border-white/10 bg-white/5 p-6 space-y-4">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-3">
-                    <div class="h-10 w-10 rounded-full skeleton bg-white/5"></div>
-                    <div class="space-y-2">
-                       <div class="h-4 w-24 rounded skeleton bg-white/5"></div>
-                       <div class="h-3 w-16 rounded skeleton bg-white/5"></div>
+              <div class="rounded-lg border border-white/10 bg-white/5 p-5">
+                <!-- Header: avatar + info -->
+                <div class="flex items-start gap-3 mb-3">
+                  <div class="h-10 w-10 shrink-0 rounded-full skeleton"></div>
+                  <div class="flex-1 min-w-0">
+                    <!-- baris nama + bintang -->
+                    <div class="flex items-center justify-between gap-2 mb-1.5">
+                      <div class="h-3.5 w-24 rounded skeleton"></div>
+                      <div class="h-3.5 w-20 rounded skeleton"></div>
                     </div>
+                    <!-- produk -->
+                    <div class="h-3 w-32 rounded skeleton mb-1"></div>
+                    <!-- tanggal -->
+                    <div class="h-3 w-16 rounded skeleton"></div>
                   </div>
-                  <div class="h-4 w-20 rounded skeleton bg-white/5"></div>
                 </div>
-                <div class="space-y-2">
-                  <div class="h-3 w-full rounded skeleton bg-white/5"></div>
-                  <div class="h-3 w-5/6 rounded skeleton bg-white/5"></div>
-                  <div class="h-3 w-4/6 rounded skeleton bg-white/5"></div>
-                </div>
-                <div class="pt-4 border-t border-white/5 flex items-center gap-2">
-                   <div class="h-3 w-4 rounded-full skeleton bg-white/5"></div>
-                   <div class="h-3 w-32 rounded skeleton bg-white/5"></div>
+                <!-- Teks review -->
+                <div class="space-y-1.5">
+                  <div class="h-3 w-full rounded skeleton"></div>
+                  <div class="h-3 w-4/5 rounded skeleton"></div>
                 </div>
               </div>
             `);
@@ -325,9 +376,39 @@
         <!-- Reviews will be injected here -->
       </div>
 
+      <!-- Pagination -->
+      <div id="pagination-container" class="hidden flex justify-center items-center gap-2 mt-10">
+      </div>
+
       <!-- No Reviews State -->
       <div id="no-reviews" class="hidden text-center py-12">
         <p class="text-slate-500">Belum ada ulasan yang ditampilkan.</p>
+      </div>
+
+      <!-- Popup Modal Full Review -->
+      <div id="review-modal" class="fixed inset-0 z-[300] flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-md" onclick="closeReviewModal()"></div>
+        <div
+          class="relative w-full max-w-md rounded-lg border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl z-10 max-h-[80vh] overflow-y-auto p-5">
+          <!-- Close -->
+          <button onclick="closeReviewModal()"
+            class="absolute top-3 right-3 text-slate-400 hover:text-white transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <!-- Header: nama + bintang sejajar -->
+          <div class="flex items-center justify-between gap-2 mb-1 pr-6">
+            <p id="modal-name" class="text-sm font-semibold text-white truncate"></p>
+            <div id="modal-stars" class="flex shrink-0"></div>
+          </div>
+          <p id="modal-product" class="text-xs text-emerald-400 font-medium mb-3"></p>
+          <!-- Divider -->
+          <div class="border-t border-white/10 mb-3"></div>
+          <!-- Teks review -->
+          <p id="modal-text" class="text-slate-300 text-sm leading-relaxed"></p>
+          <p id="modal-date" class="text-slate-500 text-xs mt-4"></p>
+        </div>
       </div>
     </section>
   </main>
@@ -448,112 +529,301 @@
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzYGA-rzPSIXOvLftbqCMhXDahn90HViWAqJuXxRTUn7kUYJEPlxot3w7P0JwgFpJdI/exec";
     // ---------------------
 
+    const CACHE_KEY = 'arufkuy_reviews_cache';
+    const CACHE_TTL = 5 * 60 * 1000; // 5 menit
+
     async function fetchReviews() {
+      // Cek cache sessionStorage dulu — hindari fetch ulang saat user reload
       try {
-        // We use the same script URL but with a GET request to fetch data
-        // NOTE: You need to update your Google Apps Script to handle doGet()
+        const cached = sessionStorage.getItem(CACHE_KEY);
+        if (cached) {
+          const { ts, data } = JSON.parse(cached);
+          if (Date.now() - ts < CACHE_TTL) {
+            renderReviews(data);
+            return;
+          }
+        }
+      } catch (_) { }
+
+      try {
         const response = await fetch(GOOGLE_SCRIPT_URL);
         const data = await response.json();
-
+        // Simpan ke cache
+        try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch (_) { }
         renderReviews(data);
       } catch (error) {
-        console.error("Error fetching reviews:", error);
+        console.error('Error fetching reviews:', error);
         document.getElementById('loading-reviews').innerHTML = `
-          <div class="col-span-1 md:col-span-2 lg:col-span-3 text-center py-12"> 
+          <div class="col-span-1 md:col-span-2 lg:col-span-3 text-center py-12">
             <p class="text-red-400 mb-2">Gagal memuat ulasan.</p>
             <button onclick="fetchReviews()" class="text-indigo-400 underline text-sm hover:text-indigo-300">Coba lagi</button>
           </div>`;
       }
     }
 
-    function renderReviews(reviews) {
-      const container = document.getElementById('reviews-container');
-      const loading = document.getElementById('loading-reviews');
-      const noReviews = document.getElementById('no-reviews');
+    const REVIEWS_PER_PAGE = 9;
+    let allReviews = [];
+    let currentPage = 1;
 
-      loading.classList.add('hidden');
+    function maskName(name) {
+      if (!name || name.length === 0) return '***';
+      if (name.length <= 2) return name.charAt(0) + '*'.repeat(5);
+      return name.substring(0, 2) + '*'.repeat(Math.min(5, name.length - 2));
+    }
 
-      if (!reviews || reviews.length === 0) {
-        noReviews.classList.remove('hidden');
-        return;
+    function buildStars(rating) {
+      let html = '';
+      for (let i = 1; i <= 5; i++) {
+        html += i <= rating
+          ? '<span class="text-yellow-400 text-lg">★</span>'
+          : '<span class="text-slate-600 text-lg">★</span>';
       }
+      return html;
+    }
 
-      container.classList.remove('hidden');
+    // Cache DOM refs untuk modal
+    const _mStars = document.getElementById('modal-stars');
+    const _mName = document.getElementById('modal-name');
+    const _mProduct = document.getElementById('modal-product');
+    const _mText = document.getElementById('modal-text');
+    const _mDate = document.getElementById('modal-date');
+    const _mModal = document.getElementById('review-modal');
 
-      // Sort reviews by date (newest first) - assuming data has timestamp
-      // If your sheet data structure is [timestamp, orderId, product, rating, review]
-      // We need to map it correctly.
-      // Since the current GAS doGet might not be set up, I will assume a standard JSON array structure
-      // or handle the raw array from sheet.
+    function openReviewModal(name, product, text, starsHtml, date) {
+      _mStars.innerHTML = starsHtml;
+      _mName.textContent = name;
+      _mProduct.textContent = '🛒 ' + product;
+      _mText.textContent = text;
+      _mDate.textContent = date;
+      _mModal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
 
-      // Let's assume the API returns an array of objects or arrays.
-      // We will reverse it to show newest first.
-      const sortedReviews = reviews.slice().reverse();
+    function closeReviewModal() {
+      document.getElementById('review-modal').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
 
-      sortedReviews.forEach(review => {
-        // Handle both object and array formats just in case
+    // Konstanta di luar loop
+    const MAX_CHARS = 90;
+    const AVATAR_COLORS = [
+      'from-indigo-500/40 to-purple-500/40 text-indigo-200',
+      'from-cyan-500/40 to-blue-500/40 text-cyan-200',
+      'from-amber-500/40 to-orange-500/40 text-amber-200',
+      'from-emerald-500/40 to-teal-500/40 text-emerald-200',
+      'from-rose-500/40 to-pink-500/40 text-rose-200',
+    ];
+    const dateFormatter = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+
+    // Cache container & pagination element
+    const _container = document.getElementById('reviews-container');
+    const _pagination = document.getElementById('pagination-container');
+
+    function renderPage(page) {
+      currentPage = page;
+      _container.innerHTML = '';
+
+      const start = (page - 1) * REVIEWS_PER_PAGE;
+      const pageReviews = allReviews.slice(start, start + REVIEWS_PER_PAGE);
+      const totalPages = Math.ceil(allReviews.length / REVIEWS_PER_PAGE);
+
+      // Gunakan DocumentFragment agar hanya 1x reflow DOM
+      const frag = document.createDocumentFragment();
+
+      pageReviews.forEach(review => {
         const rating = review.rating || review[4];
-        const text = review.review || review[5];
-        const product = review.productName || review[3];
-        const customerName = review.customerName || review[2] || "Pelanggan Arufkuy";
+        const text = (review.review || review[5] || '').trim();
+        const product = review.productName || review[3] || 'Produk Digital';
+        const customerName = review.customerName || review[2] || 'Pelanggan Arufkuy';
         const dateStr = review.timestamp || review[0];
 
-        // Skip empty reviews if desired, or show them
         if (!rating) return;
 
-        const card = document.createElement('div');
-        card.className = "rounded-3xl border border-white/10 bg-white/5 p-6 hover:bg-white/10 transition-all duration-300 flex flex-col h-full";
-
-        // Star Rating HTML
-        let starsHtml = '';
-        for (let i = 1; i <= 5; i++) {
-          if (i <= rating) {
-            starsHtml += '<span class="text-yellow-400 text-lg">★</span>';
-          } else {
-            starsHtml += '<span class="text-slate-600 text-lg">★</span>';
-          }
-        }
-
-        // Format Date
+        const starsHtml = buildStars(rating);
+        const reviewerName = maskName(customerName);
         const dateObj = new Date(dateStr);
-        const formattedDate = !isNaN(dateObj) ? dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Baru saja';
+        const formattedDate = !isNaN(dateObj.getTime()) ? dateFormatter.format(dateObj) : 'Baru saja';
 
-        // Mask Name Logic
-        let reviewerName = customerName;
-        if (reviewerName.length > 3) {
-          reviewerName = reviewerName.substring(0, 3) + "*****";
-        } else if (reviewerName.length > 0) {
-          reviewerName = reviewerName.charAt(0) + "*****";
-        }
+        const isEmpty = text.length === 0;
+        const isLong = !isEmpty && text.length > MAX_CHARS;
+        const displayText = isEmpty ? null : (isLong ? text.substring(0, MAX_CHARS) + '...' : text);
+        const initial = customerName.charAt(0).toUpperCase() || 'A';
+        const avatarClass = AVATAR_COLORS[customerName.charCodeAt(0) % AVATAR_COLORS.length];
 
+        const card = document.createElement('div');
+        card.className = 'rounded-lg border border-white/10 bg-white/5 p-5 hover:bg-white/[0.08] transition-all duration-300 flex flex-col';
         card.innerHTML = `
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-3">
-              <div class="h-10 w-10 rounded-full bg-indigo-500/20 grid place-items-center text-indigo-300 font-bold text-sm">
-                ${reviewerName.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <p class="text-sm font-semibold text-white">${reviewerName}</p>
-                <p class="text-xs text-slate-400">${formattedDate}</p>
-              </div>
+          <div class="flex items-start gap-3 mb-3">
+            <div class="h-10 w-10 shrink-0 rounded-full bg-gradient-to-br ${avatarClass} grid place-items-center font-bold text-sm">
+              ${initial}
             </div>
-            <div class="flex">${starsHtml}</div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <p class="text-sm font-semibold text-white truncate">${reviewerName}</p>
+                <div class="flex shrink-0">${starsHtml}</div>
+              </div>
+              <p class="text-xs text-emerald-400 font-medium truncate">🛒 ${product}</p>
+              <p class="text-xs text-slate-500">${formattedDate}</p>
+            </div>
           </div>
 
-          <div class="flex-grow">
-            <p class="text-slate-300 text-sm leading-relaxed italic">"${text || 'Tidak ada komentar.'}"</p>
-          </div>
-
-          <div class="mt-4 pt-4 border-t border-white/5 flex items-center gap-2">
-            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-            <p class="text-xs text-emerald-400 font-medium truncate">Membeli: ${product || 'Produk Digital'}</p>
+          <div class="flex-grow overflow-hidden">
+            ${isEmpty
+            ? `<p class="text-slate-500 text-sm leading-relaxed min-h-[2.5rem]">— Pelanggan ini hanya memberikan rating tanpa ulasan.</p>`
+            : `<p class="text-slate-300 text-sm leading-relaxed line-clamp-4 min-h-[2.5rem]">${displayText}</p>
+                 ${isLong ? `<button class="js-read-more mt-2 text-indigo-400 text-xs font-semibold hover:text-indigo-300 transition">Lihat selengkapnya →</button>` : ''}`
+          }
           </div>
         `;
 
-        container.appendChild(card);
+        // Attach event listener langsung — aman dari karakter spesial apapun
+        if (isLong) {
+          const btn = card.querySelector('.js-read-more');
+          if (btn) {
+            btn.addEventListener('click', () => {
+              openReviewModal(reviewerName, product, text, starsHtml, formattedDate);
+            });
+          }
+        }
+
+        frag.appendChild(card);
       });
+
+      _container.appendChild(frag);
+
+      // Render pagination
+      if (totalPages > 1) {
+        _pagination.classList.remove('hidden');
+        _pagination.classList.add('flex');
+        _pagination.innerHTML = '';
+
+        const btnBase = 'flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 transition disabled:opacity-30 disabled:cursor-not-allowed';
+        const btnActive = 'px-3 py-2 rounded-lg text-xs font-semibold border border-indigo-500/60 bg-indigo-500/20 text-indigo-300 transition';
+        const btnInactive = 'px-3 py-2 rounded-lg text-xs font-semibold border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 transition';
+
+        // Prev button
+        const prevBtn = document.createElement('button');
+        prevBtn.className = btnBase;
+        prevBtn.disabled = page <= 1;
+        prevBtn.innerHTML = `
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+          <span class="hidden sm:inline">Sebelumnya</span>`;
+        prevBtn.onclick = () => { renderPage(page - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+        _pagination.appendChild(prevBtn);
+
+        // Page numbers — di mobile sembunyikan halaman jauh (hanya tampilkan ±1 dari current)
+        const isMobile = window.innerWidth < 640;
+        for (let p = 1; p <= totalPages; p++) {
+          if (isMobile && totalPages > 5 && Math.abs(p - page) > 1 && p !== 1 && p !== totalPages) {
+            // Tampilkan ellipsis hanya sekali per sisi
+            if (p === page - 2 || p === page + 2) {
+              const ell = document.createElement('span');
+              ell.className = 'text-slate-500 text-xs px-1';
+              ell.textContent = '…';
+              _pagination.appendChild(ell);
+            }
+            continue;
+          }
+          const btn = document.createElement('button');
+          btn.textContent = p;
+          btn.className = p === page ? btnActive : btnInactive;
+          btn.onclick = ((pg) => () => { renderPage(pg); window.scrollTo({ top: 0, behavior: 'smooth' }); })(p);
+          _pagination.appendChild(btn);
+        }
+
+        // Next button
+        const nextBtn = document.createElement('button');
+        nextBtn.className = btnBase;
+        nextBtn.disabled = page >= totalPages;
+        nextBtn.innerHTML = `
+          <span class="hidden sm:inline">Selanjutnya</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>`;
+        nextBtn.onclick = () => { renderPage(page + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+        _pagination.appendChild(nextBtn);
+      } else {
+        _pagination.classList.add('hidden');
+      }
+    }
+
+    // Cache rating diagram elements
+    const _ratingDiagram = document.getElementById('rating-diagram');
+    const _avgScore = document.getElementById('avg-score');
+    const _avgStars = document.getElementById('avg-stars');
+    const _totalCount = document.getElementById('total-count');
+    const _ratingBars = document.getElementById('rating-bars');
+
+    // Cache loading/empty state refs
+    const _loading = document.getElementById('loading-reviews');
+    const _noReviews = document.getElementById('no-reviews');
+
+    function renderRatingDiagram(reviews) {
+      // Hitung distribusi
+      const counts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+      let total = 0, sum = 0;
+      reviews.forEach(r => {
+        const rat = Number(r.rating || r[4]);
+        if (rat >= 1 && rat <= 5) { counts[rat]++; total++; sum += rat; }
+      });
+      if (total === 0) return;
+
+      const avg = (sum / total).toFixed(1);
+
+      // Rata-rata
+      _avgScore.textContent = avg;
+      _avgStars.innerHTML = buildStars(Math.round(avg));
+      _totalCount.textContent = total + ' ulasan';
+
+      // Bar per bintang (5 → 1)
+      _ratingBars.innerHTML = '';
+      [5, 4, 3, 2, 1].forEach((star, idx) => {
+        const cnt = counts[star];
+        const pct = total > 0 ? Math.round((cnt / total) * 100) : 0;
+
+        // Warna gradient per level bintang
+        const barColor = star >= 4
+          ? 'from-amber-400 to-yellow-300'
+          : star === 3
+            ? 'from-slate-400 to-slate-300'
+            : 'from-red-500 to-orange-400';
+
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-3';
+        row.innerHTML = `
+          <span class="text-xs text-slate-400 w-4 text-right shrink-0">${star}</span>
+          <span class="text-yellow-400 text-xs shrink-0">★</span>
+          <div class="flex-1 relative h-2 rounded-full bg-white/5 overflow-hidden">
+            <div
+              class="rating-bar-fill absolute inset-y-0 left-0 rounded-full bg-gradient-to-r ${barColor}"
+              style="width:${pct}%; animation-delay:${idx * 80}ms">
+            </div>
+          </div>
+          <span class="text-xs text-slate-400 w-8 text-right shrink-0">${cnt}</span>
+        `;
+        _ratingBars.appendChild(row);
+      });
+
+      _ratingDiagram.classList.remove('hidden');
+    }
+
+    function renderReviews(reviews) {
+      _loading.classList.add('hidden');
+
+      if (!reviews || reviews.length === 0) {
+        _noReviews.classList.remove('hidden');
+        return;
+      }
+
+      // Filter hanya yang ada rating, newest first
+      allReviews = reviews.slice().reverse().filter(r => (r.rating || r[4]));
+
+      renderRatingDiagram(allReviews);
+
+      _container.classList.remove('hidden');
+      renderPage(1);
     }
 
     // Initialize
