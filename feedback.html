@@ -529,27 +529,10 @@
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzYGA-rzPSIXOvLftbqCMhXDahn90HViWAqJuXxRTUn7kUYJEPlxot3w7P0JwgFpJdI/exec";
     // ---------------------
 
-    const CACHE_KEY = 'arufkuy_reviews_cache';
-    const CACHE_TTL = 5 * 60 * 1000; // 5 menit
-
     async function fetchReviews() {
-      // Cek cache sessionStorage dulu — hindari fetch ulang saat user reload
       try {
-        const cached = sessionStorage.getItem(CACHE_KEY);
-        if (cached) {
-          const { ts, data } = JSON.parse(cached);
-          if (Date.now() - ts < CACHE_TTL) {
-            renderReviews(data);
-            return;
-          }
-        }
-      } catch (_) { }
-
-      try {
-        const response = await fetch(GOOGLE_SCRIPT_URL);
+        const response = await fetch(GOOGLE_SCRIPT_URL, { cache: 'no-store' });
         const data = await response.json();
-        // Simpan ke cache
-        try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch (_) { }
         renderReviews(data);
       } catch (error) {
         console.error('Error fetching reviews:', error);
