@@ -9,6 +9,26 @@
   <meta name="description" content="Arufkuy Store menyediakan digital goods dengan proses cepat dan aman." />
   <meta name="theme-color" content="#0b1220" />
 
+  <!-- Open Graph / Link Preview (WhatsApp, Telegram, Facebook, dll) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://store.arufkuy.me/" />
+  <meta property="og:title" content="Arufkuy Store - Digital Goods" />
+  <meta property="og:description"
+    content="Arufkuy Store menyediakan produk digital dengan proses cepat, aman, dan terpercaya. Bayar mudah, pengiriman sesuai ketentuan produk." />
+  <meta property="og:image" content="https://store.arufkuy.me/icon.png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+  <meta property="og:site_name" content="Arufkuy Store" />
+  <meta property="og:locale" content="id_ID" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:url" content="https://store.arufkuy.me/" />
+  <meta name="twitter:title" content="Arufkuy Store - Digital Goods" />
+  <meta name="twitter:description"
+    content="Arufkuy Store menyediakan produk digital dengan proses cepat, aman, dan terpercaya. Bayar mudah, pengiriman sesuai ketentuan produk." />
+  <meta name="twitter:image" content="https://store.arufkuy.me/icon.png" />
+
   <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -1374,7 +1394,7 @@
             : '<span class="text-[8px] md:text-xs font-semibold px-1 md:px-2.5 py-px md:py-1 rounded-full bg-emerald-500/10 text-emerald-400">In Stock</span>';
 
       const soldCount = parseInt(data.totalSold) || 0;
-      const soldHtml = soldCount > 0 ? `<div class="flex items-center gap-1 mt-1 md:mt-1.5"><svg class="w-2.5 h-2.5 md:w-3 md:h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg><span class="text-[9px] md:text-xs text-slate-500">${soldCount.toLocaleString('id-ID')} Terjual</span></div>` : '';
+      const soldHtml = soldCount > 0 ? `<div class="flex items-center gap-1 mt-1 md:mt-1.5"><svg class="w-2.5 h-2.5 md:w-3 md:h-3 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg><span class="text-[9px] md:text-xs text-slate-300">${soldCount.toLocaleString('id-ID')} Terjual</span></div>` : '';
 
       let priceHtml = '';
       if (data.hasVariants && Array.isArray(data.variants) && data.variants.length > 0) {
