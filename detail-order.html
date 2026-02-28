@@ -1482,7 +1482,7 @@
 
       itemsArray.forEach((item, index) => {
         const details = document.createElement("details");
-        details.open = false; // Default closed
+        details.open = index === 0; // Buka otomatis untuk item pertama, yang lain tertutup
         details.style.marginBottom = "10px";
         details.style.borderRadius = "14px";
         details.style.border = "1px solid var(--border)";
