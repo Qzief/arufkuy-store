@@ -1141,7 +1141,7 @@
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-xs font-medium text-slate-400 mb-1">Biaya Layanan (%)</label>
-              <input type="number" id="prod-service-fee" placeholder="0" min="0" max="100"
+              <input type="number" id="prod-service-fee" placeholder="0" min="0" max="100" step="any"
                 class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
               <p class="text-[10px] text-slate-500 mt-1">Biaya layanan dalam persen</p>
             </div>
@@ -2061,7 +2061,7 @@
                    </div>
                    <div class="col-span-3">
                       <label class="block text-[10px] text-slate-500 mb-1">Fee (%)</label>
-                      <input type="number" value="${v.serviceFee || 0}" min="0" max="100" onchange="updateVariantField(${index}, 'serviceFee', Number(this.value))" placeholder="0"
+                      <input type="number" value="${v.serviceFee || 0}" min="0" max="100" step="any" onchange="updateVariantField(${index}, 'serviceFee', Number(this.value))" placeholder="0"
                          class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-indigo-500 outline-none text-right">
                    </div>
                 </div>
