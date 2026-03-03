@@ -992,22 +992,12 @@
   <script src="utils.js"></script>
 
   <script type="module">
+    import { firebaseConfig, WORKER_BASE_URL, GOOGLE_SCRIPT_URL } from './config.js';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, doc, getDoc, onSnapshot, collection, query, where, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDtBSbjr5IHmuZqND0MIexw-tWWcZIF33A",
-      authDomain: "arufkuy-store.firebaseapp.com",
-      projectId: "arufkuy-store",
-      storageBucket: "arufkuy-store.firebasestorage.app",
-      messagingSenderId: "694416486376",
-      appId: "1:694416486376:web:fa36cccffd65557ddc3e5d"
-    };
-
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzYGA-rzPSIXOvLftbqCMhXDahn90HViWAqJuXxRTUn7kUYJEPlxot3w7P0JwgFpJdI/exec";
 
     const params = new URLSearchParams(window.location.search);
     const orderId = params.get("orderId");

@@ -398,17 +398,9 @@
 
   <!-- Firebase & Page Logic -->
   <script type="module">
+    import { firebaseConfig } from './config.js';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDtBSbjr5IHmuZqND0MIexw-tWWcZIF33A",
-      authDomain: "arufkuy-store.firebaseapp.com",
-      projectId: "arufkuy-store",
-      storageBucket: "arufkuy-store.firebasestorage.app",
-      messagingSenderId: "694416486376",
-      appId: "1:694416486376:web:fa36cccffd65557ddc3e5d"
-    };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);

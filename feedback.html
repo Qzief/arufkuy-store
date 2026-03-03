@@ -523,11 +523,8 @@
     src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
   <!-- Page Logic -->
-  <script>
-    // --- CONFIGURATION ---
-    // Paste your Google Apps Script Web App URL here (SAME URL AS BEFORE)
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzYGA-rzPSIXOvLftbqCMhXDahn90HViWAqJuXxRTUn7kUYJEPlxot3w7P0JwgFpJdI/exec";
-    // ---------------------
+  <script type="module">
+    import { GOOGLE_SCRIPT_URL } from './config.js';
 
     async function fetchReviews() {
       try {
@@ -588,7 +585,7 @@
     }
 
     // Konstanta di luar loop
-    const MAX_CHARS = 81;
+    const MAX_CHARS = 82;
     const AVATAR_COLORS = [
       'from-indigo-500/40 to-purple-500/40 text-indigo-200',
       'from-cyan-500/40 to-blue-500/40 text-cyan-200',
@@ -813,6 +810,5 @@
     fetchReviews();
   </script>
 </body>
-
 
 </html>
