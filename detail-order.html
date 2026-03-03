@@ -961,11 +961,11 @@
               <span class="summary-label">Subtotal</span>
               <span class="summary-value" id="summary-subtotal">...</span>
             </div>
-            <div class="summary-row">
+            <div class="summary-row" id="fee-row">
               <span class="summary-label">Biaya Layanan</span>
-              <span class="summary-value">Rp 0</span>
+              <span class="summary-value" id="summary-fee">Rp 0</span>
             </div>
-            <div class="summary-row">
+            <div class="summary-row" id="discount-row">
               <span class="summary-label">Diskon</span>
               <span class="summary-value" id="summary-discount" style="color: var(--success);">-Rp 0</span>
             </div>
@@ -1391,18 +1391,39 @@
 
         setPaymentSummary(formattedTotal);
 
-        // Handle discount display
+        // Handle discount and fee display
         const discountVal = data.discountAmount || 0;
-        if (discountVal > 0) {
-          const rawTotal = data.totalPrice || 0;
-          const rawSub = rawTotal + discountVal;
-          const fmt = (n) => "Rp " + new Intl.NumberFormat("id-ID").format(n);
+        const feeVal = data.serviceFeeAmount || 0;
+        const fmt = (n) => "Rp " + new Intl.NumberFormat("id-ID").format(n);
 
-          const sSub = document.getElementById("summary-subtotal");
-          const sDisc = document.getElementById("summary-discount");
+        const rawTotal = data.totalPrice || 0;
+        const rawSub = rawTotal + discountVal - feeVal;
 
-          if (sSub) sSub.textContent = fmt(rawSub);
-          if (sDisc) sDisc.textContent = "-" + fmt(discountVal);
+        const sSub = document.getElementById("summary-subtotal");
+        const sFee = document.getElementById("summary-fee");
+        const sDisc = document.getElementById("summary-discount");
+        const rowFee = document.getElementById("fee-row");
+        const rowDisc = document.getElementById("discount-row");
+
+        if (sSub) sSub.textContent = fmt(rawSub);
+
+        if (rowFee && sFee) {
+          if (feeVal > 0) {
+            rowFee.classList.remove('hidden');
+            sFee.textContent = fmt(feeVal);
+          } else {
+            rowFee.classList.remove('hidden');
+            sFee.textContent = "Rp 0";
+          }
+        }
+
+        if (rowDisc && sDisc) {
+          if (discountVal > 0) {
+            rowDisc.classList.remove('hidden');
+            sDisc.textContent = "-" + fmt(discountVal);
+          } else {
+            rowDisc.classList.add('hidden');
+          }
         }
 
         const itemsToRender = data.deliveredItems || data.stockItems;

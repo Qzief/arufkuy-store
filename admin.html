@@ -1138,6 +1138,14 @@
                 class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
             </div>
           </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Biaya Layanan (%)</label>
+              <input type="number" id="prod-service-fee" placeholder="0" min="0" max="100"
+                class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
+              <p class="text-[10px] text-slate-500 mt-1">Biaya layanan dalam persen</p>
+            </div>
+          </div>
 
           <!-- Stock Management (Simple) -->
           <div class="bg-slate-950/30 rounded-xl p-4 border border-white/5">
@@ -1940,6 +1948,7 @@
         name: "",
         price: 0,
         original_price: 0,
+        serviceFee: 0,
         stockItems: []
       });
       // Auto open the new variant's stock panel if needed, or just render
@@ -2047,7 +2056,12 @@
                    </div>
                    <div class="col-span-3">
                       <label class="block text-[10px] text-slate-500 mb-1">Original (Opt)</label>
-                      <input type="number" value="${v.original_price || ''}" onchange="updateVariantField(${index}, 'original_price', Number(this.value))" placeholder="Core"
+                      <input type="number" value="${v.original_price || ''}" onchange="updateVariantField(${index}, 'original_price', Number(this.value))" placeholder="Coret"
+                         class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-indigo-500 outline-none text-right">
+                   </div>
+                   <div class="col-span-3">
+                      <label class="block text-[10px] text-slate-500 mb-1">Fee (%)</label>
+                      <input type="number" value="${v.serviceFee || 0}" min="0" max="100" onchange="updateVariantField(${index}, 'serviceFee', Number(this.value))" placeholder="0"
                          class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-indigo-500 outline-none text-right">
                    </div>
                 </div>
@@ -2674,6 +2688,7 @@
             name: v.name,
             price: v.price,
             original_price: v.original_price,
+            serviceFee: v.serviceFee || 0,
             stock: v.stockItems ? v.stockItems.length : 0 // Store count only
           }));
 
@@ -2694,9 +2709,11 @@
         } else {
           const price = document.getElementById("prod-price").value;
           const original_price = document.getElementById("prod-original-price").value;
+          const serviceFee = document.getElementById("prod-service-fee").value;
 
           productData.price = parseInt(price);
           if (original_price) productData.original_price = parseInt(original_price);
+          productData.serviceFee = serviceFee ? parseFloat(serviceFee) : 0;
 
           // Store count only
           productData.stock = currentEditingStock.length;
@@ -2845,13 +2862,14 @@
           } else if (v.stockItems) {
             stockItems = v.stockItems; // Fallback
           }
-          return { ...v, stockItems };
+          return { ...v, serviceFee: v.serviceFee || 0, stockItems };
         }) : [];
 
         renderVariants();
       } else {
         document.getElementById("prod-price").value = product.price;
         document.getElementById("prod-original-price").value = product.original_price || "";
+        document.getElementById("prod-service-fee").value = product.serviceFee || 0;
 
         // Stock Normalization
         let rawItems = [];

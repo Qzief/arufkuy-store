@@ -1156,6 +1156,7 @@
 
     let productStock = 0;
     let basePrice = 0;
+    let productServiceFee = 0;
     let originalPrice = 0;
     let isVariableProduct = false;
     let currentVariants = [];
@@ -1378,12 +1379,14 @@
               name: data.name, // Or a generic name like "Standard"
               price: Number(data.price) || 0,
               original_price: Number(data.original_price) || 0,
+              serviceFee: Number(data.serviceFee) || 0,
               stock: getStock(data),
               // Add other properties if needed
             }];
             // Set basePrice and originalPrice for single products
             basePrice = Number(data.price) || 0;
             originalPrice = Number(data.original_price) || 0;
+            productServiceFee = Number(data.serviceFee) || 0;
             document.getElementById("base-price-idr").value = basePrice;
           }
 
@@ -1489,8 +1492,8 @@
       }
     });
 
-    // Form Submit
-    document.getElementById("order-form").addEventListener("submit", async (e) => {
+    // Form Submit — redirect to invoice confirmation page
+    document.getElementById("order-form").addEventListener("submit", (e) => {
       e.preventDefault();
 
       // Validation for Variant
@@ -1500,11 +1503,8 @@
         return;
       }
 
-      const submitBtn = document.getElementById('pay-btn'); // Renamed for consistency with old file logic
-      const btn = submitBtn; // Alias for existing code if any
-
       // Get form values
-      const quantity = parseInt(document.getElementById('quantity').value); // Rename qty -> quantity
+      const quantity = parseInt(document.getElementById('quantity').value);
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
       const phone = document.getElementById('phone').value.trim();
@@ -1531,7 +1531,7 @@
         return;
       }
 
-      // Ensure Product ID is present before proceeds
+      // Ensure Product ID is present
       const finalProductId = productId || document.getElementById('order-form')?.dataset.productId;
       if (!finalProductId) {
         showToast("Error: Product ID lost. Refresh page.", "error");
@@ -1547,136 +1547,59 @@
         finalProductName = `${productName} - ${selectedVariant.name}`;
         finalPrice = selectedVariant.price;
       } else if (selectedVariant) {
-        // Fallback for single product treated as variant
         finalPrice = selectedVariant.price;
       }
 
-      const totalPriceIDR = finalPrice * quantity;
+      const subtotal = finalPrice * quantity;
 
-      // Disable submit button
-      const originalBtnText = submitBtn.innerHTML;
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '<span class="inline-block animate-spin mr-2">⏳</span> Memproses...';
+      // Service Fee calculation locally for preview
+      const serviceFeePercent = (isVariableProduct && selectedVariant) ? (selectedVariant.serviceFee || 0) : (productServiceFee || 0); // Need to make sure line ~820 fetches productServiceFee
+      const serviceFeeAmount = Math.floor(subtotal * (serviceFeePercent / 100));
 
-      try {
-        // Build description with coupon and product ID
-        let description = `${finalProductName} - Qty: ${quantity}`;
-        if (coupon) {
-          description += ` - Kupon: ${coupon}`;
-        }
-        description += ` - Product ID: ${finalProductId}`;
-
-        // Calculate final price
-        let finalTotal = totalPriceIDR;
-        let discountValue = 0;
-
-        if (appliedCoupon) {
-          if (appliedCoupon.type === 'fixed') discountValue = appliedCoupon.value;
-          else discountValue = Math.floor(totalPriceIDR * (appliedCoupon.value / 100));
-          if (discountValue > totalPriceIDR) discountValue = totalPriceIDR;
-          finalTotal = totalPriceIDR - discountValue;
-        }
-
-        // 1. Create Firestore Order
-        const orderDocData = {
-          customerName: name,
-          customerEmail: email,
-          customerPhone: phone,
-          productName: finalProductName,
-          productId: finalProductId,
-          quantity: quantity,
-          totalPrice: finalTotal,
-          originalTotalPrice: totalPriceIDR,
-          discountAmount: discountValue,
-          status: 'pending',
-          createdAt: new Date(),
-          publicAccessUntil: new Date(Date.now() + 6 * 60 * 60 * 1000), // + 6 Jam akses publik
-          coupon: coupon || null,
-          description: description,
-          bookedItems: []
-        };
-
-        if (isVariableProduct && selectedVariant) {
-          orderDocData.variantId = selectedVariant.id;
-          orderDocData.variantName = selectedVariant.name;
-        }
-
-        const orderRef = doc(collection(db, "orders"));
-        const orderId = orderRef.id; // Get ID immediately
-
-        await setDoc(orderRef, orderDocData);
-
-        // Worker Payload
-        const payload = {
-          name: name,
-          email: email,
-          mobile: phone,
-          description: `Order ID: ${orderId} - ${description || 'Digital Product'}`,
-          redirectUrl: `${window.location.origin}/detail-order.html?orderId=${orderId}`,
-          orderId: orderId,
-          productId: finalProductId,
-          variantId: isVariableProduct && selectedVariant ? selectedVariant.id : null,
-          coupon: coupon || null,
-          items: [{
-            name: finalProductName,
-            quantity: quantity,
-            price: Math.floor(finalTotal / quantity)
-          }]
-        };
-
-        if (appliedCoupon) {
-          // Recalculate item name for Worker/Mayar just like in old code
-          let totalBeforeDiscount = finalPrice * quantity;
-          let discountAmount = 0; // use different var to not mess up
-          if (appliedCoupon.type === 'fixed') discountAmount = appliedCoupon.value;
-          else if (appliedCoupon.type === 'percent') discountAmount = Math.floor(totalBeforeDiscount * (appliedCoupon.value / 100));
-          if (discountAmount > totalBeforeDiscount) discountAmount = totalBeforeDiscount;
-
-          const finalItemPrice = Math.floor((totalBeforeDiscount - discountAmount) / quantity);
-          payload.items[0].price = finalItemPrice;
-          payload.items[0].name = `${finalProductName} (Diskon ${appliedCoupon.code})`;
-        }
-
-        console.log('Sending invoice request:', payload);
-
-        // 2. Call Worker
-        const WORKER_URL = 'https://payment.arufkuy.workers.dev/create-invoice';
-        const res = await fetch(WORKER_URL, {
-          method: 'POST',
-          body: JSON.stringify(payload),
-          headers: { 'Content-Type': 'application/json' }
-        });
-        const resData = await res.json();
-        console.log('Worker response:', resData);
-
-        if (res.ok && resData.data && resData.data.link) {
-          const invoiceId = resData.data.id;
-          console.log('Invoice created:', invoiceId);
-
-          // Save invoiceId to Firestore (silent catch — matches old file pattern)
-          // Security rules may not allow updateDoc; this is non-critical for payment flow
-          try {
-            const { updateDoc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
-            await updateDoc(orderRef, { invoiceId: invoiceId });
-            console.log('Invoice ID saved to Firestore.');
-          } catch (dbError) {
-            console.error('Failed to save invoiceId to Firestore:', dbError);
-            // Non-blocking: webhook will sync invoiceId later
-          }
-
-          // Redirect to payment page
-          console.log('Redirecting to payment page:', resData.data.link);
-          window.location.href = resData.data.link;
-        } else {
-          throw new Error(resData.message || resData.error || "Gagal membuat invoice");
-        }
-
-      } catch (err) {
-        console.error(err);
-        showToast(`Error: ${err.message}`, 'error');
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalBtnText; // Restore original text
+      // Calculate discount
+      let discountValue = 0;
+      if (appliedCoupon) {
+        if (appliedCoupon.type === 'fixed') discountValue = appliedCoupon.value;
+        else discountValue = Math.floor(subtotal * (appliedCoupon.value / 100));
+        if (discountValue > subtotal) discountValue = subtotal;
       }
+
+      const finalTotal = subtotal + serviceFeeAmount - discountValue;
+
+      // Get product image if available
+      const imgEl = document.getElementById('product-image');
+      const productImage = (imgEl && imgEl.src && !imgEl.classList.contains('hidden')) ? imgEl.src : null;
+
+      // Build the slug for back navigation
+      const slug = productSlug || null;
+
+      // Build invoice data and store in sessionStorage
+      const invoicePayload = {
+        productId: finalProductId,
+        productName: finalProductName,
+        productImage: productImage,
+        quantity: quantity,
+        unitPrice: finalPrice,
+        originalPrice: (isVariableProduct && selectedVariant) ? (selectedVariant.original_price || 0) : originalPrice,
+        subtotal: subtotal,
+        serviceFeePercent: serviceFeePercent,
+        serviceFeeAmount: serviceFeeAmount,
+        discountAmount: discountValue,
+        coupon: appliedCoupon ? { code: appliedCoupon.code, type: appliedCoupon.type, value: appliedCoupon.value, id: appliedCoupon.id } : null,
+        finalTotal: finalTotal,
+        customerName: name,
+        customerEmail: email,
+        customerPhone: phone,
+        isVariableProduct: isVariableProduct,
+        variantId: (isVariableProduct && selectedVariant) ? selectedVariant.id : null,
+        variantName: (isVariableProduct && selectedVariant) ? selectedVariant.name : null,
+        slug: slug
+      };
+
+      sessionStorage.setItem('invoice_data', JSON.stringify(invoicePayload));
+
+      // Redirect to invoice confirmation page
+      window.location.href = '/detail-invoice.html';
     });
 
     // Init

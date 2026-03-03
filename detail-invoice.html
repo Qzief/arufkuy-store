@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Konfirmasi Pesanan - Arufkuy Store</title>
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #03040e;
+            --bg-card: #080c18;
+            --bg-elevated: #0d1424;
+            --accent: #818cf8;
+            --accent-soft: rgba(129, 140, 248, 0.12);
+            --accent-glow: rgba(99, 102, 241, 0.35);
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-muted: #475569;
+            --success: #34d399;
+            --danger: #ef4444;
+            --warning: #fbbf24;
+            --border: rgba(255, 255, 255, 0.07);
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 12px;
+            --shadow-glow: 0 0 60px -12px var(--accent-glow);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Ambient background */
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70vh;
+            background:
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.20), transparent),
+                radial-gradient(ellipse 60% 40% at 80% 0%, rgba(6, 182, 212, 0.12), transparent);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 24px 140px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ========== Header ========== */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0 24px;
+        }
+
+        .back-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-primary);
+        }
+
+        .back-btn:hover {
+            background: var(--bg-card);
+            transform: translateX(-2px);
+        }
+
+        .back-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--text-primary);
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            text-align: center;
+        }
+
+        .header-placeholder {
+            width: 44px;
+        }
+
+        /* ========== Main Grid (Desktop: 2-col) ========== */
+        .main-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        /* ========== Hero Card ========== */
+        .invoice-hero {
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-elevated) 100%);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .invoice-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 120px;
+            height: 120px;
+            background: var(--accent-soft);
+            border-radius: 50%;
+            filter: blur(60px);
+            transform: translate(30%, -30%);
+        }
+
+        .invoice-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .invoice-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .hero-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-total {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #fff 0%, #d4d4d8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            z-index: 1;
+            line-height: 1.3;
+        }
+
+        /* ========== Section Label ========== */
+        .section-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 16px;
+        }
+
+        /* ========== Product Card ========== */
+        .product-section {
+            margin-bottom: 28px;
+            animation: fadeInUp 0.6s ease-out 0.1s both;
+        }
+
+        .product-card {
+            display: flex;
+            gap: 16px;
+            padding: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            transition: all 0.3s ease;
+        }
+
+        .product-card:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .product-image {
+            width: 56px;
+            height: 56px;
+            min-width: 56px;
+            border-radius: var(--radius-sm);
+            background: linear-gradient(145deg, var(--bg-elevated) 0%, var(--bg-primary) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            color: var(--text-muted);
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .product-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            line-height: 1.3;
+            word-break: break-word;
+        }
+
+        .product-variant {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .product-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .product-qty {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .product-price {
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+
+        /* ========== Buyer Info Card ========== */
+        .buyer-section {
+            margin-bottom: 28px;
+            animation: fadeInUp 0.6s ease-out 0.15s both;
+        }
+
+        .info-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 24px;
+        }
+
+        .info-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .info-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-sm);
+            background: var(--accent-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--accent);
+        }
+
+        .info-label-header {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .buyer-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .buyer-row:not(:last-child) {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .buyer-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            min-width: 80px;
+        }
+
+        .buyer-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            text-align: right;
+            word-break: break-all;
+        }
+
+        /* ========== Summary Card (Sidebar) ========== */
+        .sidebar-section {
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+
+        .summary-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .summary-value {
+            font-size: 14px;
+            font-weight: 500;
+            text-align: right;
+            margin-left: 12px;
+            white-space: nowrap;
+        }
+
+        .summary-row.discount .summary-value {
+            color: var(--success);
+        }
+
+        .summary-row.total {
+            border-bottom: none;
+            padding-top: 16px;
+            margin-top: 4px;
+        }
+
+        .summary-row.total .summary-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .summary-row.total .summary-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        /* ========== CTA Buttons ========== */
+        .cta-section {
+            animation: fadeInUp 0.6s ease-out 0.3s both;
+        }
+
+        .btn-pay {
+            width: 100%;
+            padding: 18px 24px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--accent) 0%, #6366f1 100%);
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 24px var(--accent-glow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-pay:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px var(--accent-glow);
+        }
+
+        .btn-pay:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-pay:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: #333;
+            box-shadow: none;
+        }
+
+        .btn-back-link {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 14px;
+            margin-top: 12px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            font-family: inherit;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-back-link:hover {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+        }
+
+        .secure-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 16px;
+            font-size: 12px;
+            color: var(--success);
+            opacity: 0.8;
+        }
+
+        /* ========== Toast ========== */
+        .toast-container {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        /* ========== Empty State ========== */
+        .empty-state {
+            text-align: center;
+            padding: 80px 24px;
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .empty-state h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .empty-state a {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            padding: 12px 24px;
+            border: 1px solid var(--accent);
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+        }
+
+        .empty-state a:hover {
+            background: var(--accent-soft);
+        }
+
+        /* ========== Animations ========== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.6;
+                transform: scale(1.2);
+            }
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* ========== DESKTOP LAYOUT (min-width: 900px) ========== */
+        @media (min-width: 900px) {
+            .container {
+                padding: 24px 40px 80px;
+            }
+
+            .header {
+                padding: 12px 0 16px;
+            }
+
+            .header-title {
+                font-size: 24px;
+            }
+
+            .main-grid {
+                display: grid;
+                grid-template-columns: 1fr 400px;
+                gap: 32px;
+            }
+
+            .main-grid .main-content {
+                order: 1;
+            }
+
+            .main-grid .sidebar-content {
+                order: 2;
+            }
+
+            .sticky-wrapper {
+                position: sticky;
+                top: 24px;
+                z-index: 10;
+            }
+
+            .invoice-hero {
+                margin-bottom: 32px;
+            }
+
+            .hero-total {
+                font-size: 40px;
+            }
+
+            .product-image {
+                width: 64px;
+                height: 64px;
+                min-width: 64px;
+                font-size: 24px;
+            }
+
+            /* Hide mobile-only back button in CTA */
+            .btn-back-link--mobile {
+                display: none;
+            }
+        }
+
+        /* ========== MOBILE-ONLY ========== */
+        @media (max-width: 899px) {
+
+            /* On mobile, sidebar content renders in normal flow below main content */
+            .btn-back-link--desktop {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ambient-bg"></div>
+
+    <div class="container">
+        <header class="header">
+            <button class="back-btn" aria-label="Kembali" id="btn-back-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+            </button>
+            <h1 class="header-title">Konfirmasi Pesanan</h1>
+            <div class="header-placeholder"></div>
+        </header>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="empty-state hidden">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <h2>Data Pesanan Tidak Ditemukan</h2>
+            <p>Silakan pilih produk terlebih dahulu dari halaman produk.</p>
+            <a href="/">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+                Kembali ke Beranda
+            </a>
+        </div>
+
+        <!-- Main Content -->
+        <div id="invoice-content" class="hidden">
+            <div class="main-grid">
+
+                <!-- === LEFT / MAIN COLUMN === -->
+                <div class="main-content">
+                    <!-- Hero Card -->
+                    <section class="invoice-hero">
+                        <div class="invoice-badge">Menunggu Konfirmasi</div>
+                        <p class="hero-subtitle">Periksa pesanan Anda sebelum pembayaran</p>
+                        <p class="hero-total" id="hero-total">Rp 0</p>
+                    </section>
+
+                    <!-- Product Card -->
+                    <section class="product-section">
+                        <h2 class="section-label">Produk</h2>
+                        <div class="product-card">
+                            <div class="product-image" id="product-image-box">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
+                                    viewBox="0 0 16 16">
+                                    <path
+                                        d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2zm3.564 1.426L5.596 5 8 5.961 14.154 3.5zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z" />
+                                </svg>
+                            </div>
+                            <div class="product-info">
+                                <p class="product-name" id="product-name-text">...</p>
+                                <p class="product-variant" id="product-variant-text"></p>
+                                <div class="product-footer">
+                                    <span class="product-qty" id="product-qty-text">Qty: 1</span>
+                                    <span class="product-price" id="product-unit-price">Rp 0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Buyer Info -->
+                    <section class="buyer-section">
+                        <h2 class="section-label">Informasi Pembeli</h2>
+                        <div class="info-card">
+                            <div class="info-header">
+                                <div class="info-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                        <circle cx="12" cy="7" r="4" />
+                                    </svg>
+                                </div>
+                                <span class="info-label-header">Data Pembeli</span>
+                            </div>
+                            <div class="buyer-row">
+                                <span class="buyer-label">Nama</span>
+                                <span class="buyer-value" id="buyer-name">...</span>
+                            </div>
+                            <div class="buyer-row">
+                                <span class="buyer-label">Email</span>
+                                <span class="buyer-value" id="buyer-email">...</span>
+                            </div>
+                            <div class="buyer-row">
+                                <span class="buyer-label">WhatsApp</span>
+                                <span class="buyer-value" id="buyer-phone">...</span>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- === RIGHT / SIDEBAR COLUMN === -->
+                <aside class="sidebar-content">
+                    <div class="sticky-wrapper">
+                        <!-- Ringkasan Pembayaran -->
+                        <section class="sidebar-section">
+                            <div class="summary-card">
+                                <h2 class="section-label" style="margin-bottom:20px;">Ringkasan Pembayaran</h2>
+                                <div class="summary-row">
+                                    <span class="summary-label">Subtotal</span>
+                                    <span class="summary-value" id="subtotal-value">Rp 0</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span class="summary-label">Biaya Layanan</span>
+                                    <span class="summary-value" id="fee-value">Rp 0</span>
+                                </div>
+                                <div class="summary-row discount hidden" id="discount-row">
+                                    <span class="summary-label" id="discount-label">Diskon</span>
+                                    <span class="summary-value" id="discount-value">- Rp 0</span>
+                                </div>
+                                <div class="summary-row total">
+                                    <span class="summary-label">Total</span>
+                                    <span class="summary-value" id="total-value">Rp 0</span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- CTA -->
+                        <section class="cta-section">
+                            <button class="btn-pay" id="btn-pay">
+                                Bayar Sekarang
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M5 12h14M12 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                            <button class="btn-back-link btn-back-link--mobile" id="btn-back-bottom">← Kembali ke
+                                Produk</button>
+                            <button class="btn-back-link btn-back-link--desktop" id="btn-back-bottom-desktop">← Kembali
+                                ke
+                                Produk</button>
+                            <div class="secure-badge">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                                <span>Secure Payment by Mayar</span>
+                            </div>
+                        </section>
+                    </div>
+                </aside>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- ========== Scripts ========== -->
+    <script>
+        // Toast utility
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const colors = {
+                success: 'background:#065f46; border:1px solid #34d399;',
+                error: 'background:#7f1d1d; border:1px solid #ef4444;',
+                warning: 'background:#78350f; border:1px solid #f59e0b;',
+                info: 'background:#1e1b4b; border:1px solid #6366f1;'
+            };
+            const msgColors = { success: '#d1fae5', error: '#fee2e2', warning: '#fef3c7', info: '#e0e7ff' };
+            toast.style.cssText = `${colors[type]} color:${msgColors[type]}; padding:12px 16px; border-radius:12px; margin-bottom:8px; display:flex; gap:12px; align-items:center; box-shadow:0 10px 15px -3px rgba(0,0,0,0.5); pointer-events:auto; font-size:14px;`;
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        // Format price
+        function formatPrice(num) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
+        }
+
+        // Read invoice data from sessionStorage
+        const raw = sessionStorage.getItem('invoice_data');
+        let invoiceData = null;
+
+        try {
+            invoiceData = raw ? JSON.parse(raw) : null;
+        } catch (e) {
+            invoiceData = null;
+        }
+
+        // Expose to window for the module script
+        window._invoiceData = invoiceData;
+
+        if (!invoiceData) {
+            document.getElementById('empty-state').classList.remove('hidden');
+            document.getElementById('invoice-content').classList.add('hidden');
+        } else {
+            document.getElementById('empty-state').classList.add('hidden');
+            document.getElementById('invoice-content').classList.remove('hidden');
+            renderInvoice(invoiceData);
+        }
+
+        function renderInvoice(d) {
+            // Hero — show total price
+            document.getElementById('hero-total').textContent = formatPrice(d.finalTotal);
+
+            // Product card
+            document.getElementById('product-name-text').textContent = d.productName;
+            document.getElementById('product-qty-text').textContent = `Qty: ${d.quantity}`;
+            document.getElementById('product-unit-price').textContent = formatPrice(d.unitPrice);
+
+            if (d.variantName && d.isVariableProduct) {
+                document.getElementById('product-variant-text').textContent = `Varian: ${d.variantName}`;
+            } else {
+                document.getElementById('product-variant-text').textContent = 'Produk Digital';
+            }
+
+            // Product image
+            if (d.productImage) {
+                const imgBox = document.getElementById('product-image-box');
+                imgBox.innerHTML = `<img src="${d.productImage}" alt="Product">`;
+            }
+
+            // Summary
+            document.getElementById('subtotal-value').textContent = formatPrice(d.subtotal);
+            document.getElementById('fee-value').textContent = formatPrice(d.serviceFeeAmount || 0);
+
+            if (d.discountAmount > 0) {
+                const discountRow = document.getElementById('discount-row');
+                discountRow.classList.remove('hidden');
+                const couponLabel = d.coupon && d.coupon.code ? `Diskon (${d.coupon.code})` : 'Diskon';
+                document.getElementById('discount-label').textContent = couponLabel;
+                document.getElementById('discount-value').textContent = `- ${formatPrice(d.discountAmount)}`;
+            }
+
+            document.getElementById('total-value').textContent = formatPrice(d.finalTotal);
+
+            // Buyer info
+            document.getElementById('buyer-name').textContent = d.customerName;
+            document.getElementById('buyer-email').textContent = d.customerEmail;
+            document.getElementById('buyer-phone').textContent = d.customerPhone;
+        }
+
+        // Back buttons
+        function goBack() {
+            if (invoiceData && invoiceData.slug) {
+                window.location.href = `/detail-product.html?${invoiceData.slug}`;
+            } else if (invoiceData && invoiceData.productId) {
+                window.location.href = `/detail-product.html?id=${invoiceData.productId}`;
+            } else {
+                window.history.back();
+            }
+        }
+
+        document.getElementById('btn-back-header').addEventListener('click', goBack);
+        document.getElementById('btn-back-bottom').addEventListener('click', goBack);
+        document.getElementById('btn-back-bottom-desktop').addEventListener('click', goBack);
+    </script>
+
+    <!-- Firebase + Payment Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, collection } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDtBSbjr5IHmuZqND0MIexw-tWWcZIF33A",
+            authDomain: "arufkuy-store.firebaseapp.com",
+            projectId: "arufkuy-store",
+            storageBucket: "arufkuy-store.firebasestorage.app",
+            messagingSenderId: "694416486376",
+            appId: "1:694416486376:web:fa36cccffd65557ddc3e5d"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Use data already parsed by the first script
+        const invoicePayload = window._invoiceData;
+
+        if (invoicePayload) {
+            const payBtn = document.getElementById('btn-pay');
+
+            payBtn.addEventListener('click', async () => {
+                const d = invoicePayload;
+
+                // Disable button
+                const originalHTML = payBtn.innerHTML;
+                payBtn.disabled = true;
+                payBtn.innerHTML = '<span style="display:inline-block;animation:spin 1s linear infinite">⏳</span> Memproses...';
+
+                try {
+                    // 1. Build description
+                    let description = `${d.productName} - Qty: ${d.quantity}`;
+                    if (d.coupon && d.coupon.code) description += ` - Kupon: ${d.coupon.code}`;
+                    description += ` - Product ID: ${d.productId}`;
+
+                    // 2. Create Firestore order
+                    const orderDocData = {
+                        customerName: d.customerName,
+                        customerEmail: d.customerEmail,
+                        customerPhone: d.customerPhone,
+                        productName: d.productName,
+                        productId: d.productId,
+                        quantity: d.quantity,
+                        totalPrice: d.finalTotal,
+                        originalTotalPrice: d.subtotal,
+                        discountAmount: d.discountAmount || 0,
+                        status: 'pending',
+                        createdAt: new Date(),
+                        publicAccessUntil: new Date(Date.now() + 6 * 60 * 60 * 1000),
+                        coupon: (d.coupon && d.coupon.code) || null,
+                        description: description,
+                        bookedItems: []
+                    };
+
+                    if (d.isVariableProduct && d.variantId) {
+                        orderDocData.variantId = d.variantId;
+                        orderDocData.variantName = d.variantName;
+                    }
+
+                    const orderRef = doc(collection(db, "orders"));
+                    const orderId = orderRef.id;
+
+                    await setDoc(orderRef, orderDocData);
+
+                    // 3. Call Worker to create Mayar invoice
+                    const payload = {
+                        name: d.customerName,
+                        email: d.customerEmail,
+                        mobile: d.customerPhone,
+                        description: `Order ID: ${orderId} - ${description}`,
+                        redirectUrl: `${window.location.origin}/detail-order.html?orderId=${orderId}`,
+                        orderId: orderId,
+                        productId: d.productId,
+                        variantId: (d.isVariableProduct && d.variantId) ? d.variantId : null,
+                        coupon: (d.coupon && d.coupon.code) || null,
+                        items: [{
+                            name: d.productName,
+                            quantity: d.quantity,
+                            price: Math.floor(d.finalTotal / d.quantity)
+                        }]
+                    };
+
+                    // Adjust item name if coupon
+                    if (d.coupon && d.coupon.code && d.discountAmount > 0) {
+                        payload.items[0].name = `${d.productName} (Diskon ${d.coupon.code})`;
+                    }
+
+                    const WORKER_URL = 'https://payment.arufkuy.workers.dev/create-invoice';
+                    const res = await fetch(WORKER_URL, {
+                        method: 'POST',
+                        body: JSON.stringify(payload),
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const resData = await res.json();
+
+                    if (res.ok && resData.data && resData.data.link) {
+                        const invoiceId = resData.data.id;
+
+                        // Save invoiceId to Firestore (non-blocking)
+                        try {
+                            const { updateDoc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+                            await updateDoc(orderRef, { invoiceId: invoiceId });
+                        } catch (dbError) {
+                            console.error('Failed to save invoiceId:', dbError);
+                        }
+
+                        // Clear session data and redirect to payment
+                        sessionStorage.removeItem('invoice_data');
+                        window.location.href = resData.data.link;
+                    } else {
+                        throw new Error(resData.message || resData.error || "Gagal membuat invoice");
+                    }
+
+                } catch (err) {
+                    console.error(err);
+                    showToast(`Error: ${err.message}`, 'error');
+                    payBtn.disabled = false;
+                    payBtn.innerHTML = originalHTML;
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
