@@ -733,6 +733,11 @@
                                 <span class="buyer-label">WhatsApp</span>
                                 <span class="buyer-value" id="buyer-phone">...</span>
                             </div>
+                            <div class="buyer-row hidden" id="buyer-notes-row">
+                                <span class="buyer-label">Catatan</span>
+                                <span class="buyer-value" id="buyer-notes"
+                                    style="white-space:pre-wrap;word-break:break-word;">...</span>
+                            </div>
                         </div>
                     </section>
                 </div>
@@ -767,10 +772,12 @@
                         <section class="cta-section">
                             <button class="btn-pay" id="btn-pay">
                                 Bayar Sekarang
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-credit-card" viewBox="0 0 16 16">
-  <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v1h14V4a1 1 0 0 0-1-1zm13 4H1v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1z"/>
-  <path d="M2 10a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/>
-</svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                                    class="bi bi-credit-card" viewBox="0 0 16 16">
+                                    <path
+                                        d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v1h14V4a1 1 0 0 0-1-1zm13 4H1v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1z" />
+                                    <path d="M2 10a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z" />
+                                </svg>
                             </button>
                             <button class="btn-back-link btn-back-link--mobile" id="btn-back-bottom">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -890,6 +897,12 @@
             document.getElementById('buyer-name').textContent = d.customerName;
             document.getElementById('buyer-email').textContent = d.customerEmail;
             document.getElementById('buyer-phone').textContent = d.customerPhone;
+
+            // Buyer notes
+            if (d.customerNotes) {
+                document.getElementById('buyer-notes-row').classList.remove('hidden');
+                document.getElementById('buyer-notes').textContent = d.customerNotes;
+            }
         }
 
         // Back buttons
@@ -953,7 +966,8 @@
                         publicAccessUntil: new Date(Date.now() + 6 * 60 * 60 * 1000),
                         coupon: (d.coupon && d.coupon.code) || null,
                         description: description,
-                        bookedItems: []
+                        bookedItems: [],
+                        customerNotes: d.customerNotes || null
                     };
 
                     if (d.isVariableProduct && d.variantId) {

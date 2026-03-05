@@ -2479,6 +2479,7 @@
          <p><strong>Customer:</strong> ${data.customerName} (${data.customerEmail})</p>
          <p><strong>Product:</strong> ${data.productName} x${data.quantity}</p>
          <p><strong>Total:</strong> Rp ${new Intl.NumberFormat("id-ID").format(data.totalPrice)}</p>
+         ${data.customerNotes ? `<div class="mt-2 pt-2 border-t border-white/10"><p class="text-xs text-slate-500 mb-0.5">📝 Catatan Pembeli:</p><p class="text-sm text-amber-200 whitespace-pre-wrap">${data.customerNotes}</p></div>` : ''}
          <p class="text-xs text-slate-500 mt-1">ID: ${orderId}</p>
        `;
 

@@ -968,6 +968,12 @@
             </div>
           </div>
 
+          <div class="input-group">
+            <label class="input-label">Catatan (Opsional)</label>
+            <textarea id="buyer-notes" class="input-field" rows="2" maxlength="150"
+              placeholder="Contoh: kirim ke email cadangan, request username, dll." style="resize:none;"></textarea>
+          </div>
+
           <button type="submit" id="pay-btn" class="btn-buy" style="margin-top: 24px; width: 100%;">
             Beli Sekarang
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1500,6 +1506,7 @@
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
       const phone = document.getElementById('phone').value.trim();
+      const buyerNotes = (document.getElementById('buyer-notes').value || '').trim();
       const coupon = document.getElementById('coupon').value.trim();
 
       // Validate required fields
@@ -1585,7 +1592,8 @@
         isVariableProduct: isVariableProduct,
         variantId: (isVariableProduct && selectedVariant) ? selectedVariant.id : null,
         variantName: (isVariableProduct && selectedVariant) ? selectedVariant.name : null,
-        slug: slug
+        slug: slug,
+        customerNotes: buyerNotes || null
       };
 
       sessionStorage.setItem('invoice_data', JSON.stringify(invoicePayload));
