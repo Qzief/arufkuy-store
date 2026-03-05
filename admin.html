@@ -609,10 +609,10 @@
           <table class="w-full text-left text-sm text-slate-300">
             <thead class="bg-white/5 text-xs uppercase text-slate-400 font-semibold tracking-wider">
               <tr>
-                <th class="px-6 py-4">Kode</th>
-                <th class="px-6 py-4">Nilai</th>
+                <th class="px-6 py-4">Kode Promo</th>
+                <th class="px-6 py-4">Nilai Diskon</th>
+                <th class="px-6 py-4 w-64">Penggunaan (Limit)</th>
                 <th class="px-6 py-4">Status</th>
-                <th class="px-6 py-4">Expired</th>
                 <th class="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
@@ -733,18 +733,24 @@
   <!-- Coupon Modal -->
   <div id="coupon-modal"
     class="fixed inset-0 z-[90] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-    <div class="w-full max-w-md rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-glow">
-      <div class="flex justify-between items-center mb-6">
+    <div
+      class="w-full max-w-md rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-glow max-h-[90vh] flex flex-col">
+      <div class="flex justify-between items-center mb-6 shrink-0">
         <h3 id="coupon-modal-title" class="text-xl font-bold">Tambah Kupon</h3>
         <button onclick="closeCouponModal()" class="text-slate-400 hover:text-white">✕</button>
       </div>
-      <form id="coupon-form" class="space-y-4">
+      <form id="coupon-form" class="space-y-4 overflow-y-auto pr-2"
+        style="scrollbar-width: thin; max-height: calc(90vh - 120px);">
         <input type="hidden" id="coupon-id">
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1">Kode Kupon</label>
-          <input type="text" id="coupon-code" required
-            class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none placeholder:text-slate-600 font-mono uppercase"
-            placeholder="PROMO10">
+          <div class="flex gap-2">
+            <input type="text" id="coupon-code" required
+              class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none placeholder:text-slate-600 font-mono uppercase"
+              placeholder="PROMO10">
+            <button type="button" onclick="generateCouponCode()"
+              class="shrink-0 px-4 rounded-xl bg-white/5 border border-white/10 text-xs text-slate-300 hover:text-white hover:bg-white/10 transition">Generate</button>
+          </div>
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div>
@@ -762,6 +768,14 @@
               placeholder="10000 / 10">
           </div>
         </div>
+
+        <div id="max-discount-container" class="hidden">
+          <label class="block text-xs font-medium text-slate-400 mb-1">Maksimal Diskon (Rp)</label>
+          <input type="number" id="coupon-max-discount" value="0"
+            class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none"
+            placeholder="Contoh: 50000 (0 = Tanpa batas)">
+        </div>
+
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-medium text-slate-400 mb-1">Min. Pembelian (Rp)</label>
@@ -770,24 +784,49 @@
               placeholder="0">
           </div>
           <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">Total Kupon</label>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Min. Jumlah Item</label>
+            <input type="number" id="coupon-min-items" value="1"
+              class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none"
+              placeholder="1 (Bebas)">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Kapasitas Maksimal</label>
             <input type="number" id="coupon-total" value="100" required
               class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none"
               placeholder="100">
           </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Limit Per User</label>
+            <input type="number" id="coupon-limit-user" value="1"
+              class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none"
+              placeholder="1 (0 = Tanpa batas)">
+          </div>
         </div>
+
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Tipe Penggunaan</label>
-          <select id="coupon-usage-type"
-            class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
-            <option value="reusable">Reusable (Bisa dipakai lagi)</option>
-            <option value="onetime">One-time (Sekali pakai)</option>
-          </select>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Cooldown Penggunaan Berulang</label>
+          <div class="flex items-center gap-2">
+            <input type="number" id="coupon-cooldown" value="0"
+              class="w-24 rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none"
+              placeholder="0">
+            <span class="text-xs text-slate-500">Jam (0 = Tanpa jeda, jika limit user > 1)</span>
+          </div>
         </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Berlaku Sampai (Optional)</label>
-          <input type="date" id="coupon-expire"
-            class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Mulai Berlaku</label>
+            <input type="datetime-local" id="coupon-start"
+              class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Berakhir Pada (Optional)</label>
+            <input type="datetime-local" id="coupon-expire"
+              class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
+          </div>
         </div>
 
         <div>
@@ -800,10 +839,27 @@
           <p class="text-[10px] text-slate-500 mt-1">Biarkan kosong untuk berlaku di semua produk.</p>
         </div>
 
-        <div class="flex items-center gap-2">
-          <input type="checkbox" id="coupon-active"
-            class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" checked>
-          <label for="coupon-active" class="text-sm text-slate-300">Aktif</label>
+        <div class="p-4 rounded-xl border border-indigo-500/30 bg-indigo-500/10 my-4">
+          <label class="block text-xs font-medium text-indigo-300 mb-2">Live Preview Kupon</label>
+          <div class="flex items-center justify-between p-3 rounded-lg bg-slate-950/50 border border-white/5">
+            <div>
+              <div id="preview-code" class="text-sm font-bold text-white uppercase tracking-wider">PROMO</div>
+              <div id="preview-desc" class="text-xs text-slate-400 mt-1">Diskon Rp0 • Min. Beli Rp0</div>
+            </div>
+            <div id="preview-badge"
+              class="px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold tracking-widest uppercase">
+              AKTIF</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <label class="block text-sm font-medium text-slate-300">Status:</label>
+          <select id="coupon-status"
+            class="rounded-xl border border-white/10 bg-slate-950/50 px-3 py-1.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
+            <option value="active">Aktif</option>
+            <option value="scheduled">Terjadwal</option>
+            <option value="inactive">Nonaktif</option>
+          </select>
         </div>
 
         <div class="flex justify-end gap-3 pt-4">
@@ -1472,18 +1528,52 @@
 
         snapshot.forEach((doc) => {
           const data = doc.data();
-          const isActive = data.isActive ? '<span class="text-emerald-400 text-xs">Aktif</span>' : '<span class="text-red-400 text-xs">Nonaktif</span>';
-          const value = data.type === 'fixed' ? `Rp ${new Intl.NumberFormat('id-ID').format(data.value)}` : `${data.value}%`;
-          const expire = data.expiredAt ? new Date(data.expiredAt.toDate()).toLocaleDateString('id-ID') : 'Selamanya';
+          let statusBadge = '<span class="text-emerald-400 text-xs font-bold bg-emerald-500/10 px-2 py-1 rounded">Aktif</span>';
+          if (data.status === 'inactive' || (!data.status && !data.isActive)) statusBadge = '<span class="text-red-400 text-xs font-bold bg-red-500/10 px-2 py-1 rounded">Nonaktif</span>';
+          if (data.status === 'scheduled') statusBadge = '<span class="text-amber-400 text-xs font-bold bg-amber-500/10 px-2 py-1 rounded">Terjadwal</span>';
+
+          const valueTxt = data.type === 'fixed' ? `Rp ${new Intl.NumberFormat('id-ID').format(data.value)}` : `${data.value}%`;
+          const minPurch = data.minimumPurchase ? `<br><span class="text-[10px] text-slate-500">Min: Rp ${new Intl.NumberFormat('id-ID').format(data.minimumPurchase)}</span>` : '';
+
+          const maxCoupons = data.totalCoupons || 0;
+          const usedCount = data.usedCount || 0;
+          const progressPercent = maxCoupons > 0 ? Math.min(100, Math.round((usedCount / maxCoupons) * 100)) : 0;
+
+          let usageBar = `
+             <div class="w-full bg-slate-800 rounded-full h-1.5 mt-1">
+                <div class="bg-indigo-500 h-1.5 rounded-full" style="width: ${progressPercent}%"></div>
+             </div>
+             <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                <span>Dipakai: ${usedCount}/${maxCoupons}</span>
+                <span>${progressPercent}%</span>
+             </div>
+          `;
 
           const row = `
               <tr class="hover:bg-white/5 transition">
-                 <td class="px-6 py-4 font-mono font-bold text-indigo-300" data-label="Kode">${data.code}</td>
-                 <td class="px-6 py-4" data-label="Nilai">${value}</td>
-                 <td class="px-6 py-4" data-label="Status">${isActive}</td>
-                 <td class="px-6 py-4 text-xs text-slate-400" data-label="Expired">${expire}</td>
-                 <td class="px-6 py-4 text-right" data-label="">
-                    <button onclick="deleteCoupon('${doc.id}')" class="text-slate-400 hover:text-red-400 text-xs border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/5 transition">Hapus</button>
+                 <td class="px-6 py-4 font-mono font-bold text-indigo-300">
+                    ${data.code}
+                    ${data.totalDiscountGiven ? `<div class="text-[10px] text-emerald-500 mt-1 font-sans">Total Diskon: Rp ${new Intl.NumberFormat('id-ID').format(data.totalDiscountGiven)}</div>` : ''}
+                 </td>
+                 <td class="px-6 py-4">${valueTxt}${minPurch}</td>
+                 <td class="px-6 py-4">${usageBar}</td>
+                 <td class="px-6 py-4">
+                    <div class="flex items-center gap-2">
+                       ${statusBadge}
+                       <button onclick="toggleCouponStatus('${doc.id}', '${data.status || (data.isActive ? 'active' : 'inactive')}')" class="text-slate-500 hover:text-white" title="Toggle Status">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                       </button>
+                    </div>
+                 </td>
+                 <td class="px-6 py-4 text-right">
+                    <div class="flex justify-end gap-2">
+                       <button onclick="duplicateCoupon('${doc.id}')" class="text-slate-400 hover:text-indigo-400 border border-white/10 p-1.5 rounded-lg hover:bg-white/5 transition" title="Duplicate">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                       </button>
+                       <button onclick="deleteCoupon('${doc.id}')" class="text-slate-400 hover:text-red-400 border border-white/10 p-1.5 rounded-lg hover:bg-white/5 transition" title="Hapus">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                       </button>
+                    </div>
                  </td>
               </tr>
             `;
@@ -1492,13 +1582,101 @@
       });
     };
 
+    window.toggleCouponStatus = async (id, currentStatus) => {
+      let newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+      try {
+        await updateDoc(doc(db, "coupons", id), { status: newStatus, isActive: newStatus === 'active' });
+        showToast(`Status kupon diubah menjadi ${newStatus}`, 'success');
+      } catch (err) {
+        showToast('Gagal mengubah status: ' + err.message, 'error');
+      }
+    };
+
+    window.duplicateCoupon = async (id) => {
+      try {
+        const docSnap = await getDoc(doc(db, "coupons", id));
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          const newCode = data.code + '_' + Math.floor(Math.random() * 1000);
+          const newData = { ...data, code: newCode, usedCount: 0, totalDiscountGiven: 0, createdAt: serverTimestamp() };
+          delete newData.lastUsedAt;
+          await addDoc(collection(db, "coupons"), newData);
+          showToast(`Kupon berhasil diduplikasi menjadi ${newCode}`, 'success');
+        }
+      } catch (err) {
+        showToast('Gagal duplikasi: ' + err.message, 'error');
+      }
+    };
+
+    window.generateCouponCode = () => {
+      const prefix = "PROMO";
+      const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
+      document.getElementById("coupon-code").value = `${prefix}-${randomStr}`;
+      updateCouponPreview();
+    };
+
+    window.updateCouponPreview = () => {
+      const code = document.getElementById("coupon-code") ? document.getElementById("coupon-code").value : "";
+      const type = document.getElementById("coupon-type") ? document.getElementById("coupon-type").value : "fixed";
+      const val = document.getElementById("coupon-value") ? (parseFloat(document.getElementById("coupon-value").value) || 0) : 0;
+      const min = document.getElementById("coupon-min-purchase") ? (parseInt(document.getElementById("coupon-min-purchase").value) || 0) : 0;
+      const status = document.getElementById("coupon-status") ? document.getElementById("coupon-status").value : "active";
+
+      const previewCode = document.getElementById("preview-code");
+      if (previewCode) previewCode.innerText = code.toUpperCase() || "PROMO";
+
+      const previewDesc = document.getElementById("preview-desc");
+      if (previewDesc) {
+        let desc = type === 'fixed' ? `Diskon Rp ${new Intl.NumberFormat('id-ID').format(val)}` : `Diskon ${val}%`;
+        if (min > 0) desc += ` • Min. Beli Rp ${new Intl.NumberFormat('id-ID').format(min)}`;
+        previewDesc.innerText = desc;
+      }
+
+      const badge = document.getElementById("preview-badge");
+      if (badge) {
+        if (status === 'active') {
+          badge.className = "px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold tracking-widest uppercase";
+          badge.innerText = "AKTIF";
+        } else if (status === 'scheduled') {
+          badge.className = "px-2 py-1 rounded bg-amber-500/20 text-amber-400 text-[10px] font-bold tracking-widest uppercase";
+          badge.innerText = "TERJADWAL";
+        } else {
+          badge.className = "px-2 py-1 rounded bg-red-500/20 text-red-400 text-[10px] font-bold tracking-widest uppercase";
+          badge.innerText = "NONAKTIF";
+        }
+      }
+    };
+
+    // Attach listeners for preview
+    ['coupon-code', 'coupon-type', 'coupon-value', 'coupon-min-purchase', 'coupon-status'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', updateCouponPreview);
+    });
+    const typeSelect = document.getElementById("coupon-type");
+    if (typeSelect) {
+      typeSelect.addEventListener('change', (e) => {
+        const maxContainer = document.getElementById('max-discount-container');
+        if (maxContainer) {
+          if (e.target.value === 'percent') {
+            maxContainer.classList.remove('hidden');
+          } else {
+            maxContainer.classList.add('hidden');
+          }
+        }
+      });
+    }
+
+    // Modal
     window.openCouponModal = (mode) => {
       const modal = document.getElementById("coupon-modal");
       document.getElementById("coupon-form").reset();
+      const maxContainer = document.getElementById('max-discount-container');
+      if (maxContainer) maxContainer.classList.add('hidden');
 
       // Render checkbox list
       if (typeof renderCouponProductSelection === 'function') renderCouponProductSelection();
 
+      updateCouponPreview();
       modal.classList.remove("hidden");
       modal.classList.add("flex");
     };
@@ -1523,12 +1701,19 @@
       e.preventDefault();
       const code = document.getElementById("coupon-code").value.trim().toUpperCase();
       const type = document.getElementById("coupon-type").value;
-      const value = parseFloat(document.getElementById("coupon-value").value);
+      const value = parseFloat(document.getElementById("coupon-value").value) || 0;
       const minimumPurchase = parseInt(document.getElementById("coupon-min-purchase").value) || 0;
+      const minItems = parseInt(document.getElementById("coupon-min-items").value) || 1;
       const totalCoupons = parseInt(document.getElementById("coupon-total").value) || 100;
-      const usageType = document.getElementById("coupon-usage-type").value;
+      const limitPerUser = parseInt(document.getElementById("coupon-limit-user").value) || 0;
+      const cooldownHours = parseInt(document.getElementById("coupon-cooldown").value) || 0;
+      const maxDiscount = parseInt(document.getElementById("coupon-max-discount").value) || 0;
+
+      const status = document.getElementById("coupon-status").value;
+      const usageType = limitPerUser === 1 ? 'onetime' : 'reusable';
+
+      const startDate = document.getElementById("coupon-start").value;
       const expireDate = document.getElementById("coupon-expire").value;
-      const isActive = document.getElementById("coupon-active").checked;
 
       // Collect selected products
       const selectedProductIds = [];
@@ -1544,67 +1729,23 @@
       submitBtn.textContent = 'Menyimpan...';
 
       try {
-        // 1. Create in Firestore (for frontend validation)
         const firestorePayload = {
-          code,
-          type,
-          value,
-          minimumPurchase,
-          totalCoupons,
-          usageType,
-          isActive,
-          allowedProductIds: selectedProductIds, // NEW: Logic restriction
-          allowedProductNames: selectedProductNames, // NEW: Display/Meta
+          code, type, value, minimumPurchase, minItems, maxDiscount,
+          totalCoupons, limitPerUser, cooldownHours,
+          usedCount: 0, totalDiscountGiven: 0,
+          usageType, status,
+          isActive: status === 'active', // For legacy compatibility
+          allowedProductIds: selectedProductIds,
+          allowedProductNames: selectedProductNames,
           createdAt: serverTimestamp()
         };
 
-        if (expireDate) {
-          firestorePayload.expiredAt = new Date(expireDate);
-        }
+        if (startDate) firestorePayload.startDate = new Date(startDate);
+        if (expireDate) firestorePayload.expiredAt = new Date(expireDate);
 
         await addDoc(collection(db, "coupons"), firestorePayload);
 
-        // 2. Create in Mayar (for manual entry on checkout)
-        const mayarType = type === 'fixed' ? 'monetary' : 'percentage';
-        const mayarPayload = {
-          name: `Kupon ${code}`,
-          discount: {
-            discountType: mayarType,
-            eligibleCustomerType: 'all',
-            minimumPurchase: minimumPurchase,
-            value: value,
-            totalCoupons: totalCoupons
-          },
-          coupon: {
-            code: code,
-            type: usageType
-          },
-          products: []
-        };
-
-        if (expireDate) {
-          const expireDateTime = new Date(expireDate);
-          expireDateTime.setHours(23, 59, 59);
-          mayarPayload.expiredAt = expireDateTime.toISOString();
-        }
-
-        // Call worker to create in Mayar
-        const response = await fetch(WORKER_BASE_URL + '/create-coupon', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(mayarPayload)
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-          if (response.status === 409) {
-            throw new Error(`Kode kupon "${code}" sudah digunakan di Mayar. Gunakan kode lain.`);
-          }
-          throw new Error(result.messages || result.error || 'Gagal membuat kupon di Mayar');
-        }
-
-        showToast('Kupon berhasil dibuat di Firestore dan Mayar! User bisa input manual di checkout Mayar.', 'success');
+        showToast('Kupon berhasil dibuat!', 'success');
         closeCouponModal();
       } catch (err) {
         console.error('Error creating coupon:', err);

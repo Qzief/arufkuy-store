@@ -1206,8 +1206,14 @@
       // Discount Logic
       let discountAmount = 0;
       if (appliedCoupon) {
-        if (appliedCoupon.type === 'fixed') discountAmount = appliedCoupon.value;
-        else if (appliedCoupon.type === 'percent') discountAmount = Math.floor(totalPrice * (appliedCoupon.value / 100));
+        if (appliedCoupon.type === 'fixed') {
+          discountAmount = appliedCoupon.value;
+        } else if (appliedCoupon.type === 'percent') {
+          let calc = Math.floor(totalPrice * (appliedCoupon.value / 100));
+          const maxDiscount = Number(appliedCoupon.maxDiscount) || 0;
+          if (maxDiscount > 0 && calc > maxDiscount) calc = maxDiscount;
+          discountAmount = calc;
+        }
 
         if (discountAmount > totalPrice) discountAmount = totalPrice;
       }
@@ -1453,17 +1459,38 @@
       btn.innerText = '...';
 
       try {
-        const q = query(collection(db, "coupons"), where("code", "==", code), where("isActive", "==", true));
+        // Query by code only, handle status manually for better error messages
+        const q = query(collection(db, "coupons"), where("code", "==", code));
         const snap = await getDocs(q);
 
         if (snap.empty) {
-          showToast('Kupon tidak valid', 'error');
+          showToast('Kupon tidak ditemukan', 'error');
           appliedCoupon = null;
         } else {
           const cData = snap.docs[0].data();
+          const usedCount = Number(cData.usedCount) || 0;
+          const totalCoupons = Number(cData.totalCoupons) || 100;
+          const minPurchase = Number(cData.minimumPurchase) || 0;
+          const minItems = Number(cData.minItems) || 0;
+
+          // Get current subtotal
+          const quantity = parseInt(document.getElementById('quantity').value) || 1;
+          const currentPrice = isVariableProduct && selectedVariant ? selectedVariant.price : basePrice;
+          const currentSubtotal = currentPrice * quantity;
+
+          // Status check
+          if (cData.status === 'inactive' || cData.isActive === false) {
+            showToast('Kupon tidak aktif', 'error');
+            appliedCoupon = null;
+          }
+          // Scheduled check
+          else if (cData.status === 'scheduled' && cData.startDate && new Date(cData.startDate.toDate()) > new Date()) {
+            showToast('Kupon belum bisa digunakan saat ini', 'error');
+            appliedCoupon = null;
+          }
           // Basic expiry check
-          if (cData.expiredAt && new Date(cData.expiredAt.toDate()) < new Date()) {
-            showToast('Kupon kadaluarsa', 'error');
+          else if (cData.expiredAt && new Date(cData.expiredAt.toDate()) < new Date()) {
+            showToast('Kupon sudah kadaluarsa', 'error');
             appliedCoupon = null;
           }
           // Product Restriction Check
@@ -1471,9 +1498,24 @@
             showToast('Kupon tidak berlaku untuk produk ini', 'error');
             appliedCoupon = null;
           }
+          // Minimum Items Check
+          else if (quantity < minItems) {
+            showToast(`Minimal jumlah item untuk kupon ini adalah ${minItems} item`, 'error');
+            appliedCoupon = null;
+          }
+          // Minimum Purchase Check
+          else if (currentSubtotal < minPurchase) {
+            showToast(`Minimal belanja untuk kupon ini adalah Rp ${new Intl.NumberFormat('id-ID').format(minPurchase)}`, 'error');
+            appliedCoupon = null;
+          }
+          // Usage Limit Check
+          else if (usedCount >= totalCoupons) {
+            showToast('Kupon ini sudah mencapai batas kuota penggunaan', 'error');
+            appliedCoupon = null;
+          }
           else {
             appliedCoupon = { ...cData, code: code, id: snap.docs[0].id };
-            showToast('Kupon diterapkan!', 'success');
+            showToast('Kupon berhasil diterapkan!', 'success');
             document.getElementById('coupon').disabled = true;
             btn.disabled = true;
             btn.innerText = '✓';
@@ -1556,7 +1598,12 @@
       let discountValue = 0;
       if (appliedCoupon) {
         if (appliedCoupon.type === 'fixed') discountValue = appliedCoupon.value;
-        else discountValue = Math.floor(subtotal * (appliedCoupon.value / 100));
+        else {
+          let calc = Math.floor(subtotal * (appliedCoupon.value / 100));
+          const maxDiscount = Number(appliedCoupon.maxDiscount) || 0;
+          if (maxDiscount > 0 && calc > maxDiscount) calc = maxDiscount;
+          discountValue = calc;
+        }
         if (discountValue > subtotal) discountValue = subtotal;
       }
 
