@@ -5,6 +5,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Detail Produk | Arufkuy Store</title>
+  <meta name="description" content="Detail produk digital di Arufkuy Store." />
+  <meta property="og:type" content="product" />
+  <meta property="og:site_name" content="Arufkuy Store" />
+  <meta property="og:locale" content="id_ID" />
+  <meta property="og:title" content="Detail Produk | Arufkuy Store" />
+  <meta property="og:description" content="Detail produk digital di Arufkuy Store." />
+  <meta property="og:image" content="https://store.arufkuy.me/icon.png" />
+  <meta property="og:url" content="https://store.arufkuy.me/detail-product.html" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Detail Produk | Arufkuy Store" />
+  <meta name="twitter:description" content="Detail produk digital di Arufkuy Store." />
+  <meta name="twitter:image" content="https://store.arufkuy.me/icon.png" />
+  <meta name="twitter:url" content="https://store.arufkuy.me/detail-product.html" />
+  <link rel="canonical" href="https://store.arufkuy.me/detail-product.html" />
   <link rel="icon" type="image/png" href="/icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1108,6 +1122,80 @@
     function formatPrice(num) {
       return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
     }
+    function setMetaTag(attrName, attrValue, content) {
+      if (!content) return;
+      let meta = document.head.querySelector(`meta[${attrName}="${attrValue}"]`);
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute(attrName, attrValue);
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute('content', content);
+    }
+
+    function setCanonicalUrl(url) {
+      if (!url) return;
+      let canonical = document.head.querySelector('link[rel="canonical"]');
+      if (!canonical) {
+        canonical = document.createElement('link');
+        canonical.setAttribute('rel', 'canonical');
+        document.head.appendChild(canonical);
+      }
+      canonical.setAttribute('href', url);
+    }
+
+    function toAbsoluteUrl(value) {
+      if (!value) return `${window.location.origin}/icon.png`;
+      try {
+        return new URL(value, window.location.origin).href;
+      } catch {
+        return `${window.location.origin}/icon.png`;
+      }
+    }
+
+    function toMetaDescription(value) {
+      if (!value) return "Detail produk digital di Arufkuy Store.";
+      const plain = String(value)
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      return plain.slice(0, 180) || "Detail produk digital di Arufkuy Store.";
+    }
+
+    function updateDynamicMeta(productData) {
+      const resolvedSlug = productData.slug || productSlug;
+      const productPath = resolvedSlug
+        ? `/p/${encodeURIComponent(resolvedSlug)}`
+        : (productId ? `/detail-product.html?id=${encodeURIComponent(productId)}` : `${window.location.pathname}${window.location.search}`);
+      const productUrl = new URL(productPath, window.location.origin).href;
+      const title = `${productData.name || 'Detail Produk'} | Arufkuy Store`;
+      const description = toMetaDescription(productData.shortDescription || productData.description);
+      const imageUrl = toAbsoluteUrl(productData.image);
+
+      document.title = title;
+      setMetaTag('name', 'description', description);
+      setMetaTag('property', 'og:type', 'product');
+      setMetaTag('property', 'og:site_name', 'Arufkuy Store');
+      setMetaTag('property', 'og:locale', 'id_ID');
+      setMetaTag('property', 'og:title', title);
+      setMetaTag('property', 'og:description', description);
+      setMetaTag('property', 'og:image', imageUrl);
+      setMetaTag('property', 'og:url', productUrl);
+      setMetaTag('name', 'twitter:card', 'summary_large_image');
+      setMetaTag('name', 'twitter:title', title);
+      setMetaTag('name', 'twitter:description', description);
+      setMetaTag('name', 'twitter:image', imageUrl);
+      setMetaTag('name', 'twitter:url', productUrl);
+      setCanonicalUrl(productUrl);
+
+      if (resolvedSlug) {
+        const targetPath = `/p/${encodeURIComponent(resolvedSlug)}`;
+        const currentPathAndQuery = `${window.location.pathname}${window.location.search}`;
+        if (currentPathAndQuery !== targetPath) {
+          window.history.replaceState({}, '', targetPath);
+        }
+      }
+    }
 
     // Toast Notification System
     window.showToast = function (message, type = 'info') {
@@ -1302,8 +1390,9 @@
         if (data) {
           isVariableProduct = !!data.hasVariants;
 
+          if (data.slug) productSlug = data.slug;
           document.getElementById("product-name").innerText = data.name;
-          document.title = data.name + " | Arufkuy Store";
+          updateDynamicMeta(data);
 
           if (data.description) {
             document.getElementById("product-desc").innerHTML = data.description.replace(/\n/g, '<br>');
@@ -1725,3 +1814,5 @@
 </body>
 
 </html>
+
+
