@@ -1163,11 +1163,7 @@
     }
 
     function updateDynamicMeta(productData) {
-      const resolvedSlug = productData.slug || productSlug;
-      const productPath = resolvedSlug
-        ? `/p/${encodeURIComponent(resolvedSlug)}`
-        : (productId ? `/detail-product.html?id=${encodeURIComponent(productId)}` : `${window.location.pathname}${window.location.search}`);
-      const productUrl = new URL(productPath, window.location.origin).href;
+      const productUrl = window.location.href.split('#')[0];
       const title = `${productData.name || 'Detail Produk'} | Arufkuy Store`;
       const description = toMetaDescription(productData.shortDescription || productData.description);
       const imageUrl = toAbsoluteUrl(productData.image);
@@ -1187,14 +1183,6 @@
       setMetaTag('name', 'twitter:image', imageUrl);
       setMetaTag('name', 'twitter:url', productUrl);
       setCanonicalUrl(productUrl);
-
-      if (resolvedSlug) {
-        const targetPath = `/p/${encodeURIComponent(resolvedSlug)}`;
-        const currentPathAndQuery = `${window.location.pathname}${window.location.search}`;
-        if (currentPathAndQuery !== targetPath) {
-          window.history.replaceState({}, '', targetPath);
-        }
-      }
     }
 
     // Toast Notification System
@@ -1225,7 +1213,11 @@
     // Format 1: bare slug ?akun-hytale (no key=value, e.g. detail-product?akun-hytale)
     const rawSearch = window.location.search.slice(1); // remove leading ?
     if (rawSearch && !rawSearch.includes('=')) {
-      productSlug = rawSearch;
+      try {
+        productSlug = decodeURIComponent(rawSearch);
+      } catch {
+        productSlug = rawSearch;
+      }
     }
 
     // Format 2: ?slug=akun-hytale
@@ -1814,5 +1806,7 @@
 </body>
 
 </html>
+
+
 
 
