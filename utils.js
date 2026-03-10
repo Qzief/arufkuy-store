@@ -20,6 +20,14 @@ style.innerHTML = `
   body { top: 0 !important; position: static !important; }
   .goog-text-highlight { background-color: transparent !important; box-shadow: none !important; border: none !important; }
   #google_translate_element, .goog-logo-link, .goog-te-gadget { display: none !important; }
+  /* Global clean look: keep glass surfaces, hide visible borders */
+  .border,
+  [class^="border-"],
+  [class*=" border-"],
+  [class*=":border-"],
+  [class*=" divide-"] > :not([hidden]) ~ :not([hidden]) {
+    border-color: transparent !important;
+  }
 `;
 document.head.appendChild(style);
 
