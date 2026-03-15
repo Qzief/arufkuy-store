@@ -1,0 +1,119 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: Cek apakah user sudah login & adalah Admin yang sah
+    function isAuthenticated() {
+      return request.auth != null && request.auth.token.email == 'nazhrilprivate@gmail.com';
+    }
+
+    function isAffiliateSelf(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function ownsAffiliateCommission() {
+      return request.auth != null && resource.data.affiliate == request.auth.uid;
+    }
+
+    function ownsAffiliateWithdrawal() {
+      return request.auth != null && resource.data.affiliate == request.auth.uid;
+    }
+
+    // Koleksi Products
+    match /products/{productId} {
+      allow read: if true; // Public catalog
+      allow update, create, delete: if isAuthenticated();
+    }
+
+    // Koleksi Stocks (Secure Credentials)
+    match /stocks/{stockId} {
+      allow read, write: if isAuthenticated(); // Private: Admin only
+    }
+
+    // Koleksi Orders
+    match /orders/{orderId} {
+      allow create: if true; // Customer creates order
+      allow get: if isAuthenticated() ||
+                 ('publicAccessUntil' in resource.data && request.time < resource.data.publicAccessUntil);
+      allow list: if isAuthenticated();
+      allow update, delete: if isAuthenticated();
+    }
+
+    // Koleksi Transactions (Riwayat Penjualan)
+    match /transactions/{transactionId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Koleksi Coupons
+    match /coupons/{couponId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // Koleksi Sections (Catalog Sections)
+    match /sections/{sectionId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // Koleksi Popups
+    match /popups/{popupId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // Koleksi Themes
+    match /themes/{themeId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // Koleksi Settings
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // Koleksi Stock Reservations
+    match /stock_reservations/{orderId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Koleksi Affiliate Users
+    match /affiliate_users/{affiliateId} {
+      allow create: if isAffiliateSelf(affiliateId) &&
+                    request.resource.data.firebase_uid == request.auth.uid &&
+                    request.resource.data.status == 'pending';
+      allow get: if isAuthenticated() || isAffiliateSelf(affiliateId);
+      allow update, delete, list: if isAuthenticated();
+    }
+
+    // Koleksi Affiliate Clicks
+    match /affiliate_clicks/{clickId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Koleksi Affiliate Commissions
+    match /affiliate_commissions/{commissionId} {
+      allow read: if isAuthenticated() || ownsAffiliateCommission();
+      allow write: if isAuthenticated();
+    }
+
+    // Koleksi Affiliate Withdrawals
+    match /affiliate_withdrawals/{withdrawalId} {
+      allow create: if request.auth != null &&
+                    request.resource.data.affiliate == request.auth.uid &&
+                    request.resource.data.status == 'requested';
+      allow read: if isAuthenticated() || ownsAffiliateWithdrawal();
+      allow update, delete: if isAuthenticated();
+    }
+
+    // Fallback untuk koleksi lain
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
+
+

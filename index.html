@@ -152,13 +152,17 @@
     .mobile-overlay.active .mobile-sheet {
       transform: translateY(0);
     }
-
     .mobile-nav-item {
-      transition: background 0.2s ease, transform 0.15s ease;
+      transition: border-color .2s ease, background .2s ease, transform .15s ease;
+    }
+
+    .mobile-nav-item:hover {
+      border-color: rgba(129, 140, 248, 0.45);
+      background: rgba(30, 41, 59, 0.65);
     }
 
     .mobile-nav-item:active {
-      transform: scale(0.95);
+      transform: scale(0.98);
     }
 
     /* Category dropdown polish */
@@ -278,7 +282,7 @@
           <div class="relative group">
             <button
               class="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-white/10 transition">
-              <span id="current-lang-flag">🇮🇩</span>
+              <span id="current-lang-flag">ID</span>
               <span id="current-lang-text">ID</span>
               <svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -287,10 +291,10 @@
             <div
               class="absolute right-0 mt-2 w-32 origin-top-right rounded-xl border border-white/10 bg-slate-900 p-1 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
               <button onclick="setLanguage('id')"
-                class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-xs text-slate-300 hover:bg-white/10 hover:text-white transition"><span>🇮🇩</span>
+                class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-xs text-slate-300 hover:bg-white/10 hover:text-white transition"><span>ID</span>
                 Indonesia</button>
               <button onclick="setLanguage('en')"
-                class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-xs text-slate-300 hover:bg-white/10 hover:text-white transition"><span>🇺🇸</span>
+                class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-xs text-slate-300 hover:bg-white/10 hover:text-white transition"><span>EN</span>
                 English</button>
             </div>
           </div>
@@ -334,108 +338,163 @@
   <div id="mobile-overlay" class="mobile-overlay fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm md:hidden"
     onclick="closeMobileMenu()">
     <div
-      class="mobile-sheet fixed bottom-0 left-0 right-0 max-h-[85vh] rounded-t-3xl border-t border-white/10 bg-slate-950/95 backdrop-blur-xl shadow-2xl overflow-y-auto no-scrollbar"
+      class="mobile-sheet fixed bottom-0 left-0 right-0 max-h-[88vh] rounded-t-3xl border-t border-white/10 bg-slate-950/95 backdrop-blur-xl shadow-2xl overflow-y-auto no-scrollbar"
       onclick="event.stopPropagation()">
 
       <!-- Drag Handle -->
       <div class="sticky top-0 z-10 flex justify-center pt-3 pb-2 bg-slate-950/95 backdrop-blur-xl">
-        <div class="h-1 w-10 rounded-full bg-white/20"></div>
+        <div class="h-1 w-12 rounded-full bg-white/20"></div>
       </div>
 
-      <div class="px-5 pb-6">
-        <!-- Navigation Grid (3 columns, compact) -->
-        <div class="grid grid-cols-3 gap-2 mb-5">
+      <div class="px-4 pb-6 space-y-5">
+        <div class="rounded-2xl border border-indigo-400/25 bg-gradient-to-r from-indigo-500/15 to-cyan-500/10 p-4">
+          <p class="text-xs uppercase tracking-[0.18em] text-indigo-200/90">Menu Navigasi</p>
+          <p class="mt-1 text-sm text-slate-300">Pilih halaman penting tanpa keluar dari flow belanja.</p>
+        </div>
+
+        <div class="space-y-2">
           <a href="#products" onclick="closeMobileMenu()"
-            class="mobile-nav-item flex flex-col items-center gap-2 rounded-2xl bg-white/5 border border-white/5 px-2 py-4 hover:bg-white/10">
-            <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+            class="mobile-nav-item flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-3 py-3.5">
+            <div class="flex items-center gap-3">
+              <span class="grid h-10 w-10 place-items-center rounded-xl bg-indigo-500/20 text-indigo-300">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                </svg>
+              </span>
+              <div>
+                <p class="text-sm font-semibold text-slate-100">Produk</p>
+                <p class="text-xs text-slate-400">Lihat semua digital goods</p>
+              </div>
+            </div>
+            <svg class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
             </svg>
-            <span class="text-xs font-medium text-slate-300">Produk</span>
           </a>
+
           <a href="order-guide.html" onclick="closeMobileMenu()"
-            class="mobile-nav-item flex flex-col items-center gap-2 rounded-2xl bg-white/5 border border-white/5 px-2 py-4 hover:bg-white/10">
-            <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
-              </path>
+            class="mobile-nav-item flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-3 py-3.5">
+            <div class="flex items-center gap-3">
+              <span class="grid h-10 w-10 place-items-center rounded-xl bg-cyan-500/20 text-cyan-300">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+                  </path>
+                </svg>
+              </span>
+              <div>
+                <p class="text-sm font-semibold text-slate-100">Cara Order</p>
+                <p class="text-xs text-slate-400">Panduan transaksi cepat</p>
+              </div>
+            </div>
+            <svg class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
             </svg>
-            <span class="text-xs font-medium text-slate-300">Cara Order</span>
           </a>
+
           <a href="feedback.html" onclick="closeMobileMenu()"
-            class="mobile-nav-item flex flex-col items-center gap-2 rounded-2xl bg-white/5 border border-white/5 px-2 py-4 hover:bg-white/10">
-            <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
-              </path>
+            class="mobile-nav-item flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-3 py-3.5">
+            <div class="flex items-center gap-3">
+              <span class="grid h-10 w-10 place-items-center rounded-xl bg-amber-500/20 text-amber-300">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                  </path>
+                </svg>
+              </span>
+              <div>
+                <p class="text-sm font-semibold text-slate-100">Feedback</p>
+                <p class="text-xs text-slate-400">Ulasan dan testimoni buyer</p>
+              </div>
+            </div>
+            <svg class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
             </svg>
-            <span class="text-xs font-medium text-slate-300">Feedback</span>
           </a>
+
           <a href="help-center.html" onclick="closeMobileMenu()"
-            class="mobile-nav-item flex flex-col items-center gap-2 rounded-2xl bg-white/5 border border-white/5 px-2 py-4 hover:bg-white/10">
-            <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-              </path>
+            class="mobile-nav-item flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-3 py-3.5">
+            <div class="flex items-center gap-3">
+              <span class="grid h-10 w-10 place-items-center rounded-xl bg-emerald-500/20 text-emerald-300">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                  </path>
+                </svg>
+              </span>
+              <div>
+                <p class="text-sm font-semibold text-slate-100">Pusat Bantuan</p>
+                <p class="text-xs text-slate-400">FAQ dan info penting</p>
+              </div>
+            </div>
+            <svg class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
             </svg>
-            <span class="text-xs font-medium text-slate-300">Bantuan</span>
           </a>
+
           <a href="contact.html" onclick="closeMobileMenu()"
-            class="mobile-nav-item flex flex-col items-center gap-2 rounded-2xl bg-white/5 border border-white/5 px-2 py-4 hover:bg-white/10">
-            <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
-              </path>
+            class="mobile-nav-item flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-3 py-3.5">
+            <div class="flex items-center gap-3">
+              <span class="grid h-10 w-10 place-items-center rounded-xl bg-fuchsia-500/20 text-fuchsia-300">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
+                  </path>
+                </svg>
+              </span>
+              <div>
+                <p class="text-sm font-semibold text-slate-100">Kontak</p>
+                <p class="text-xs text-slate-400">Hubungi admin toko</p>
+              </div>
+            </div>
+            <svg class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
             </svg>
-            <span class="text-xs font-medium text-slate-300">Kontak</span>
-          </a>
-          <a href="https://arufkuy.myr.id/portal" onclick="closeMobileMenu()"
-            class="mobile-nav-item flex flex-col items-center gap-2 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 border border-indigo-500/20 px-2 py-4 hover:from-indigo-500/30 hover:to-cyan-500/30">
-            <svg class="w-6 h-6 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
-            </svg>
-            <span class="text-xs font-medium text-indigo-300">Login</span>
           </a>
         </div>
 
-        <!-- Divider -->
-        <div class="border-t border-white/5 mb-4"></div>
+        <div class="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+          <p class="px-1 pb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Preferensi</p>
+          <div class="flex gap-2 items-stretch">
+            <div class="w-1/2 rounded-xl border border-white/10 bg-white/5 p-1.5 flex gap-1">
+              <button onclick="setLanguage('id'); closeMobileMenu();"
+                class="flex-1 flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-medium text-slate-300 hover:bg-white/10 transition">
+                <span>ID</span>
+              </button>
+              <button onclick="setLanguage('en'); closeMobileMenu();"
+                class="flex-1 flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-medium text-slate-300 hover:bg-white/10 transition">
+                <span>EN</span>
+              </button>
+            </div>
 
-        <!-- Settings Row: Language & Currency side by side -->
-        <div class="flex gap-2 items-stretch">
-          <!-- Language Selector -->
-          <div class="w-1/2 rounded-xl bg-white/5 border border-white/5 p-1.5 flex gap-1">
-            <button onclick="setLanguage('id'); closeMobileMenu();"
-              class="flex-1 flex items-center justify-center gap-1.5 rounded-lg px-2 text-xs font-medium text-slate-300 hover:bg-white/10 transition">
-              <span>🇮🇩</span> ID
-            </button>
-            <button onclick="setLanguage('en'); closeMobileMenu();"
-              class="flex-1 flex items-center justify-center gap-1.5 rounded-lg px-2 text-xs font-medium text-slate-300 hover:bg-white/10 transition">
-              <span>🇺🇸</span> EN
-            </button>
-          </div>
-
-          <!-- Currency Selector -->
-          <div class="w-1/2 relative rounded-xl bg-white/5 border border-white/5 p-1.5">
-            <button onclick="toggleMobileCurrency()" id="mobile-curr-btn"
-              class="w-full h-full flex items-center justify-between rounded-lg px-2 text-xs font-medium text-slate-300 hover:bg-white/10 transition">
-              <div class="flex items-center gap-1.5">
-                <span id="mobile-curr-symbol" class="text-emerald-400 font-bold">Rp</span>
-                <span id="mobile-curr-text">IDR</span>
-              </div>
-              <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-              </svg>
-            </button>
-            <div id="mobile-currency-popup"
-              class="hidden absolute bottom-full left-0 right-0 mb-2 max-h-48 overflow-y-auto no-scrollbar rounded-xl border border-white/10 bg-slate-900/95 backdrop-blur-xl p-1 shadow-xl z-10">
-              <div id="mobile-currency-menu">
-                <!-- Currencies injected here -->
+            <div class="w-1/2 relative rounded-xl border border-white/10 bg-white/5 p-1.5">
+              <button onclick="toggleMobileCurrency()" id="mobile-curr-btn"
+                class="w-full h-full flex items-center justify-between rounded-lg px-2 py-2 text-xs font-medium text-slate-300 hover:bg-white/10 transition">
+                <div class="flex items-center gap-1.5">
+                  <span id="mobile-curr-symbol" class="text-emerald-400 font-bold">Rp</span>
+                  <span id="mobile-curr-text">IDR</span>
+                </div>
+                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div id="mobile-currency-popup"
+                class="hidden absolute top-full left-0 right-0 mt-2 max-h-48 overflow-y-auto no-scrollbar rounded-xl border border-white/10 bg-slate-900/95 backdrop-blur-xl p-1 shadow-xl z-10">
+                <div id="mobile-currency-menu">
+                  <!-- Currencies injected here -->
+                </div>
               </div>
             </div>
           </div>
         </div>
+
+        <a href="https://arufkuy.myr.id/portal" onclick="closeMobileMenu()"
+          class="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-500 to-cyan-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/25">
+          <span>Masuk Portal Member</span>
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </a>
       </div>
     </div>
   </div>
@@ -793,7 +852,7 @@
           </div>
         </div>
         <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p class="text-xs text-slate-500">© <span id="year"></span> Arufkuy Store. All rights reserved.</p>
+          <p class="text-xs text-slate-500">Ã‚Â© <span id="year"></span> Arufkuy Store. All rights reserved.</p>
           <div class="flex items-center gap-5">
             <a href="https://discord.gg/3sDGqtZBcW" class="text-slate-400 hover:text-white transition">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-discord"
@@ -875,12 +934,14 @@
 
   <!-- Firebase & Page Logic -->
   <script type="module">
-    import { firebaseConfig } from './config.js';
+    import { firebaseConfig, WORKER_BASE_URL } from './config.js';
+    import { captureAffiliateAttribution, trackAffiliateVisit } from './affiliate.js';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const affiliateAttribution = captureAffiliateAttribution();
 
     async function loadProducts() {
       const productsGrid = document.getElementById("products-grid");
@@ -933,6 +994,7 @@
     }
 
     async function init() {
+      trackAffiliateVisit(WORKER_BASE_URL, affiliateAttribution, { sourcePage: 'homepage' });
       await fetchAndUpdateExchangeRate();
       loadProducts();
       loadPopupSystem();
@@ -990,32 +1052,32 @@
     function showPopup(popup) {
       const typeConfig = {
         coupon: {
-          icon: '🎁',
+          icon: 'Ã°Å¸Å½Â',
           gradient: 'from-emerald-500 via-cyan-500 to-teal-500',
           glowGradient: 'from-emerald-500/40 via-cyan-500/30 to-teal-500/40',
           accentColor: 'emerald',
-          label: '✨ KODE PROMO'
+          label: 'Ã¢Å“Â¨ KODE PROMO'
         },
         announcement: {
-          icon: '📢',
+          icon: 'Ã°Å¸â€œÂ¢',
           gradient: 'from-indigo-500 via-purple-500 to-pink-500',
           glowGradient: 'from-indigo-500/40 via-purple-500/30 to-pink-500/40',
           accentColor: 'indigo',
-          label: '📣 PENGUMUMAN'
+          label: 'Ã°Å¸â€œÂ£ PENGUMUMAN'
         },
         warning: {
-          icon: '⚠️',
+          icon: 'Ã¢Å¡Â Ã¯Â¸Â',
           gradient: 'from-amber-500 via-orange-500 to-red-500',
           glowGradient: 'from-amber-500/40 via-orange-500/30 to-red-500/40',
           accentColor: 'amber',
-          label: '⚠️ PERHATIAN'
+          label: 'Ã¢Å¡Â Ã¯Â¸Â PERHATIAN'
         },
         info: {
-          icon: 'ℹ️',
+          icon: 'Ã¢â€žÂ¹Ã¯Â¸Â',
           gradient: 'from-cyan-500 via-blue-500 to-indigo-500',
           glowGradient: 'from-cyan-500/40 via-blue-500/30 to-indigo-500/40',
           accentColor: 'cyan',
-          label: '💡 INFORMASI'
+          label: 'Ã°Å¸â€™Â¡ INFORMASI'
         }
       };
 
@@ -1199,7 +1261,7 @@
         copyIcon.classList.add('hidden');
         checkIcon.classList.remove('hidden');
         btn.classList.add('bg-emerald-500', 'text-white');
-        feedback.textContent = '✓ Berhasil disalin!';
+        feedback.textContent = 'Ã¢Å“â€œ Berhasil disalin!';
         feedback.classList.remove('text-slate-500');
         feedback.classList.add('text-emerald-400');
 
@@ -1671,7 +1733,7 @@
       };
     }
 
-    // ❄️ Snowflake
+    // Ã¢Ââ€žÃ¯Â¸Â Snowflake
     function drawSnowflake(ctx, size, color) {
       ctx.strokeStyle = color;
       ctx.fillStyle = color;
@@ -1709,7 +1771,7 @@
       ctx.fill();
     }
 
-    // ⭐ Glowing Star
+    // Ã¢Â­Â Glowing Star
     function drawGlowingStar(ctx, size, color) {
       // Outer glow
       const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 2);
@@ -1754,7 +1816,7 @@
       }
     }
 
-    // ❤️ Beautiful Heart
+    // Ã¢ÂÂ¤Ã¯Â¸Â Beautiful Heart
     function drawBeautifulHeart(ctx, size, color) {
       const gradient = ctx.createRadialGradient(-size * 0.3, -size * 0.3, 0, 0, 0, size * 2);
       gradient.addColorStop(0, '#FF9999');
@@ -1777,7 +1839,7 @@
       ctx.fill();
     }
 
-    // 🍂 Autumn Leaf
+    // Ã°Å¸Ââ€š Autumn Leaf
     function drawAutumnLeaf(ctx, size, color) {
       ctx.fillStyle = color;
       ctx.strokeStyle = '#5D4037';
@@ -1818,7 +1880,7 @@
       ctx.stroke();
     }
 
-    // 🏮 Lantern (Ramadan/Eid/Chinese New Year)
+    // Ã°Å¸ÂÂ® Lantern (Ramadan/Eid/Chinese New Year)
     function drawLantern(ctx, size, goldColor, redColor) {
       // Glow effect
       const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 2);
@@ -1898,7 +1960,7 @@
       ctx.fill();
     }
 
-    // 🌙 Crescent Moon (Ramadan)
+    // Ã°Å¸Å’â„¢ Crescent Moon (Ramadan)
     function drawCrescentMoon(ctx, size, color, accentColor) {
       // Outer glow with softer effect
       const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 2.5);
@@ -1944,7 +2006,7 @@
       ctx.fill();
     }
 
-    // 🧧 Ketupat (Eid/Lebaran)
+    // Ã°Å¸Â§Â§ Ketupat (Eid/Lebaran)
     function drawKetupat(ctx, size, greenColor, lightGreenColor) {
       // Diamond shape with better color usage
       const gradient = ctx.createLinearGradient(-size, 0, size, 0);
@@ -2001,7 +2063,7 @@
       ctx.stroke();
     }
 
-    // 🎊 Confetti
+    // Ã°Å¸Å½Å  Confetti
     function drawConfetti(ctx, size, color) {
       ctx.fillStyle = color;
 
@@ -2054,7 +2116,7 @@
 
     Tawk_API.onLoad = function () {
 
-      console.log("Tawk Loaded ✅");
+      console.log("Tawk Loaded Ã¢Å“â€¦");
 
       Tawk_API.onChatMessage = function (data) {
 
@@ -2086,3 +2148,4 @@
 </body>
 
 </html>
+

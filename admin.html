@@ -326,6 +326,13 @@
           </svg>
           Riwayat Penjualan
         </button>
+        <button onclick="switchTab('affiliates')" id="nav-affiliates"
+          class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all group">
+          <svg class="w-5 h-5 opacity-75 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5V4H2v16h5m10 0v-2a4 4 0 00-4-4H11a4 4 0 00-4 4v2m10 0H7m10-10a4 4 0 11-8 0 4 4 0 018 0z"></path>
+          </svg>
+          Affiliate Center
+        </button>
         <button onclick="switchTab('coupons')" id="nav-coupons"
           class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all group">
           <svg class="w-5 h-5 opacity-75 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -592,6 +599,186 @@
         </div>
       </div>
 
+      <!-- Affiliate Tab -->
+      <div id="tab-affiliates" class="tab-content hidden animate-fade-in">
+        <div class="flex flex-col gap-4 mb-6 xl:flex-row xl:items-center xl:justify-between">
+          <div>
+            <p class="text-sm text-slate-400">Approval affiliate, payout massal saldo, komisi order, dan traffic referral terbaru.</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="relative w-full xl:w-80">
+              <input id="affiliate-admin-search" type="text" placeholder="Cari email, code, order, landing..."
+                oninput="handleAffiliateAdminSearch()"
+                class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-2.5 pr-10 text-sm text-white focus:border-indigo-500 focus:outline-none placeholder:text-slate-600">
+              <svg class="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z"></path>
+              </svg>
+            </div>
+            <button onclick="loadAffiliateAdmin()" class="p-2 rounded-lg bg-white/5 text-slate-400 hover:text-white transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+            <p class="text-xs uppercase tracking-wider text-slate-500">Pending Apply</p>
+            <h3 id="affiliate-stat-pending-users" class="text-3xl font-bold text-white mt-2">0</h3>
+          </div>
+          <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+            <p class="text-xs uppercase tracking-wider text-slate-500">Approved</p>
+            <h3 id="affiliate-stat-approved-users" class="text-3xl font-bold text-white mt-2">0</h3>
+          </div>
+          <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+            <p class="text-xs uppercase tracking-wider text-slate-500">Komisi Pending</p>
+            <h3 id="affiliate-stat-pending-commissions" class="text-3xl font-bold text-white mt-2">Rp 0</h3>
+          </div>
+          <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+            <p class="text-xs uppercase tracking-wider text-slate-500">Saldo Approved</p>
+            <h3 id="affiliate-stat-approved-balance" class="text-3xl font-bold text-white mt-2">Rp 0</h3>
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-2 mb-6">
+          <div class="flex flex-wrap gap-2">
+            <button id="affiliate-subtab-users" onclick="switchAffiliatePanel('users')" class="affiliate-subtab-btn rounded-xl px-4 py-2 text-sm font-semibold bg-indigo-500/15 text-indigo-200">Affiliate</button>
+            <button id="affiliate-subtab-commissions" onclick="switchAffiliatePanel('commissions')" class="affiliate-subtab-btn rounded-xl px-4 py-2 text-sm font-semibold text-slate-400 hover:text-white hover:bg-white/5">Komisi</button>
+            <button id="affiliate-subtab-withdrawals" onclick="switchAffiliatePanel('withdrawals')" class="affiliate-subtab-btn rounded-xl px-4 py-2 text-sm font-semibold text-slate-400 hover:text-white hover:bg-white/5">Withdraw</button>
+            <button id="affiliate-subtab-clicks" onclick="switchAffiliatePanel('clicks')" class="affiliate-subtab-btn rounded-xl px-4 py-2 text-sm font-semibold text-slate-400 hover:text-white hover:bg-white/5">Click Log</button>
+            <button id="affiliate-subtab-settings" onclick="switchAffiliatePanel('settings')" class="affiliate-subtab-btn rounded-xl px-4 py-2 text-sm font-semibold text-slate-400 hover:text-white hover:bg-white/5">Pengaturan</button>
+          </div>
+        </div>
+
+        <div id="affiliate-panel-users" class="affiliate-panel">
+          <div class="overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-xl">
+            <div class="max-h-[70vh] overflow-auto custom-scrollbar">
+              <table class="w-full text-left text-sm text-slate-300">
+                <thead class="sticky top-0 z-10 bg-slate-950/95 text-xs uppercase text-slate-400 font-semibold tracking-wider">
+                  <tr>
+                    <th class="px-6 py-4">Affiliate</th>
+                    <th class="px-6 py-4">Status</th>
+                    <th class="px-6 py-4">Code</th>
+                    <th class="px-6 py-4">Saldo</th>
+                    <th class="px-6 py-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="affiliate-users-table-body" class="divide-y divide-white/5">
+                  <tr><td colspan="5" class="px-6 py-4 text-center text-slate-500">Memuat affiliate...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="affiliate-panel-commissions" class="affiliate-panel hidden">
+          <div class="overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-xl">
+            <div class="max-h-[70vh] overflow-auto custom-scrollbar">
+              <table class="w-full text-left text-sm text-slate-300">
+                <thead class="sticky top-0 z-10 bg-slate-950/95 text-xs uppercase text-slate-400 font-semibold tracking-wider">
+                  <tr>
+                    <th class="px-6 py-4">Order</th>
+                    <th class="px-6 py-4">Affiliate</th>
+                    <th class="px-6 py-4">Amount</th>
+                    <th class="px-6 py-4">Status</th>
+                    <th class="px-6 py-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="affiliate-commissions-table-body" class="divide-y divide-white/5">
+                  <tr><td colspan="5" class="px-6 py-4 text-center text-slate-500">Memuat komisi...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="affiliate-panel-withdrawals" class="affiliate-panel hidden">
+          <div class="overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-xl">
+            <div class="max-h-[70vh] overflow-auto custom-scrollbar">
+              <table class="w-full text-left text-sm text-slate-300">
+                <thead class="sticky top-0 z-10 bg-slate-950/95 text-xs uppercase text-slate-400 font-semibold tracking-wider">
+                  <tr>
+                    <th class="px-6 py-4">Affiliate</th>
+                    <th class="px-6 py-4">Metode</th>
+                    <th class="px-6 py-4">Nomor</th>
+                    <th class="px-6 py-4">Amount</th>
+                    <th class="px-6 py-4">Status</th>
+                    <th class="px-6 py-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="affiliate-withdrawals-table-body" class="divide-y divide-white/5">
+                  <tr><td colspan="6" class="px-6 py-4 text-center text-slate-500">Memuat withdrawal...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="affiliate-panel-clicks" class="affiliate-panel hidden">
+          <div class="overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-xl">
+            <div class="max-h-[70vh] overflow-auto custom-scrollbar">
+              <table class="w-full text-left text-sm text-slate-300">
+                <thead class="sticky top-0 z-10 bg-slate-950/95 text-xs uppercase text-slate-400 font-semibold tracking-wider">
+                  <tr>
+                    <th class="px-6 py-4">Waktu</th>
+                    <th class="px-6 py-4">Affiliate</th>
+                    <th class="px-6 py-4">Landing</th>
+                    <th class="px-6 py-4">IP</th>
+                  </tr>
+                </thead>
+                <tbody id="affiliate-clicks-table-body" class="divide-y divide-white/5">
+                  <tr><td colspan="4" class="px-6 py-4 text-center text-slate-500">Memuat click log...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="affiliate-panel-settings" class="affiliate-panel hidden">
+          <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+              <div>
+                <h3 class="text-lg font-bold text-white mb-2">Affiliate Access Control</h3>
+                <p class="text-sm text-slate-400">Atur apakah portal affiliate aktif dan apakah pendaftaran affiliate baru dibuka.</p>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
+                <label class="flex items-center justify-between rounded-xl border border-white/10 bg-slate-950/40 px-4 py-3">
+                  <span>
+                    <span class="block text-sm font-semibold text-white">Portal Aktif</span>
+                    <span class="block text-xs text-slate-500">Jika mati, halaman affiliate hanya menampilkan pesan penutupan.</span>
+                  </span>
+                  <input type="checkbox" id="affiliate-portal-enabled" class="h-4 w-4">
+                </label>
+                <label class="flex items-center justify-between rounded-xl border border-white/10 bg-slate-950/40 px-4 py-3">
+                  <span>
+                    <span class="block text-sm font-semibold text-white">Pendaftaran Dibuka</span>
+                    <span class="block text-xs text-slate-500">Affiliate existing tetap bisa login walau pendaftaran ditutup.</span>
+                  </span>
+                  <input type="checkbox" id="affiliate-registration-open" class="h-4 w-4">
+                </label>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Pesan Status Program</label>
+                <textarea id="affiliate-registration-message" rows="3" class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">Pendaftaran affiliate sedang dibuka.</textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Pesan Saat Portal Ditutup</label>
+                <textarea id="affiliate-closed-message" rows="3" class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">Portal affiliate sedang tidak tersedia sementara waktu.</textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Minimal Withdraw (Rp)</label>
+                <input id="affiliate-min-withdraw" type="number" min="0" step="1000" class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none" placeholder="20000">
+              </div>
+            </div>
+            <div class="flex justify-end mt-4">
+              <button onclick="saveAffiliateSettings()" class="rounded-xl bg-indigo-500 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-400">Simpan Pengaturan Affiliate</button>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- Coupons Tab -->
       <div id="tab-coupons" class="tab-content hidden animate-fade-in">
         <div class="flex justify-between items-center mb-6">
@@ -1163,6 +1350,33 @@
           <p class="text-xs text-slate-500 mt-1">Jumlah produk yang sudah terjual (ditampilkan di halaman produk)</p>
         </div>
 
+        <div>
+          <div class="flex items-center justify-between bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/20">
+            <div>
+              <h4 class="text-sm font-bold text-emerald-300">Pengaturan Affiliate Produk</h4>
+              <p class="text-xs text-emerald-200/70">Atur apakah produk ini ikut affiliate dan tentukan komisi khusus per produk.</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="prod-affiliate-enabled" class="sr-only peer" checked>
+              <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+            </label>
+          </div>
+          <div class="grid grid-cols-2 gap-4 mt-4">
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Komisi Produk (%)</label>
+              <input type="number" id="prod-affiliate-percent" min="0" max="100" step="any" placeholder="Kosong = ikut default global"
+                class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
+              <p class="text-[10px] text-slate-500 mt-1">Dipakai jika ingin override komisi persen global untuk produk ini.</p>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Komisi Produk Fix (Rp)</label>
+              <input type="number" id="prod-affiliate-flat" min="0" step="1" placeholder="Kosong = tidak pakai nominal fix"
+                class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
+              <p class="text-[10px] text-slate-500 mt-1">Jika diisi, nominal fix akan diprioritaskan dibanding persen.</p>
+            </div>
+          </div>
+        </div>
+
         <div class="h-px bg-white/10 my-4"></div>
 
         <!-- Variation Toggle -->
@@ -1351,9 +1565,21 @@
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, collection, getDocs, getDoc, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, limit, runTransaction, serverTimestamp, setDoc, writeBatch, deleteField } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    const app = initializeApp(firebaseConfig);
+    const app = initializeApp(firebaseConfig, "admin-portal");
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const ADMIN_EMAIL = "nazhrilprivate@gmail.com";
+    let isAdminSessionReady = false;
+
+    function requireAdminSession(showMessage = false) {
+      const user = auth.currentUser;
+      const hasAccess = !!user && user.email === ADMIN_EMAIL;
+      if (!hasAccess) {
+        isAdminSessionReady = false;
+        if (showMessage) showToast("Login admin diperlukan untuk mengakses halaman ini.", "warning");
+      }
+      return hasAccess;
+    }
 
     // Toast Notification System
     function showToast(message, type = 'info') {
@@ -1399,16 +1625,24 @@
     const loginSection = document.getElementById("login-section");
     const dashboardSection = document.getElementById("dashboard-section");
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
+    onAuthStateChanged(auth, async (user) => {
+      if (user && user.email === ADMIN_EMAIL) {
+        isAdminSessionReady = true;
         loginSection.classList.add("hidden");
         dashboardSection.classList.remove("hidden");
         loadDashboardStats();
-        loadProducts(); // Load for dashboard stats
-        loadOrders();   // Load for dashboard stats
-      } else {
-        loginSection.classList.remove("hidden");
-        dashboardSection.classList.add("hidden");
+        loadProducts();
+        loadOrders();
+        return;
+      }
+
+      isAdminSessionReady = false;
+      loginSection.classList.remove("hidden");
+      dashboardSection.classList.add("hidden");
+
+      if (user) {
+        alert("Akun ini bukan akun admin.");
+        await signOut(auth);
       }
     });
 
@@ -1434,6 +1668,8 @@
 
     // UI Interaction Logic
     window.switchTab = (tabName) => {
+      if (!requireAdminSession(true)) return;
+
       // Hide all tabs
       document.querySelectorAll('.tab-content').forEach(el => {
         el.classList.add('hidden');
@@ -1461,6 +1697,7 @@
         'products': { title: 'Manajemen Produk', desc: 'Kelola daftar produk dan stok barang.' },
         'orders': { title: 'Pesanan Masuk', desc: 'Kelola pesanan yang masuk dari pelanggan.' },
         'history': { title: 'Riwayat Transaksi', desc: 'Arsip penjualan yang telah selesai.' },
+        'affiliates': { title: 'Affiliate Center', desc: 'Kelola approval affiliate dan komisi referral.' },
         'coupons': { title: 'Manajemen Kupon', desc: 'Buat dan kelola kode promo.' },
         'sections': { title: 'Katalog Section', desc: 'Kelola section dan urutan produk.' },
         'popups': { title: 'Popup Informasi', desc: 'Kelola popup kupon dan pengumuman.' },
@@ -1477,6 +1714,7 @@
       if (tabName === 'products') loadProducts();
       if (tabName === 'orders') loadOrders();
       if (tabName === 'history') loadHistory();
+      if (tabName === 'affiliates') loadAffiliateAdmin();
       if (tabName === 'coupons') loadCoupons();
       if (tabName === 'sections') loadSections();
       if (tabName === 'popups') loadPopups();
@@ -1792,6 +2030,8 @@
 
     // Dashboard Stats Logic
     function loadDashboardStats() {
+      if (!requireAdminSession()) return;
+
       // Total products count
       if (products.length > 0) {
         document.getElementById('dash-total-products').innerText = products.length;
@@ -1829,6 +2069,8 @@
     }
 
     function loadDashboardActivity() {
+      if (!requireAdminSession()) return;
+
       const activityBody = document.getElementById('dash-activity-body');
 
       // Query recent orders (last 5)
@@ -1977,6 +2219,8 @@
     let isVariableProduct = false;
 
     function loadProducts() {
+      if (!requireAdminSession()) return;
+
       onSnapshot(collection(db, "products"), (snapshot) => {
         products = [];
         snapshot.forEach((doc) => {
@@ -2249,6 +2493,8 @@
 
     // History Logic - Query from orders collection (paid/completed/delivered)
     window.loadHistory = () => {
+      if (!requireAdminSession()) return;
+
       const tableBody = document.getElementById("history-table-body");
       const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
 
@@ -2303,6 +2549,611 @@
       });
     };
 
+        const DEFAULT_AFFILIATE_SETTINGS = {
+      portalEnabled: true,
+      registrationOpen: true,
+      registrationMessage: 'Pendaftaran affiliate sedang dibuka.',
+      closedMessage: 'Portal affiliate sedang tidak tersedia sementara waktu.',
+      defaultCommissionPercent: 8,
+      minWithdrawAmount: 20000
+    };
+
+    async function loadAffiliateSettingsForm() {
+      if (!requireAdminSession()) return;
+
+      try {
+        const snap = await getDoc(doc(db, 'settings', 'affiliateConfig'));
+        const settings = snap.exists() ? { ...DEFAULT_AFFILIATE_SETTINGS, ...snap.data() } : { ...DEFAULT_AFFILIATE_SETTINGS };
+        document.getElementById('affiliate-portal-enabled').checked = settings.portalEnabled !== false;
+        document.getElementById('affiliate-registration-open').checked = settings.registrationOpen !== false;
+        document.getElementById('affiliate-registration-message').value = settings.registrationMessage || DEFAULT_AFFILIATE_SETTINGS.registrationMessage;
+        document.getElementById('affiliate-closed-message').value = settings.closedMessage || DEFAULT_AFFILIATE_SETTINGS.closedMessage;
+        document.getElementById('affiliate-min-withdraw').value = Number(settings.minWithdrawAmount || DEFAULT_AFFILIATE_SETTINGS.minWithdrawAmount);
+      } catch (error) {
+        console.error('Failed to load affiliate settings form:', error);
+      }
+    }
+
+    window.saveAffiliateSettings = async () => {
+      if (!requireAdminSession(true)) return;
+
+      try {
+        await setDoc(doc(db, 'settings', 'affiliateConfig'), {
+          portalEnabled: document.getElementById('affiliate-portal-enabled').checked,
+          registrationOpen: document.getElementById('affiliate-registration-open').checked,
+          registrationMessage: document.getElementById('affiliate-registration-message').value.trim() || DEFAULT_AFFILIATE_SETTINGS.registrationMessage,
+          closedMessage: document.getElementById('affiliate-closed-message').value.trim() || DEFAULT_AFFILIATE_SETTINGS.closedMessage,
+          defaultCommissionPercent: 8,
+          minWithdrawAmount: Math.max(0, Number(document.getElementById('affiliate-min-withdraw').value || DEFAULT_AFFILIATE_SETTINGS.minWithdrawAmount)),
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+        showToast('Pengaturan affiliate berhasil disimpan', 'success');
+      } catch (error) {
+        console.error(error);
+        showToast(error.message || 'Gagal menyimpan pengaturan affiliate', 'error');
+      }
+    };
+
+    function formatAffiliateCurrency(value) {
+      return `Rp ${new Intl.NumberFormat('id-ID').format(Number(value || 0))}`;
+    }
+
+    function formatAffiliateDate(value) {
+      if (!value) return '-';
+      if (value.toDate) return value.toDate().toLocaleString('id-ID');
+      if (value.seconds) return new Date(value.seconds * 1000).toLocaleString('id-ID');
+      return new Date(value).toLocaleString('id-ID');
+    }
+
+    function renderAffiliateUserStatus(status) {
+      if (status === 'approved') return '<span class="bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded text-xs">Approved</span>';
+      if (status === 'rejected') return '<span class="bg-red-500/20 text-red-300 px-2 py-1 rounded text-xs">Rejected</span>';
+      return '<span class="bg-amber-500/20 text-amber-300 px-2 py-1 rounded text-xs">Pending</span>';
+    }
+
+    function renderAffiliateCommissionStatus(status) {
+      if (status === 'approved') return '<span class="bg-blue-500/20 text-blue-300 px-2 py-1 rounded text-xs">Approved</span>';
+      if (status === 'paid') return '<span class="bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded text-xs">Paid</span>';
+      if (status === 'rejected') return '<span class="bg-red-500/20 text-red-300 px-2 py-1 rounded text-xs">Rejected</span>';
+      return '<span class="bg-amber-500/20 text-amber-300 px-2 py-1 rounded text-xs">Pending</span>';
+    }
+
+    function renderAffiliateWithdrawalStatus(status) {
+      if (status === 'paid') return '<span class="bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded text-xs">Paid</span>';
+      if (status === 'processing') return '<span class="bg-blue-500/20 text-blue-300 px-2 py-1 rounded text-xs">Processing</span>';
+      if (status === 'rejected') return '<span class="bg-red-500/20 text-red-300 px-2 py-1 rounded text-xs">Rejected</span>';
+      return '<span class="bg-amber-500/20 text-amber-300 px-2 py-1 rounded text-xs">Requested</span>';
+    }
+
+    const affiliateAdminState = {
+      users: [],
+      commissions: [],
+      withdrawals: [],
+      clicks: [],
+      errors: {
+        users: null,
+        commissions: null,
+        withdrawals: null,
+        clicks: null
+      },
+      search: '',
+      activePanel: 'users'
+    };
+
+    function describeAffiliateError(error) {
+      if (!error) return 'Unknown error';
+      if (error.code === 'permission-denied') return 'Permission denied. Deploy firebase.rule terbaru lalu refresh admin.';
+      if (error.code === 'failed-precondition') return 'Firestore butuh index atau precondition belum terpenuhi.';
+      return error.message || String(error);
+    }
+
+    function getAffiliateAdminSearch() {
+      return (affiliateAdminState.search || '').trim().toLowerCase();
+    }
+
+    function setAffiliateTableMessage(tableBodyId, colspan, message, color = 'text-slate-500') {
+      const tableBody = document.getElementById(tableBodyId);
+      if (!tableBody) return;
+      tableBody.innerHTML = `<tr><td colspan="${colspan}" class="px-6 py-4 text-center ${color}">${message}</td></tr>`;
+    }
+
+    function getAffiliateApprovedCommissionSummary(affiliateId) {
+      const approvedItems = affiliateAdminState.commissions.filter((item) => item.affiliate === affiliateId && item.status === 'approved');
+      return {
+        count: approvedItems.length,
+        amount: approvedItems.reduce((sum, item) => sum + Number(item.amount || 0), 0)
+      };
+    }
+
+    function getAffiliatePendingWithdrawalSummary(affiliateId) {
+      const pendingItems = affiliateAdminState.withdrawals.filter((item) => item.affiliate === affiliateId && (item.status === 'requested' || item.status === 'processing'));
+      return {
+        count: pendingItems.length,
+        amount: pendingItems.reduce((sum, item) => sum + Number(item.amount || 0), 0)
+      };
+    }
+
+    function updateAffiliateSubtabStyles(activePanel) {
+      document.querySelectorAll('.affiliate-subtab-btn').forEach((button) => {
+        const isActive = button.id === `affiliate-subtab-${activePanel}`;
+        button.classList.toggle('bg-indigo-500/15', isActive);
+        button.classList.toggle('text-indigo-200', isActive);
+        button.classList.toggle('text-slate-400', !isActive);
+        button.classList.toggle('hover:text-white', !isActive);
+        button.classList.toggle('hover:bg-white/5', !isActive);
+      });
+
+      document.querySelectorAll('.affiliate-panel').forEach((panel) => {
+        panel.classList.toggle('hidden', panel.id !== `affiliate-panel-${activePanel}`);
+      });
+    }
+
+    function renderAffiliateUsersTable() {
+      if (affiliateAdminState.errors.users) {
+        setAffiliateTableMessage('affiliate-users-table-body', 5, describeAffiliateError(affiliateAdminState.errors.users), 'text-red-400');
+        return;
+      }
+
+      const search = getAffiliateAdminSearch();
+      const users = affiliateAdminState.users.filter((item) => {
+        if (!search) return true;
+        return [item.email, item.code, item.firebase_uid, item.firebaseUid, item.status].some((value) => String(value || '').toLowerCase().includes(search));
+      });
+
+      if (!users.length) {
+        setAffiliateTableMessage('affiliate-users-table-body', 5, search ? 'Tidak ada affiliate yang cocok dengan pencarian.' : 'Belum ada affiliate.');
+        return;
+      }
+
+      document.getElementById('affiliate-users-table-body').innerHTML = users.map((item) => {
+        const approvedSummary = getAffiliateApprovedCommissionSummary(item.id);
+        const pendingWithdrawal = getAffiliatePendingWithdrawalSummary(item.id);
+        const saldo = Number(item.saldo || 0);
+        const holdBalance = Number(item.holdBalance || 0);
+        const canDirectPay = approvedSummary.amount > 0 && holdBalance <= 0 && approvedSummary.amount === saldo;
+        return `
+          <tr class="hover:bg-white/5 transition align-top">
+            <td class="px-6 py-4">
+              <div class="font-medium text-white">${item.email || '-'}</div>
+              <div class="text-xs text-slate-500">UID: ${item.firebase_uid || item.firebaseUid || '-'}</div>
+            </td>
+            <td class="px-6 py-4">${renderAffiliateUserStatus(item.status)}</td>
+            <td class="px-6 py-4">
+              <div class="font-mono text-xs text-indigo-300">${item.code || '-'}</div>
+              <div class="mt-1 text-[11px] text-slate-500">${approvedSummary.count} komisi approved</div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="font-semibold text-white">${formatAffiliateCurrency(saldo)}</div>
+              <div class="mt-1 text-[11px] text-slate-500">Diproses: ${formatAffiliateCurrency(holdBalance)}</div>
+              <div class="mt-1 text-[11px] text-slate-500">Request aktif: ${pendingWithdrawal.count}</div>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <div class="flex flex-wrap justify-end gap-2">
+                ${item.status !== 'approved' ? `<button onclick="setAffiliateUserStatus('${item.id}', 'approved')" class="text-emerald-400 hover:text-emerald-300 text-xs border border-emerald-500/30 px-3 py-1.5 rounded-lg hover:bg-emerald-500/10 transition">Approve</button>` : ''}
+                ${item.status !== 'rejected' ? `<button onclick="setAffiliateUserStatus('${item.id}', 'rejected')" class="text-red-400 hover:text-red-300 text-xs border border-red-500/30 px-3 py-1.5 rounded-lg hover:bg-red-500/10 transition">Reject</button>` : ''}
+                ${canDirectPay ? `<button onclick="payAffiliateSaldo('${item.id}')" class="text-indigo-200 hover:text-white text-xs border border-indigo-500/30 px-3 py-1.5 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 transition">Bayar Semua Saldo</button>` : ''}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderAffiliateCommissionsTable() {
+      if (affiliateAdminState.errors.commissions) {
+        setAffiliateTableMessage('affiliate-commissions-table-body', 5, describeAffiliateError(affiliateAdminState.errors.commissions), 'text-red-400');
+        return;
+      }
+
+      const search = getAffiliateAdminSearch();
+      const commissions = affiliateAdminState.commissions.filter((item) => {
+        if (!search) return true;
+        return [item.orderId, item.affiliateEmail, item.affiliateCode, item.productName, item.status, item.id].some((value) => String(value || '').toLowerCase().includes(search));
+      });
+
+      if (!commissions.length) {
+        setAffiliateTableMessage('affiliate-commissions-table-body', 5, search ? 'Tidak ada komisi yang cocok dengan pencarian.' : 'Belum ada komisi.');
+        return;
+      }
+
+      document.getElementById('affiliate-commissions-table-body').innerHTML = commissions.map((item) => `
+        <tr class="hover:bg-white/5 transition align-top">
+          <td class="px-6 py-4">
+            <div class="font-medium text-white">${item.orderId || item.id}</div>
+            <div class="text-xs text-slate-500">${item.productName || '-'}</div>
+          </td>
+          <td class="px-6 py-4">
+            <div class="font-medium text-white">${item.affiliateEmail || item.affiliateCode || '-'}</div>
+            <div class="text-xs text-slate-500">${item.affiliateCode || '-'}</div>
+          </td>
+          <td class="px-6 py-4 text-indigo-300 font-mono">${formatAffiliateCurrency(item.amount || 0)}</td>
+          <td class="px-6 py-4">${renderAffiliateCommissionStatus(item.status)}</td>
+          <td class="px-6 py-4 text-right">
+            <div class="flex flex-wrap justify-end gap-2">
+              ${item.status === 'pending' ? `<button onclick="setAffiliateCommissionStatus('${item.id}', 'approved')" class="text-blue-400 hover:text-blue-300 text-xs border border-blue-500/30 px-3 py-1.5 rounded-lg hover:bg-blue-500/10 transition">Approve</button>` : ''}
+              ${item.status === 'approved' ? `<button onclick="setAffiliateCommissionStatus('${item.id}', 'paid')" class="text-emerald-400 hover:text-emerald-300 text-xs border border-emerald-500/30 px-3 py-1.5 rounded-lg hover:bg-emerald-500/10 transition">Mark Paid</button>` : ''}
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderAffiliateWithdrawalsTable() {
+      if (affiliateAdminState.errors.withdrawals) {
+        setAffiliateTableMessage('affiliate-withdrawals-table-body', 6, describeAffiliateError(affiliateAdminState.errors.withdrawals), 'text-red-400');
+        return;
+      }
+
+      const search = getAffiliateAdminSearch();
+      const withdrawals = affiliateAdminState.withdrawals.filter((item) => {
+        if (!search) return true;
+        return [item.email, item.affiliateCode, item.method, item.phoneNumber, item.status].some((value) => String(value || '').toLowerCase().includes(search));
+      });
+
+      if (!withdrawals.length) {
+        setAffiliateTableMessage('affiliate-withdrawals-table-body', 6, search ? 'Tidak ada withdrawal yang cocok dengan pencarian.' : 'Belum ada request withdrawal.');
+        return;
+      }
+
+      document.getElementById('affiliate-withdrawals-table-body').innerHTML = withdrawals.map((item) => `
+        <tr class="hover:bg-white/5 transition align-top">
+          <td class="px-6 py-4">
+            <div class="font-medium text-white">${item.email || item.affiliateCode || '-'}</div>
+            <div class="text-xs text-slate-500">${item.affiliateCode || '-'}</div>
+            <div class="text-xs text-slate-500">${formatAffiliateDate(item.createdAt)}</div>
+          </td>
+          <td class="px-6 py-4 uppercase text-slate-300">${item.method || '-'}</td>
+          <td class="px-6 py-4 font-mono text-xs text-slate-400">${item.phoneNumber || '-'}</td>
+          <td class="px-6 py-4 font-mono text-indigo-300">${formatAffiliateCurrency(item.amount || 0)}</td>
+          <td class="px-6 py-4">${renderAffiliateWithdrawalStatus(item.status)}</td>
+          <td class="px-6 py-4 text-right">
+            <div class="flex flex-wrap justify-end gap-2">
+              ${item.status === 'requested' ? `<button onclick="setAffiliateWithdrawalStatus('${item.id}', 'processing')" class="text-blue-400 hover:text-blue-300 text-xs border border-blue-500/30 px-3 py-1.5 rounded-lg hover:bg-blue-500/10 transition">Proses</button>` : ''}
+              ${(item.status === 'requested' || item.status === 'processing') ? `<button onclick="setAffiliateWithdrawalStatus('${item.id}', 'paid')" class="text-emerald-400 hover:text-emerald-300 text-xs border border-emerald-500/30 px-3 py-1.5 rounded-lg hover:bg-emerald-500/10 transition">Paid</button>` : ''}
+              ${(item.status === 'requested' || item.status === 'processing') ? `<button onclick="setAffiliateWithdrawalStatus('${item.id}', 'rejected')" class="text-red-400 hover:text-red-300 text-xs border border-red-500/30 px-3 py-1.5 rounded-lg hover:bg-red-500/10 transition">Reject</button>` : ''}
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderAffiliateClicksTable() {
+      if (affiliateAdminState.errors.clicks) {
+        setAffiliateTableMessage('affiliate-clicks-table-body', 4, describeAffiliateError(affiliateAdminState.errors.clicks), 'text-red-400');
+        return;
+      }
+
+      const search = getAffiliateAdminSearch();
+      const clicks = affiliateAdminState.clicks.filter((item) => {
+        if (!search) return true;
+        return [item.affiliateEmail, item.affiliateCode, item.landingPath, item.ip].some((value) => String(value || '').toLowerCase().includes(search));
+      });
+
+      if (!clicks.length) {
+        setAffiliateTableMessage('affiliate-clicks-table-body', 4, search ? 'Tidak ada click log yang cocok dengan pencarian.' : 'Belum ada click log.');
+        return;
+      }
+
+      document.getElementById('affiliate-clicks-table-body').innerHTML = clicks.map((item) => `
+        <tr class="hover:bg-white/5 transition">
+          <td class="px-6 py-4 text-xs text-slate-400">${formatAffiliateDate(item.createdAt)}</td>
+          <td class="px-6 py-4">
+            <div class="font-medium text-white">${item.affiliateEmail || item.affiliateCode || '-'}</div>
+            <div class="text-xs text-slate-500">${item.affiliateCode || '-'}</div>
+          </td>
+          <td class="px-6 py-4 text-xs text-slate-400">${item.landingPath || '-'}</td>
+          <td class="px-6 py-4 text-xs font-mono text-slate-500">${item.ip || '-'}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderAffiliateAdminPanels() {
+      renderAffiliateUsersTable();
+      renderAffiliateCommissionsTable();
+      renderAffiliateWithdrawalsTable();
+      renderAffiliateClicksTable();
+      updateAffiliateSubtabStyles(affiliateAdminState.activePanel);
+    }
+
+    window.handleAffiliateAdminSearch = () => {
+      affiliateAdminState.search = document.getElementById('affiliate-admin-search')?.value || '';
+      renderAffiliateAdminPanels();
+    };
+
+    window.switchAffiliatePanel = (panelName) => {
+      affiliateAdminState.activePanel = panelName || 'users';
+      updateAffiliateSubtabStyles(affiliateAdminState.activePanel);
+      if (affiliateAdminState.activePanel !== 'settings') {
+        renderAffiliateAdminPanels();
+      }
+    };
+
+    async function generateUniqueAffiliateCode() {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      for (let attempt = 0; attempt < 10; attempt++) {
+        let candidate = 'ARF';
+        for (let i = 0; i < 6; i++) {
+          candidate += chars[Math.floor(Math.random() * chars.length)];
+        }
+        const exists = await getDocs(query(collection(db, 'affiliate_users'), where('code', '==', candidate), limit(1)));
+        if (exists.empty) return candidate;
+      }
+      return `ARF${Date.now().toString().slice(-6)}`;
+    }
+
+    window.setAffiliateUserStatus = async (affiliateId, nextStatus) => {
+      if (!requireAdminSession(true)) return;
+
+      try {
+        const affiliateRef = doc(db, 'affiliate_users', affiliateId);
+        const snap = await getDoc(affiliateRef);
+        if (!snap.exists()) throw new Error('Affiliate tidak ditemukan');
+
+        const data = snap.data();
+        const updateData = {
+          status: nextStatus,
+          updatedAt: serverTimestamp()
+        };
+
+        if (nextStatus === 'approved') {
+          updateData.code = data.code || await generateUniqueAffiliateCode();
+          updateData.approvedAt = serverTimestamp();
+        }
+
+        if (nextStatus === 'rejected') {
+          updateData.rejectedAt = serverTimestamp();
+        }
+
+        await updateDoc(affiliateRef, updateData);
+        showToast(`Affiliate ${nextStatus}`, 'success');
+        loadAffiliateAdmin();
+      } catch (error) {
+        showToast(error.message || 'Gagal update affiliate', 'error');
+      }
+    };
+
+    window.setAffiliateCommissionStatus = async (commissionId, nextStatus) => {
+      if (!requireAdminSession(true)) return;
+
+      try {
+        const commissionRef = doc(db, 'affiliate_commissions', commissionId);
+        const snap = await getDoc(commissionRef);
+        if (!snap.exists()) throw new Error('Komisi tidak ditemukan');
+
+        const commission = snap.data();
+        const affiliateRef = doc(db, 'affiliate_users', commission.affiliate);
+        const updateData = {
+          status: nextStatus,
+          updatedAt: serverTimestamp()
+        };
+
+        if (nextStatus === 'approved') {
+          updateData.approvedAt = serverTimestamp();
+          await runTransaction(db, async (transaction) => {
+            const affiliateSnap = await transaction.get(affiliateRef);
+            const currentSaldo = affiliateSnap.exists() ? Number(affiliateSnap.data().saldo || 0) : 0;
+            const pendingAmount = affiliateSnap.exists() ? Number(affiliateSnap.data().pendingCommissionAmount || 0) : 0;
+            transaction.update(commissionRef, updateData);
+            if (affiliateSnap.exists()) {
+              transaction.update(affiliateRef, {
+                saldo: currentSaldo + Number(commission.amount || 0),
+                pendingCommissionAmount: Math.max(0, pendingAmount - Number(commission.amount || 0)),
+                updatedAt: serverTimestamp()
+              });
+            }
+          });
+        } else if (nextStatus === 'paid') {
+          updateData.paidAt = serverTimestamp();
+          await runTransaction(db, async (transaction) => {
+            const affiliateSnap = await transaction.get(affiliateRef);
+            const currentSaldo = affiliateSnap.exists() ? Number(affiliateSnap.data().saldo || 0) : 0;
+            const totalPaid = affiliateSnap.exists() ? Number(affiliateSnap.data().totalPaid || 0) : 0;
+            transaction.update(commissionRef, updateData);
+            if (affiliateSnap.exists()) {
+              transaction.update(affiliateRef, {
+                saldo: Math.max(0, currentSaldo - Number(commission.amount || 0)),
+                totalPaid: totalPaid + Number(commission.amount || 0),
+                updatedAt: serverTimestamp()
+              });
+            }
+          });
+        } else {
+          await updateDoc(commissionRef, updateData);
+        }
+
+        showToast(`Komisi ${nextStatus}`, 'success');
+        loadAffiliateAdmin();
+      } catch (error) {
+        console.error(error);
+        showToast(error.message || 'Gagal update komisi', 'error');
+      }
+    };
+
+    window.setAffiliateWithdrawalStatus = async (withdrawalId, nextStatus) => {
+      if (!requireAdminSession(true)) return;
+
+      try {
+        const withdrawalRef = doc(db, 'affiliate_withdrawals', withdrawalId);
+        const withdrawalSnap = await getDoc(withdrawalRef);
+        if (!withdrawalSnap.exists()) throw new Error('Withdrawal tidak ditemukan');
+
+        const withdrawal = withdrawalSnap.data();
+        if (withdrawal.status === 'paid' || withdrawal.status === 'rejected') {
+          throw new Error('Withdrawal ini sudah final.');
+        }
+
+        const affiliateRef = doc(db, 'affiliate_users', withdrawal.affiliate);
+        if (nextStatus === 'processing') {
+          await updateDoc(withdrawalRef, {
+            status: 'processing',
+            processingAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          });
+        } else if (nextStatus === 'paid') {
+          await runTransaction(db, async (transaction) => {
+            const affiliateSnap = await transaction.get(affiliateRef);
+            const holdBalance = affiliateSnap.exists() ? Number(affiliateSnap.data().holdBalance || 0) : 0;
+            const totalPaid = affiliateSnap.exists() ? Number(affiliateSnap.data().totalPaid || 0) : 0;
+            transaction.update(withdrawalRef, {
+              status: 'paid',
+              paidAt: serverTimestamp(),
+              updatedAt: serverTimestamp()
+            });
+            if (affiliateSnap.exists()) {
+              transaction.update(affiliateRef, {
+                holdBalance: Math.max(0, holdBalance - Number(withdrawal.amount || 0)),
+                totalPaid: totalPaid + Number(withdrawal.amount || 0),
+                lastPayoutAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+              });
+            }
+          });
+        } else if (nextStatus === 'rejected') {
+          await runTransaction(db, async (transaction) => {
+            const affiliateSnap = await transaction.get(affiliateRef);
+            const holdBalance = affiliateSnap.exists() ? Number(affiliateSnap.data().holdBalance || 0) : 0;
+            const saldo = affiliateSnap.exists() ? Number(affiliateSnap.data().saldo || 0) : 0;
+            transaction.update(withdrawalRef, {
+              status: 'rejected',
+              rejectedAt: serverTimestamp(),
+              updatedAt: serverTimestamp()
+            });
+            if (affiliateSnap.exists()) {
+              transaction.update(affiliateRef, {
+                holdBalance: Math.max(0, holdBalance - Number(withdrawal.amount || 0)),
+                saldo: saldo + Number(withdrawal.amount || 0),
+                updatedAt: serverTimestamp()
+              });
+            }
+          });
+        }
+
+        showToast(`Withdrawal ${nextStatus}`, 'success');
+        loadAffiliateAdmin();
+      } catch (error) {
+        console.error(error);
+        showToast(error.message || 'Gagal update withdrawal', 'error');
+      }
+    };
+
+    window.payAffiliateSaldo = async (affiliateId) => {
+      if (!requireAdminSession(true)) return;
+
+      try {
+        const affiliateRef = doc(db, 'affiliate_users', affiliateId);
+        const affiliateSnap = await getDoc(affiliateRef);
+        if (!affiliateSnap.exists()) throw new Error('Affiliate tidak ditemukan');
+
+        const approvedSnapshot = await getDocs(query(collection(db, 'affiliate_commissions'), where('affiliate', '==', affiliateId)));
+        const approvedCommissions = approvedSnapshot.docs.filter((docSnap) => docSnap.data().status === 'approved');
+        if (!approvedCommissions.length) throw new Error('Belum ada komisi approved untuk dibayar.');
+
+        const affiliateData = affiliateSnap.data();
+        if (Number(affiliateData.holdBalance || 0) > 0) throw new Error('Ada withdrawal yang sedang diproses. Selesaikan dulu request withdrawal affiliate ini.');
+        const totalAmount = approvedCommissions.reduce((sum, docSnap) => sum + Number(docSnap.data().amount || 0), 0);
+        if (totalAmount !== Number(affiliateData.saldo || 0)) throw new Error('Saldo affiliate tidak sinkron dengan komisi approved. Gunakan payout via withdrawal request atau cek data affiliate.');
+
+        const affiliateLabel = affiliateData.email || affiliateData.code || affiliateId;
+        const confirmed = window.confirm(`Bayar semua saldo approved untuk ${affiliateLabel} sebesar ${formatAffiliateCurrency(totalAmount)}?`);
+        if (!confirmed) return;
+
+        const chunks = [];
+        const chunkSize = 450;
+        for (let i = 0; i < approvedCommissions.length; i += chunkSize) {
+          chunks.push(approvedCommissions.slice(i, i + chunkSize));
+        }
+
+        const currentSaldo = Number(affiliateData.saldo || 0);
+        const totalPaid = Number(affiliateData.totalPaid || 0);
+
+        for (let index = 0; index < chunks.length; index++) {
+          const batch = writeBatch(db);
+          chunks[index].forEach((commissionSnap) => {
+            batch.update(commissionSnap.ref, {
+              status: 'paid',
+              paidAt: serverTimestamp(),
+              updatedAt: serverTimestamp()
+            });
+          });
+
+          if (index === chunks.length - 1) {
+            batch.update(affiliateRef, {
+              saldo: Math.max(0, currentSaldo - totalAmount),
+              totalPaid: totalPaid + totalAmount,
+              lastPayoutAt: serverTimestamp(),
+              updatedAt: serverTimestamp()
+            });
+          }
+
+          await batch.commit();
+        }
+
+        showToast(`Semua saldo affiliate berhasil dibayar (${formatAffiliateCurrency(totalAmount)})`, 'success');
+        loadAffiliateAdmin();
+      } catch (error) {
+        console.error(error);
+        showToast(error.message || 'Gagal membayar saldo affiliate', 'error');
+      }
+    };
+
+    window.loadAffiliateAdmin = async () => {
+      if (!requireAdminSession()) return;
+
+      affiliateAdminState.search = document.getElementById('affiliate-admin-search')?.value || '';
+      affiliateAdminState.errors = { users: null, commissions: null, withdrawals: null, clicks: null };
+      setAffiliateTableMessage('affiliate-users-table-body', 5, 'Memuat affiliate...');
+      setAffiliateTableMessage('affiliate-commissions-table-body', 5, 'Memuat komisi...');
+      setAffiliateTableMessage('affiliate-withdrawals-table-body', 6, 'Memuat withdrawal...');
+      setAffiliateTableMessage('affiliate-clicks-table-body', 4, 'Memuat click log...');
+
+      try {
+        await loadAffiliateSettingsForm();
+      } catch (error) {
+        console.error('Affiliate settings load error:', error);
+        showToast(describeAffiliateError(error), 'error');
+      }
+
+      const [usersResult, commissionsResult, withdrawalsResult, clicksResult] = await Promise.allSettled([
+        getDocs(collection(db, 'affiliate_users')),
+        getDocs(collection(db, 'affiliate_commissions')),
+        getDocs(collection(db, 'affiliate_withdrawals')),
+        getDocs(query(collection(db, 'affiliate_clicks'), orderBy('createdAt', 'desc'), limit(100)))
+      ]);
+
+      affiliateAdminState.users = usersResult.status === 'fulfilled'
+        ? usersResult.value.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() })).sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
+        : [];
+      affiliateAdminState.commissions = commissionsResult.status === 'fulfilled'
+        ? commissionsResult.value.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() })).sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
+        : [];
+      affiliateAdminState.withdrawals = withdrawalsResult.status === 'fulfilled'
+        ? withdrawalsResult.value.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() })).sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
+        : [];
+      affiliateAdminState.clicks = clicksResult.status === 'fulfilled'
+        ? clicksResult.value.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }))
+        : [];
+
+      affiliateAdminState.errors.users = usersResult.status === 'rejected' ? usersResult.reason : null;
+      affiliateAdminState.errors.commissions = commissionsResult.status === 'rejected' ? commissionsResult.reason : null;
+      affiliateAdminState.errors.withdrawals = withdrawalsResult.status === 'rejected' ? withdrawalsResult.reason : null;
+      affiliateAdminState.errors.clicks = clicksResult.status === 'rejected' ? clicksResult.reason : null;
+
+      const pendingUsers = affiliateAdminState.users.filter((item) => item.status === 'pending').length;
+      const approvedUsers = affiliateAdminState.users.filter((item) => item.status === 'approved').length;
+      const pendingCommissions = affiliateAdminState.commissions.filter((item) => item.status === 'pending').reduce((sum, item) => sum + Number(item.amount || 0), 0);
+      const approvedBalance = affiliateAdminState.users.reduce((sum, item) => sum + Number(item.saldo || 0), 0);
+
+      document.getElementById('affiliate-stat-pending-users').innerText = pendingUsers;
+      document.getElementById('affiliate-stat-approved-users').innerText = approvedUsers;
+      document.getElementById('affiliate-stat-pending-commissions').innerText = formatAffiliateCurrency(pendingCommissions);
+      document.getElementById('affiliate-stat-approved-balance').innerText = formatAffiliateCurrency(approvedBalance);
+
+      renderAffiliateAdminPanels();
+
+      if (usersResult.status === 'rejected' || commissionsResult.status === 'rejected' || withdrawalsResult.status === 'rejected' || clicksResult.status === 'rejected') {
+        showToast('Sebagian data affiliate gagal dimuat. Lihat pesan merah di tabel untuk detailnya.', 'warning');
+      }
+    };
     // Orders Logic
     let currentOrderFilter = 'all';
 
@@ -2333,6 +3184,8 @@
     };
 
     window.loadOrders = () => {
+      if (!requireAdminSession()) return;
+
       const tableBody = document.getElementById("orders-table-body");
 
       let q;
@@ -2521,6 +3374,8 @@
     };
 
     window.autoCancelExpiredOrders = async () => {
+      if (!requireAdminSession()) return;
+
       console.log('Running auto-cancel check...');
       const now = new Date();
       // 1 Hour Expiration
@@ -2795,6 +3650,9 @@
         }
 
         const totalSold = Math.max(0, parseInt(document.getElementById("prod-total-sold").value) || 0);
+        const affiliateEnabled = document.getElementById("prod-affiliate-enabled").checked;
+        const affiliateCommissionPercentRaw = document.getElementById("prod-affiliate-percent").value;
+        const affiliateCommissionFlatRaw = document.getElementById("prod-affiliate-flat").value;
 
         let productData = {
           name,
@@ -2806,6 +3664,9 @@
           sectionId: sectionId || null,
           orderInSection: orderInSection,
           totalSold: totalSold,
+          affiliateEnabled,
+          affiliateCommissionPercent: affiliateCommissionPercentRaw ? parseFloat(affiliateCommissionPercentRaw) : null,
+          affiliateCommissionFlat: affiliateCommissionFlatRaw ? parseInt(affiliateCommissionFlatRaw) : null,
           updatedAt: serverTimestamp()
         };
 
@@ -2917,7 +3778,10 @@
         document.getElementById("prod-id").value = "";
         document.getElementById("prod-slug").value = "";
 
-        // Reset State
+                document.getElementById("prod-affiliate-enabled").checked = true;
+        document.getElementById("prod-affiliate-percent").value = "";
+        document.getElementById("prod-affiliate-flat").value = "";
+// Reset State
         currentEditingStock = [];
         currentVariants = [];
         isVariableProduct = false;
@@ -2974,7 +3838,10 @@
       // Total Terjual
       document.getElementById("prod-total-sold").value = product.totalSold || 0;
 
-      // Check Mode
+              document.getElementById("prod-affiliate-enabled").checked = product.affiliateEnabled !== false;
+        document.getElementById("prod-affiliate-percent").value = product.affiliateCommissionPercent ?? "";
+        document.getElementById("prod-affiliate-flat").value = product.affiliateCommissionFlat ?? "";
+// Check Mode
       isVariableProduct = !!product.hasVariants;
       document.getElementById("has-variants").checked = isVariableProduct;
       toggleVariantMode();
@@ -3690,3 +4557,16 @@
 </body>
 
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+

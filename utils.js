@@ -2,10 +2,10 @@
 const CURRENCY_MAP = {
   "IDR": { symbol: "Rp", name: "IDR" },
   "USD": { symbol: "$", name: "USD" },
-  "EUR": { symbol: "€", name: "EUR" },
-  "GBP": { symbol: "£", name: "GBP" },
-  "JPY": { symbol: "¥", name: "JPY" },
-  "CNY": { symbol: "¥", name: "CNY" }
+  "EUR": { symbol: "Ã¢â€šÂ¬", name: "EUR" },
+  "GBP": { symbol: "Ã‚Â£", name: "GBP" },
+  "JPY": { symbol: "Ã‚Â¥", name: "JPY" },
+  "CNY": { symbol: "Ã‚Â¥", name: "CNY" }
 };
 
 // State Management
@@ -199,7 +199,7 @@ function updateDropdownUI() {
   const langFlag = document.getElementById('current-lang-flag');
   if (langText && langFlag) {
     langText.textContent = savedLang === 'en' ? 'EN' : 'ID';
-    langFlag.textContent = savedLang === 'en' ? '🇺🇸' : '🇮🇩';
+    langFlag.textContent = savedLang === 'en' ? 'EN' : 'ID';
   }
 
   const currText = document.getElementById('current-curr-text');

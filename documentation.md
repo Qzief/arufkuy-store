@@ -95,3 +95,50 @@ Membuat pengumuman atau kode promo yang muncul saat user membuka website.
     ```
 3.  Klik **Add**.
 4.  User akan menerima teks tersebut secara utuh sebagai satu kesatuan.
+
+### Menambah Stok dengan Format Custom (Label|Value)
+1.  Buka **Kelola Stok**.
+2.  Ketik/Paste dengan format pipah `|`:
+    ```
+    Email|user@mail.com
+    Pass|12345
+    Pin|0000
+    ```
+3.  **Pastikan** setiap baris memiliki enter/baris baru.
+4.  Klik **Add**.
+5.  User akan melihat tampilan yang rapi dengan tombol copy di setiap barisnya.
+
+---
+
+## 5. Sistem Kupon & Diskon (Advanced)
+
+ArufKuy Store kini menggunakan sistem kupon mandiri (Lokal) yang dilengkapi perlindungan kelas Enterprise untuk mencegah penyalahgunaan diskon.
+
+### A. Fitur Utama Kupon
+Saat membuat kupon di Menu Kupon pada Dashboard Admin, Anda memiliki kontrol penuh atas promo:
+
+*   **Tipe Diskon**:
+    *   **Fixed (Rp)**: Potongan harga tetap (contoh: Diskon Rp 10.000).
+    *   **Persen (%)**: Potongan harga berdasarkan persentase (contoh: Diskon 20%).
+*   **Maksimal Diskon (Persen)**: Jika Anda menggunakan tipe Persen (%), Anda bisa membatasi kerugian. (contoh: Diskon 50%, *Maksimal Diskon* Rp 20.000).
+*   **Kapasitas (Max Usage Global)**: Batas maksimal kupon ini bisa digunakan oleh *seluruh* pelanggan (contoh: Hanya untuk 100 orang pertama).
+*   **Status & Jadwal**: Kupon bisa diset Aktif, Nonaktif, atau Terjadwal. Kupon terjadwal baru bisa dipakai setelah "Tanggal Mulai" tercapai.
+
+### B. Proteksi & Limitasi Penggunaan
+Untuk mencegah *fraud* (kecurangan), sistem akan memblokir penggunaan kupon jika melanggar salah satu limitasi berikut:
+
+1.  **Limit Per-User**: Batasi berapa kali satu pelanggan (Berdasarkan Email / No. HP) boleh menggunakan kupon yang sama. Set ke `1` agar setiap pelanggan hanya bisa pakai 1x promo.
+2.  **Cooldown (Jeda Penggunaan)**: Jika limit user > 1, Anda bisa mengatur jeda (dalam satuan Jam) sebelum pengguna boleh memakai kupon itu lagi.
+3.  **Minimal Belanja (Rp)**: Kupon hanya aktif jika total keranjang mencapai nominal ini (contoh: Min. Belanja Rp 50.000).
+4.  **Minimal Jumlah Item (Qty)**: Kupon hanya aktif jika kuantitas barang yang dibeli lebih dari batas (contoh: Min. Beli 2 akun).
+5.  **Produk Spesifik**: Anda bisa membatasi kupon ini hanya berlaku untuk produk-produk tertentu saja (Pilih produk pada daftar di Popup Kupon).
+
+### C. Analitik Kupon
+*   Setiap kupon di tabel admin akan menampilkan **Progress Bar** yang menunjukkan berapa kuota terpakai (contoh: Dipakai 25/100 -> 25%).
+*   Sistem juga melacak **Total Diskon** yang secara kumulatif telah Anda berikan / subsidi melalui kupon tersebut.
+
+### D. Fitur Cepat Admin
+*   **Generate Kode**: Tombol `Generate` di sebelah kolom kode akan men-generate kode unik secara acak (Contoh: `PROMO-A2B4`).
+*   **Live Preview**: Simulasi tampilan kupon (Karcis) secara *real-time* sebelum Anda menyimpannya.
+*   **Duplicate**: Tombol Duplicate (Ikon Copy di tabel) untuk menyalin settingan kupon lama menjadi kupon baru (kode otomatis ditambahkan angka random).
+*   **Quick Toggle Status**: Mengubah status kupon Aktif <-> Nonaktif hanya dengan 1 klik pada ikon panah di tabel.

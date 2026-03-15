@@ -1099,12 +1099,15 @@
     src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
   <script type="module">
-    import { firebaseConfig } from './config.js';
+    import { firebaseConfig, WORKER_BASE_URL } from './config.js';
+    import { captureAffiliateAttribution, trackAffiliateVisit } from './affiliate.js';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, doc, getDoc, addDoc, setDoc, collection, query, where, getDocs, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const affiliateAttribution = captureAffiliateAttribution();
+    trackAffiliateVisit(WORKER_BASE_URL, affiliateAttribution, { sourcePage: 'detail-product' });
 
     // Helper to get stock count safely
     function getStock(item) {
@@ -1209,14 +1212,14 @@
     const params = new URLSearchParams(window.location.search);
     let productId = params.get("id");
     let productSlug = null;
-
-    // Format 1: bare slug ?akun-hytale (no key=value, e.g. detail-product?akun-hytale)
+    // Format 1: bare slug ?akun-hytale or ?akun-hytale&ref=CODE
     const rawSearch = window.location.search.slice(1); // remove leading ?
-    if (rawSearch && !rawSearch.includes('=')) {
+    const firstSearchPart = rawSearch ? rawSearch.split('&')[0] : '';
+    if (firstSearchPart && !firstSearchPart.includes('=')) {
       try {
-        productSlug = decodeURIComponent(rawSearch);
+        productSlug = decodeURIComponent(firstSearchPart);
       } catch {
-        productSlug = rawSearch;
+        productSlug = firstSearchPart;
       }
     }
 
@@ -1718,7 +1721,13 @@
         variantId: (isVariableProduct && selectedVariant) ? selectedVariant.id : null,
         variantName: (isVariableProduct && selectedVariant) ? selectedVariant.name : null,
         slug: slug,
-        customerNotes: buyerNotes || null
+        customerNotes: buyerNotes || null,
+        affiliate: affiliateAttribution ? {
+          code: affiliateAttribution.code,
+          source: affiliateAttribution.source,
+          landingPath: affiliateAttribution.landingPath,
+          capturedAt: affiliateAttribution.capturedAt
+        } : null
       };
 
       sessionStorage.setItem('invoice_data', JSON.stringify(invoicePayload));
@@ -1806,6 +1815,7 @@
 </body>
 
 </html>
+
 
 
 

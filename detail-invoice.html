@@ -924,6 +924,7 @@
     <!-- Firebase + Payment Logic -->
     <script type="module">
         import { firebaseConfig, WORKER_BASE_URL } from './config.js';
+        import { readAffiliateCookie } from './affiliate.js';
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, setDoc, collection } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -938,6 +939,7 @@
 
             payBtn.addEventListener('click', async () => {
                 const d = invoicePayload;
+                const activeAffiliateCode = (d.affiliate && d.affiliate.code) || readAffiliateCookie();
 
                 // Disable button
                 const originalHTML = payBtn.innerHTML;
@@ -967,7 +969,15 @@
                         coupon: (d.coupon && d.coupon.code) || null,
                         description: description,
                         bookedItems: [],
-                        customerNotes: d.customerNotes || null
+                        customerNotes: d.customerNotes || null,
+                        affiliateCode: activeAffiliateCode || null,
+                        affiliateSource: (d.affiliate && d.affiliate.source) || 'cookie',
+                        affiliate: activeAffiliateCode ? {
+                            code: activeAffiliateCode,
+                            source: (d.affiliate && d.affiliate.source) || 'cookie',
+                            landingPath: d.affiliate ? d.affiliate.landingPath : window.location.pathname,
+                            capturedAt: d.affiliate ? d.affiliate.capturedAt : null
+                        } : null
                     };
 
                     if (d.isVariableProduct && d.variantId) {
@@ -991,6 +1001,8 @@
                         productId: d.productId,
                         variantId: (d.isVariableProduct && d.variantId) ? d.variantId : null,
                         coupon: (d.coupon && d.coupon.code) || null,
+                        affiliateCode: activeAffiliateCode || null,
+                        affiliateSource: (d.affiliate && d.affiliate.source) || 'cookie',
                         items: [{
                             name: d.productName,
                             quantity: d.quantity,
@@ -1041,3 +1053,5 @@
 </body>
 
 </html>
+
+

@@ -1,0 +1,1040 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Affiliate - Arufkuy Store</title>
+  <link rel="icon" type="image/png" href="icon.png">
+  <meta name="description" content="Program Affiliate Arufkuy Store - Dapatkan komisi dari setiap referral." />
+  <meta name="theme-color" content="#0b1220" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          boxShadow: {
+            glow: "0 0 0 1px rgba(148,163,184,.12), 0 12px 40px rgba(2,6,23,.55)"
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    .grid-bg {
+      background-image: radial-gradient(circle at 1px 1px, rgba(148, 163, 184, .14) 1px, transparent 0);
+      background-size: 26px 26px;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
+    .skeleton { background: linear-gradient(to right, rgba(255,255,255,0.05) 8%, rgba(255,255,255,0.1) 18%, rgba(255,255,255,0.05) 33%); background-size: 1000px 100%; animation: shimmer 2s infinite linear; }
+    .animate-text-gradient {
+      background: linear-gradient(to right, #818cf8, #c084fc, #38bdf8, #818cf8);
+      background-size: 300% auto; background-clip: text; -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent; animation: textGradient 6s linear infinite;
+    }
+    @keyframes textGradient { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+    .animate-fade-in-up { animation: fadeInUp 0.8s ease-out forwards; opacity: 0; transform: translateY(20px); }
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .mobile-overlay { opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+    .mobile-overlay.active { opacity: 1; visibility: visible; }
+    .mobile-sheet { transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1); }
+    .mobile-overlay.active .mobile-sheet { transform: translateY(0); }
+    .mobile-nav-item { transition: border-color .2s ease, background .2s ease, transform .15s ease; }
+    .mobile-nav-item:hover { border-color: rgba(129, 140, 248, 0.45); background: rgba(30, 41, 59, 0.65); }
+    .mobile-nav-item:active { transform: scale(0.98); }
+    .aff-loading { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(2,6,23,.96); backdrop-filter: blur(8px); z-index: 2000; }
+    .aff-ring { width: 56px; height: 56px; margin: 0 auto 16px; border-radius: 50%; border: 4px solid rgba(255,255,255,.08); border-top-color: #22d3ee; animation: spin .9s linear infinite; }
+    .toast-wrap { position: fixed; top: 18px; right: 18px; display: grid; gap: 10px; z-index: 1000; }
+    .toast { min-width: 260px; max-width: 360px; padding: 14px 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,.1); background: rgba(6,12,22,.95); box-shadow: 0 12px 40px rgba(2,6,23,.55); color: #e5eefb; font-size: 14px; }
+    .badge { display: inline-flex; align-items: center; border-radius: 999px; padding: 6px 10px; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; border: 1px solid transparent; }
+    .badge.info { background: rgba(96,165,250,.14); color: #bfdbfe; border-color: rgba(96,165,250,.22); }
+    .badge.pending { background: rgba(251,191,36,.14); color: #fde68a; border-color: rgba(251,191,36,.22); }
+    .badge.approved { background: rgba(52,211,153,.14); color: #a7f3d0; border-color: rgba(52,211,153,.22); }
+    .badge.rejected { background: rgba(251,113,133,.14); color: #fecdd3; border-color: rgba(251,113,133,.22); }
+    .aff-card { position: relative; overflow: hidden; border-radius: 24px; }
+    .aff-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01)); pointer-events: none; }
+    .aff-card > * { position: relative; z-index: 1; }
+    .aff-stack { display: grid; gap: 20px; align-content: start; }
+    .aff-table { overflow-x: auto; border-radius: 18px; border: 1px solid rgba(255,255,255,.1); background: rgba(2,6,23,.28); }
+    .aff-table table { width: 100%; border-collapse: collapse; }
+    .aff-table thead tr { background: rgba(2,6,23,.58); }
+    .aff-table th { padding: 14px 18px; font-size: 12px; letter-spacing: .08em; }
+    .aff-table td { padding: 14px 18px; line-height: 1.55; color: #e2e8f0; }
+    .aff-table tbody tr:not(:last-child) td { border-bottom: 1px solid rgba(255,255,255,.05); }
+    .aff-table td, .aff-table th { vertical-align: top; }
+    .aff-cell-title { font-weight: 600; color: #f8fafc; }
+    .aff-cell-sub { display: block; margin-top: 4px; font-size: 12px; color: #94a3b8; word-break: break-word; }
+    .aff-cell-amount { font-weight: 700; color: #f8fafc; white-space: nowrap; }
+    .aff-summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; width: 100%; }
+    .aff-summary-item { border-radius: 16px; border: 1px solid rgba(255,255,255,.08); background: rgba(15,23,42,.52); padding: 12px 14px; }
+    .aff-summary-label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #94a3b8; }
+    .aff-summary-value { display: block; margin-top: 6px; font-size: 18px; font-weight: 800; color: #f8fafc; }
+    .aff-summary-note { margin-top: 10px; font-size: 12px; color: #94a3b8; }
+    @media (max-width: 640px) {
+      .aff-summary-grid { grid-template-columns: 1fr; }
+      .aff-table { overflow: visible; border: 0; background: transparent; }
+      .aff-table table, .aff-table tbody { display: block; width: 100%; }
+      .aff-table thead { display: none; }
+      .aff-table tr { display: block; padding: 14px; border: 1px solid rgba(255,255,255,.08); border-radius: 18px; background: rgba(2,6,23,.34); }
+      .aff-table tr + tr { margin-top: 12px; }
+      .aff-table td { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; width: 100%; padding: 8px 0; border-bottom: 0 !important; text-align: right; }
+      .aff-table td::before { content: attr(data-label); flex: 0 0 92px; text-align: left; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #94a3b8; }
+      .aff-table td > * { max-width: calc(100% - 106px); }
+      .aff-cell-sub { margin-top: 2px; }
+      .aff-cell-amount { font-size: 16px; }
+    }
+    .aff-field, .aff-select, .aff-textarea { width: 100%; min-height: 52px; border-radius: 16px; border: 1px solid rgba(255,255,255,.1); background: rgba(15,23,42,.55); color: #fff; padding: 14px 16px; font-size: 14px; transition: border-color .2s ease, box-shadow .2s ease, background .2s ease; }
+    .aff-textarea { min-height: 104px; resize: vertical; }
+    .aff-field:focus, .aff-select:focus, .aff-textarea:focus { outline: none; border-color: rgba(99,102,241,.7); box-shadow: 0 0 0 4px rgba(99,102,241,.12); background: rgba(15,23,42,.72); }
+    .aff-select { appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: linear-gradient(45deg, transparent 50%, #e2e8f0 50%), linear-gradient(135deg, #e2e8f0 50%, transparent 50%); background-position: calc(100% - 22px) calc(50% - 3px), calc(100% - 16px) calc(50% - 3px); background-size: 6px 6px, 6px 6px; background-repeat: no-repeat; padding-right: 44px; color-scheme: dark; }
+    .aff-select option { background: #0f172a; color: #e5eefb; }
+    .aff-summary { min-height: 92px; display: flex; align-items: flex-start; }
+    .aff-action { width: 100%; display: inline-flex; align-items: center; justify-content: center; }
+    @media (min-width: 1024px) { .aff-main-grid { align-items: start; } .aff-sidebar { position: sticky; top: 24px; } }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100">
+  <!-- Top gradient -->
+  <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+    <div class="absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-indigo-500/20 blur-3xl"></div>
+    <div class="absolute top-40 right-[-140px] h-[380px] w-[380px] rounded-full bg-cyan-500/15 blur-3xl"></div>
+  </div>
+
+  <!-- Loading Screen -->
+  <div class="aff-loading" id="loading-screen">
+    <div class="w-[min(440px,calc(100%-32px))] p-8 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl text-center shadow-glow">
+      <div class="aff-ring"></div>
+      <h2 class="text-lg font-bold mt-2">Menyiapkan Portal Affiliate</h2>
+      <p class="text-sm text-slate-400 mt-2">Mengecek login, pengaturan akses, dan data affiliate kamu...</p>
+    </div>
+  </div>
+
+  <div class="toast-wrap" id="toast-wrap"></div>
+
+  <div id="app-shell" class="hidden">
+  <!-- Header -->
+  <header class="border-b border-white/10 bg-slate-950/70 backdrop-blur hidden" id="site-header">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+      <a href="index.html" class="flex items-center gap-3">
+        <div class="grid h-10 w-10 place-items-center rounded-xl bg-white/5 shadow-glow overflow-hidden">
+          <img src="icon.png" alt="A" class="h-8 w-8 object-contain">
+        </div>
+        <div class="leading-tight">
+          <p class="text-sm font-semibold tracking-wide">Arufkuy Store</p>
+          <p class="text-xs text-slate-400">Affiliate Portal</p>
+        </div>
+      </a>
+
+      <nav class="hidden items-center gap-6 text-sm text-slate-300 md:flex">
+        <a href="index.html" class="hover:text-white transition">Beranda</a>
+        <a href="index.html#products" class="hover:text-white transition">Produk</a>
+        <a href="order-guide.html" class="hover:text-white transition">Cara Order</a>
+        <a href="help-center.html" class="hover:text-white transition">Pusat Bantuan</a>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <div class="hidden md:flex items-center gap-3">
+          <span class="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-400">Cookie 30 hari</span>
+          <span class="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-400">Last click wins</span>
+          <button class="hidden items-center gap-2 rounded-xl bg-gradient-to-r from-red-500 to-orange-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 hover:shadow-lg hover:shadow-red-500/40 shadow-lg shadow-red-500/30" id="logout-btn" type="button">Keluar</button>
+        </div>
+
+        <!-- Mobile Hamburger Button -->
+        <button onclick="toggleMobileMenu()" class="md:hidden rounded-xl bg-white/5 p-2 hover:bg-white/10 transition">
+          <svg id="hamburger-icon" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+          <svg id="close-icon" class="h-6 w-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Bottom Sheet Menu -->
+  <div id="mobile-overlay" class="mobile-overlay fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm md:hidden" onclick="closeMobileMenu()">
+    <div class="mobile-sheet fixed bottom-0 left-0 right-0 max-h-[88vh] rounded-t-3xl border-t border-white/10 bg-slate-950/95 backdrop-blur-xl shadow-2xl overflow-y-auto no-scrollbar" onclick="event.stopPropagation()">
+      <div class="sticky top-0 z-10 flex justify-center pt-3 pb-2 bg-slate-950/95 backdrop-blur-xl">
+        <div class="h-1 w-12 rounded-full bg-white/20"></div>
+      </div>
+      <div class="px-4 pb-6 space-y-5">
+        <div class="rounded-2xl border border-indigo-400/25 bg-gradient-to-r from-indigo-500/15 to-cyan-500/10 p-4">
+          <p class="text-xs uppercase tracking-[0.18em] text-indigo-200/90">Menu Navigasi</p>
+          <p class="mt-1 text-sm text-slate-300">Navigasi cepat halaman Arufkuy Store.</p>
+        </div>
+        <div class="space-y-2">
+          <a href="index.html" onclick="closeMobileMenu()" class="mobile-nav-item flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-3 py-3.5">
+            <div class="flex items-center gap-3">
+              <span class="grid h-10 w-10 place-items-center rounded-xl bg-indigo-500/20 text-indigo-300">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+              </span>
+              <div><p class="text-sm font-semibold text-slate-100">Beranda</p><p class="text-xs text-slate-400">Kembali ke halaman utama</p></div>
+            </div>
+            <svg class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+          </a>
+          <a href="index.html#products" onclick="closeMobileMenu()" class="mobile-nav-item flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-3 py-3.5">
+            <div class="flex items-center gap-3">
+              <span class="grid h-10 w-10 place-items-center rounded-xl bg-cyan-500/20 text-cyan-300">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+              </span>
+              <div><p class="text-sm font-semibold text-slate-100">Produk</p><p class="text-xs text-slate-400">Lihat semua digital goods</p></div>
+            </div>
+            <svg class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+          </a>
+          <a href="help-center.html" onclick="closeMobileMenu()" class="mobile-nav-item flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-3 py-3.5">
+            <div class="flex items-center gap-3">
+              <span class="grid h-10 w-10 place-items-center rounded-xl bg-emerald-500/20 text-emerald-300">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              </span>
+              <div><p class="text-sm font-semibold text-slate-100">Pusat Bantuan</p><p class="text-xs text-slate-400">FAQ dan info penting</p></div>
+            </div>
+            <svg class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+          </a>
+        </div>
+        <button onclick="if(document.getElementById('logout-btn').classList.contains('hidden')){return}document.getElementById('logout-btn').click();closeMobileMenu();" class="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-red-500 to-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-red-500/25" id="mobile-logout-btn" style="display:none">Keluar dari Akun</button>
+      </div>
+    </div>
+  </div>
+  <!-- Main Content -->
+  <main class="grid-bg">
+    <!-- Hero -->
+    <section class="mx-auto max-w-6xl px-4 py-12 md:py-20">
+      <div class="rounded-3xl border border-white/10 bg-white/5 p-6 md:p-10 shadow-glow relative overflow-hidden">
+        <div class="absolute -top-20 -right-20 h-60 w-60 rounded-full bg-cyan-500/10 blur-3xl pointer-events-none"></div>
+        <div class="relative z-10">
+          <p class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs text-slate-300 mb-5">
+            <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+            <span>Affiliate Program</span>
+          </p>
+          <h1 class="text-3xl md:text-5xl font-bold leading-tight tracking-tight animate-fade-in-up" style="animation-delay: 0.2s;">
+            <span class="text-slate-100">Dapatkan</span> <span class="animate-text-gradient font-extrabold drop-shadow-lg">komisi</span> <span class="text-slate-100">dari setiap</span> <span class="animate-text-gradient font-extrabold drop-shadow-lg">referral</span>.
+          </h1>
+          <p class="mt-4 text-sm md:text-base text-slate-300 leading-relaxed max-w-2xl">Daftar, kelola link referral, dan pantau komisi kamu dari satu portal yang terintegrasi langsung dengan Arufkuy Store.</p>
+
+          <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="rounded-2xl border border-white/10 bg-slate-950/40 p-4 text-center">
+              <p class="text-xs text-slate-400 uppercase tracking-wider">Cookie Tracking</p>
+              <p class="text-2xl md:text-3xl font-bold text-white mt-2">30 Hari</p>
+              <p class="text-xs text-slate-500 mt-1">Komisi tetap teratribusikan selama masa cookie aktif.</p>
+            </div>
+            <div class="rounded-2xl border border-white/10 bg-slate-950/40 p-4 text-center">
+              <p class="text-xs text-slate-400 uppercase tracking-wider">Komisi Default</p>
+              <p class="text-2xl md:text-3xl font-bold text-white mt-2" id="hero-commission">8%</p>
+              <p class="text-xs text-slate-500 mt-1">Bisa di-override per produk dari panel admin.</p>
+            </div>
+            <div class="rounded-2xl border border-white/10 bg-slate-950/40 p-4 text-center">
+              <p class="text-xs text-slate-400 uppercase tracking-wider">Pendaftaran</p>
+              <p class="text-2xl md:text-3xl font-bold text-white mt-2" id="hero-registration-status">Buka</p>
+              <p class="text-xs text-slate-500 mt-1">Admin bisa buka atau tutup pendaftaran kapan saja.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Portal Closed Card -->
+    <section class="mx-auto max-w-6xl px-4 hidden" id="portal-closed-card">
+      <div class="rounded-3xl border border-red-500/20 bg-red-500/5 p-6 md:p-8 shadow-glow text-center">
+        <svg class="w-12 h-12 mx-auto text-red-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+        <h2 class="text-xl font-bold text-white mb-2">Portal Affiliate Sedang Ditutup</h2>
+        <p class="text-sm text-slate-400" id="portal-closed-message">Portal affiliate sedang tidak tersedia sementara waktu.</p>
+      </div>
+    </section>
+
+    <!-- Content Grid -->
+    <section class="mx-auto max-w-6xl px-4 pb-16" id="content-grid">
+      <div class="aff-main-grid grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <!-- Main Column -->
+        <div class="aff-stack lg:col-span-2">
+          <!-- Auth Card -->
+          <div class="aff-card rounded-3xl border border-white/10 bg-white/5 p-5 md:p-7 shadow-glow hidden" id="auth-card">
+            <h2 class="text-lg md:text-xl font-bold text-white mb-2">Masuk / Register Affiliate</h2>
+            <p class="text-sm text-slate-400 mb-5">Akun affiliate dipisah dari admin. Buat akun baru atau login untuk mengakses dashboard affiliate.</p>
+            <div class="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm text-amber-200 mb-5 hidden" id="registration-closed-notice">Pendaftaran affiliate sedang ditutup admin. Login tetap tersedia untuk affiliate yang sudah terdaftar.</div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+              <div>
+                <label for="email-input" class="block text-xs font-semibold text-slate-300 mb-2">Email</label>
+                <input id="email-input" type="email" placeholder="kamu@email.com" class="aff-field">
+              </div>
+              <div>
+                <label for="password-input" class="block text-xs font-semibold text-slate-300 mb-2">Password</label>
+                <input id="password-input" type="password" placeholder="Minimal 6 karakter" class="aff-field">
+              </div>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3">
+              <button class="flex-1 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-cyan-500/30 transition-all duration-300 hover:scale-[1.02]" id="login-btn" type="button">Login</button>
+              <button class="flex-1 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-white/10 transition-all duration-300" id="register-btn" type="button">Register</button>
+            </div>
+            <p class="text-xs text-slate-500 mt-4" id="email-note">Belum ada aktivitas login.</p>
+          </div>
+
+          <!-- Dashboard Card -->
+          <div class="aff-card rounded-3xl border border-white/10 bg-white/5 p-5 md:p-7 shadow-glow hidden" id="dashboard-card">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+              <div>
+                <h2 class="text-lg md:text-xl font-bold text-white">Dashboard Affiliate</h2>
+                <p class="text-sm text-slate-400 mt-1" id="welcome-text">Memuat data affiliate...</p>
+              </div>
+              <span class="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-wider bg-indigo-500/15 text-indigo-200 border border-indigo-500/20" id="status-badge">Belum Apply</span>
+            </div>
+            <div class="rounded-2xl border border-red-500/20 bg-red-500/5 p-4 text-sm text-red-200 mb-5 hidden" id="dashboard-registration-closed-notice">Pendaftaran affiliate sedang ditutup. Affiliate yang sudah approved tetap bisa login dan memakai dashboard.</div>
+            <div class="rounded-2xl border border-white/10 bg-slate-950/40 p-4 mb-5" id="status-banner">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                  <p class="font-semibold text-white text-sm" id="status-title">Siap daftar affiliate?</p>
+                  <p class="text-xs text-slate-400 mt-1" id="status-description">Akun kamu belum punya aplikasi affiliate.</p>
+                </div>
+                <button class="rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-cyan-500/30 transition-all duration-300 hover:scale-[1.02] whitespace-nowrap" id="apply-btn" type="button">Daftar Affiliate</button>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+              <div class="rounded-2xl border border-white/10 bg-slate-950/40 p-4 text-center"><p class="text-xs text-slate-400 uppercase tracking-wider">Total Klik</p><p class="text-xl md:text-2xl font-bold text-white mt-1" id="stat-clicks">0</p></div>
+              <div class="rounded-2xl border border-white/10 bg-slate-950/40 p-4 text-center"><p class="text-xs text-slate-400 uppercase tracking-wider">Penjualan</p><p class="text-xl md:text-2xl font-bold text-white mt-1" id="stat-sales">0</p></div>
+              <div class="rounded-2xl border border-white/10 bg-slate-950/40 p-4 text-center"><p class="text-xs text-slate-400 uppercase tracking-wider">Pending</p><p class="text-xl md:text-2xl font-bold text-emerald-400 mt-1" id="stat-pending">Rp 0</p></div>
+              <div class="rounded-2xl border border-white/10 bg-slate-950/40 p-4 text-center"><p class="text-xs text-slate-400 uppercase tracking-wider">Saldo</p><p class="text-xl md:text-2xl font-bold text-cyan-400 mt-1" id="stat-balance">Rp 0</p></div>
+            </div>
+            <div class="aff-summary rounded-2xl border border-white/10 bg-slate-950/40 p-4 text-sm text-slate-300" id="affiliate-code-box">Kode affiliate akan muncul setelah admin menyetujui aplikasi kamu.</div>
+          </div>
+
+          <!-- Link Card -->
+          <div class="aff-card rounded-3xl border border-white/10 bg-white/5 p-5 md:p-7 shadow-glow hidden" id="link-card">
+            <h3 class="text-base md:text-lg font-bold text-white mb-2">Generate Link Referral</h3>
+            <p class="text-sm text-slate-400 mb-5">Pilih produk atau isi path custom. Link referral otomatis memakai kode affiliate kamu.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div><label for="product-select" class="block text-xs font-semibold text-slate-300 mb-2">Produk</label><select id="product-select" class="aff-select"><option value="">Pilih produk</option></select></div>
+              <div><label for="custom-path" class="block text-xs font-semibold text-slate-300 mb-2">Path Custom</label><input id="custom-path" type="text" placeholder="/detail-product.html?slug=..." class="aff-field"></div>
+            </div>
+            <div><label for="generated-link" class="block text-xs font-semibold text-slate-300 mb-2">Link Referral</label><textarea id="generated-link" readonly placeholder="Link referral akan muncul di sini" class="aff-textarea font-mono text-xs"></textarea></div>
+            <button class="aff-action mt-3 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-cyan-500/30 transition-all duration-300 hover:scale-[1.02]" id="copy-link-btn" type="button">Copy Link</button>
+          </div>
+
+          <!-- Withdraw Card -->
+          <div class="aff-card rounded-3xl border border-white/10 bg-white/5 p-5 md:p-7 shadow-glow hidden" id="withdraw-card">
+            <h3 class="text-base md:text-lg font-bold text-white mb-2">Ajukan Withdrawal</h3>
+            <p class="text-sm text-slate-400 mb-5">Minimal withdraw mengikuti setting admin. Nominal akan masuk status diproses agar tidak bisa ditarik dua kali.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div><label for="withdraw-amount" class="block text-xs font-semibold text-slate-300 mb-2">Nominal</label><input id="withdraw-amount" type="number" min="20000" step="1000" placeholder="Contoh: 20000" class="aff-field"></div>
+              <div><label for="withdraw-method" class="block text-xs font-semibold text-slate-300 mb-2">Metode</label><select id="withdraw-method" class="aff-select"><option value="dana">DANA</option><option value="gopay">GoPay</option><option value="shopeepay">ShopeePay</option></select></div>
+            </div>
+            <div class="mb-4"><label for="withdraw-phone" class="block text-xs font-semibold text-slate-300 mb-2">Nomor Tujuan</label><input id="withdraw-phone" type="tel" inputmode="numeric" placeholder="08xxxxxxxxxx" class="aff-field"></div>
+            <div class="aff-summary rounded-2xl border border-white/10 bg-slate-950/40 p-4 text-sm text-slate-300 mb-4" id="withdraw-summary-box">Minimal withdraw Rp 20.000. Saldo yang diajukan akan dipindah ke status diproses sampai admin menyelesaikan payout.</div>
+            <button class="aff-action rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-cyan-500/30 transition-all duration-300 hover:scale-[1.02]" id="withdraw-btn" type="button">Ajukan Withdrawal</button>
+          </div>
+
+          <!-- Withdrawals History -->
+          <div class="aff-card rounded-3xl border border-white/10 bg-white/5 p-5 md:p-7 shadow-glow hidden" id="withdrawals-card">
+            <h3 class="text-base md:text-lg font-bold text-white mb-2">Riwayat Withdrawal</h3>
+            <p class="text-sm text-slate-400 mb-4">Status: requested, processing, paid, atau rejected.</p>
+            <div class="aff-table">
+              <table class="w-full min-w-[600px] text-sm"><thead><tr class="bg-slate-950/60"><th class="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Tanggal</th><th class="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Metode</th><th class="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Nomor</th><th class="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Amount</th><th class="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</th></tr></thead><tbody id="withdrawal-body" class="divide-y divide-white/5"><tr><td colspan="5" class="px-4 py-4 text-slate-500 text-xs">Belum ada withdrawal.</td></tr></tbody></table>
+            </div>
+          </div>
+
+          <!-- Commissions History -->
+          <div class="aff-card rounded-3xl border border-white/10 bg-white/5 p-5 md:p-7 shadow-glow hidden" id="commissions-card">
+            <h3 class="text-base md:text-lg font-bold text-white mb-2">Riwayat Komisi</h3>
+            <p class="text-sm text-slate-400 mb-4">Status komisi: pending, approved, lalu paid saat sudah dicairkan.</p>
+            <div class="aff-table">
+              <table class="w-full min-w-[500px] text-sm"><thead><tr class="bg-slate-950/60"><th class="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Order</th><th class="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Produk</th><th class="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Amount</th><th class="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</th></tr></thead><tbody id="commissions-body" class="divide-y divide-white/5"><tr><td colspan="4" class="px-4 py-4 text-slate-500 text-xs">Belum ada komisi.</td></tr></tbody></table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="aff-stack aff-sidebar">
+          <div class="aff-card rounded-3xl border border-white/10 bg-white/5 p-5 shadow-glow">
+            <h3 class="text-base font-bold text-white mb-3">Status Program</h3>
+            <div class="rounded-2xl border border-white/10 bg-slate-950/40 p-4 text-sm text-slate-300" id="program-status-box">Program affiliate aktif dan pendaftaran sedang dibuka.</div>
+          </div>
+          <div class="aff-card rounded-3xl border border-white/10 bg-white/5 p-5 shadow-glow">
+            <div class="flex gap-4">
+              <div class="flex-shrink-0 grid h-10 w-10 place-items-center rounded-xl bg-indigo-500/20 text-indigo-300 text-sm font-bold">01</div>
+              <div><h3 class="font-bold text-white text-sm mb-1">Alur Singkat</h3><p class="text-xs text-slate-400 leading-relaxed">Sistem cek sesi dulu, lalu langsung mengarahkan user ke dashboard atau form auth yang tepat.</p></div>
+            </div>
+          </div>
+          <div class="aff-card rounded-3xl border border-white/10 bg-white/5 p-5 shadow-glow">
+            <div class="flex gap-4">
+              <div class="flex-shrink-0 grid h-10 w-10 place-items-center rounded-xl bg-cyan-500/20 text-cyan-300 text-sm font-bold">02</div>
+              <div><h3 class="font-bold text-white text-sm mb-1">Aturan Program</h3><p class="text-xs text-slate-400 leading-relaxed">Cookie 30 hari, last click wins, komisi global atau per produk, dan minimal withdraw default Rp20.000.</p></div>
+            </div>
+          </div>
+          <div class="aff-card rounded-3xl border border-white/10 bg-white/5 p-5 shadow-glow">
+            <div class="flex gap-4">
+              <div class="flex-shrink-0 grid h-10 w-10 place-items-center rounded-xl bg-emerald-500/20 text-emerald-300 text-sm font-bold">03</div>
+              <div><h3 class="font-bold text-white text-sm mb-1">Siap Mobile</h3><p class="text-xs text-slate-400 leading-relaxed">Layout responsif biar tetap nyaman dipakai dari Android maupun iOS.</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Footer -->
+    <footer class="border-t border-white/10 bg-slate-950 pt-16 pb-8">
+      <div class="mx-auto max-w-6xl px-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+          <div class="col-span-1 md:col-span-2">
+            <a href="index.html" class="flex items-center gap-3 mb-6">
+              <div class="grid h-10 w-10 place-items-center rounded-xl bg-white/5 shadow-glow"><span class="text-lg font-bold text-indigo-300">A</span></div>
+              <span class="text-lg font-bold text-white">Arufkuy Store</span>
+            </a>
+            <p class="text-slate-400 text-sm leading-relaxed max-w-sm">Platform penyedia produk digital otomatis, cepat, dan terpercaya. Solusi terbaik untuk kebutuhan digital Anda.</p>
+          </div>
+          <div>
+            <h4 class="text-white font-bold mb-6">Menu</h4>
+            <ul class="space-y-4 text-sm text-slate-400">
+              <li><a href="index.html" class="hover:text-indigo-400 transition">Beranda</a></li>
+              <li><a href="index.html#products" class="hover:text-indigo-400 transition">Produk</a></li>
+              <li><a href="order-guide.html" class="hover:text-indigo-400 transition">Cara Order</a></li>
+              <li><a href="contact.html" class="hover:text-indigo-400 transition">Kontak</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="text-white font-bold mb-6">Informasi</h4>
+            <ul class="space-y-4 text-sm text-slate-400">
+              <li><a href="about-us.html" class="hover:text-indigo-400 transition">Tentang Kami</a></li>
+              <li><a href="privacy-policy.html" class="hover:text-indigo-400 transition">Kebijakan Privasi</a></li>
+              <li><a href="terms-of-service.html" class="hover:text-indigo-400 transition">Syarat & Ketentuan</a></li>
+              <li><a href="disclaimer.html" class="hover:text-indigo-400 transition">Disclaimer</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p class="text-xs text-slate-500">&copy; <span id="year"></span> Arufkuy Store. All rights reserved.</p>
+          <div class="flex items-center gap-5">
+            <a href="https://discord.gg/3sDGqtZBcW" class="text-slate-400 hover:text-white transition"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M13.545 2.907a13.2 13.2 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.2 12.2 0 0 0-3.658 0 8 8 0 0 0-.412-.833.05.05 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.04.04 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032q.003.022.021.037a13.3 13.3 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019q.463-.63.818-1.329a.05.05 0 0 0-.01-.059l-.018-.011a9 9 0 0 1-1.248-.595.05.05 0 0 1-.02-.066l.015-.019q.127-.095.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .053.007q.121.1.248.195a.05.05 0 0 1-.004.085 8 8 0 0 1-1.249.594.05.05 0 0 0-.03.03.05.05 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.2 13.2 0 0 0 4.001-2.02.05.05 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.03.03 0 0 0-.02-.019m-8.198 7.307c-.789 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612m5.316 0c-.788 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612"/></svg></a>
+            <a href="https://www.instagram.com/arufkuystore" class="text-slate-400 hover:text-white transition"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334"/></svg></a>
+            <a href="https://www.tiktok.com/@arufkuy.digital.store" class="text-slate-400 hover:text-white transition"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3z"/></svg></a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </main>
+  </div>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+    function toggleMobileMenu() {
+      const overlay = document.getElementById('mobile-overlay');
+      const hamburgerIcon = document.getElementById('hamburger-icon');
+      const closeIcon = document.getElementById('close-icon');
+      if (overlay.classList.contains('active')) { closeMobileMenu(); }
+      else { overlay.classList.add('active'); hamburgerIcon.classList.add('hidden'); closeIcon.classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
+    }
+    function closeMobileMenu() {
+      const overlay = document.getElementById('mobile-overlay');
+      document.getElementById('hamburger-icon').classList.remove('hidden');
+      document.getElementById('close-icon').classList.add('hidden');
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  </script>
+<script type="module">
+
+import { firebaseConfig } from './config.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getFirestore, collection, doc, getDoc, getDocs, query, where, setDoc, serverTimestamp, runTransaction } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+const app = initializeApp(firebaseConfig, 'affiliate-portal');
+const auth = getAuth(app);
+const db = getFirestore(app);
+const DEFAULT_SETTINGS = {
+  portalEnabled: true,
+  registrationOpen: true,
+  registrationMessage: 'Pendaftaran affiliate sedang dibuka.',
+  closedMessage: 'Portal affiliate sedang tidak tersedia sementara waktu.',
+  defaultCommissionPercent: 8,
+  minWithdrawAmount: 20000
+};
+const el = (id) => document.getElementById(id);
+const loadingScreen = el('loading-screen');
+const siteHeader = el('site-header');
+const appShell = el('app-shell');
+const contentGrid = el('content-grid');
+const portalClosedCard = el('portal-closed-card');
+const portalClosedMessage = el('portal-closed-message');
+const authCard = el('auth-card');
+const dashboardCard = el('dashboard-card');
+const linkCard = el('link-card');
+const withdrawCard = el('withdraw-card');
+const withdrawalsCard = el('withdrawals-card');
+const commissionsCard = el('commissions-card');
+const logoutBtn = el('logout-btn');
+const loginBtn = el('login-btn');
+const registerBtn = el('register-btn');
+const applyBtn = el('apply-btn');
+const withdrawBtn = el('withdraw-btn');
+const emailInput = el('email-input');
+const passwordInput = el('password-input');
+const emailNote = el('email-note');
+const welcomeText = el('welcome-text');
+const statusBadge = el('status-badge');
+const statusTitle = el('status-title');
+const statusDescription = el('status-description');
+const affiliateCodeBox = el('affiliate-code-box');
+const productSelect = el('product-select');
+const customPathInput = el('custom-path');
+const generatedLink = el('generated-link');
+const copyLinkBtn = el('copy-link-btn');
+const commissionsBody = el('commissions-body');
+const withdrawalBody = el('withdrawal-body');
+const withdrawAmountInput = el('withdraw-amount');
+const withdrawMethodInput = el('withdraw-method');
+const withdrawPhoneInput = el('withdraw-phone');
+const withdrawSummaryBox = el('withdraw-summary-box');
+const registrationClosedNotice = el('registration-closed-notice');
+const dashboardRegistrationClosedNotice = el('dashboard-registration-closed-notice');
+const heroCommission = el('hero-commission');
+const heroRegistrationStatus = el('hero-registration-status');
+const programStatusBox = el('program-status-box');
+const mobileLogoutBtn = el('mobile-logout-btn');
+let currentUser = null;
+let currentAffiliateProfile = null;
+let affiliateSettings = { ...DEFAULT_SETTINGS };
+let pageReady = false;
+
+const formatCurrency = (value) => `Rp ${new Intl.NumberFormat('id-ID').format(Number(value || 0))}`;
+const formatDate = (value) => !value ? '-' : value.toDate ? value.toDate().toLocaleString('id-ID') : value.seconds ? new Date(value.seconds * 1000).toLocaleString('id-ID') : new Date(value).toLocaleString('id-ID');
+const normalizePhone = (value) => String(value || '').replace(/[^0-9]/g, '');
+const getMinWithdrawAmount = () => Number(affiliateSettings.minWithdrawAmount || DEFAULT_SETTINGS.minWithdrawAmount || 20000);
+
+function getAuthErrorMessage(error, mode = 'login') {
+  const code = error?.code || '';
+  if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') return 'Email atau password salah.';
+  if (code === 'auth/email-already-in-use') return 'Email ini sudah terdaftar. Silakan login.';
+  if (code === 'auth/weak-password') return 'Password terlalu lemah. Gunakan minimal 6 karakter.';
+  if (code === 'auth/invalid-email') return 'Format email tidak valid.';
+  if (code === 'auth/network-request-failed') return 'Jaringan bermasalah. Coba lagi.';
+  return mode === 'register' ? 'Register gagal.' : 'Login gagal.';
+}
+
+function showToast(message, type = 'info') {
+  const wrap = el('toast-wrap');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  wrap.appendChild(toast);
+  setTimeout(() => toast.remove(), 3200);
+}
+
+function hideLoading() {
+  if (pageReady) return;
+  pageReady = true;
+  loadingScreen.classList.add('hidden');
+  siteHeader.classList.remove('hidden');
+  appShell.classList.remove('hidden');
+}
+
+function applySettingsToUI() {
+  heroCommission.textContent = `${Number(affiliateSettings.defaultCommissionPercent || 8)}%`;
+  heroRegistrationStatus.textContent = affiliateSettings.registrationOpen ? 'Buka' : 'Ditutup';
+  programStatusBox.textContent = affiliateSettings.portalEnabled
+    ? `${affiliateSettings.registrationMessage || DEFAULT_SETTINGS.registrationMessage} Minimal withdraw ${formatCurrency(getMinWithdrawAmount())}.`
+    : (affiliateSettings.closedMessage || DEFAULT_SETTINGS.closedMessage);
+  registrationClosedNotice.classList.toggle('hidden', affiliateSettings.registrationOpen);
+  dashboardRegistrationClosedNotice.classList.toggle('hidden', affiliateSettings.registrationOpen);
+  portalClosedMessage.textContent = affiliateSettings.closedMessage || DEFAULT_SETTINGS.closedMessage;
+  if (withdrawAmountInput) {
+    withdrawAmountInput.min = String(getMinWithdrawAmount());
+    withdrawAmountInput.placeholder = `Minimal ${getMinWithdrawAmount()}`;
+  }
+  refreshWithdrawSummary(currentAffiliateProfile);
+}
+
+function setStatusBadge(status) {
+  const normalized = status || 'not_registered';
+  statusBadge.className = 'badge';
+  if (normalized === 'approved') {
+    statusBadge.classList.add('approved');
+    statusBadge.textContent = 'Approved';
+  } else if (normalized === 'pending') {
+    statusBadge.classList.add('pending');
+    statusBadge.textContent = 'Pending Review';
+  } else if (normalized === 'rejected') {
+    statusBadge.classList.add('rejected');
+    statusBadge.textContent = 'Rejected';
+  } else {
+    statusBadge.classList.add('info');
+    statusBadge.textContent = 'Belum Apply';
+  }
+}
+
+function getWithdrawalBadge(status) {
+  const normalized = status || 'requested';
+  const badgeClass = normalized === 'paid' ? 'approved' : normalized === 'rejected' ? 'rejected' : normalized === 'processing' ? 'info' : 'pending';
+  return `<span class="badge ${badgeClass}">${normalized}</span>`;
+}
+
+function updateStats(profile) {
+  el('stat-clicks').textContent = Number(profile?.totalClicks || 0);
+  el('stat-sales').textContent = Number(profile?.totalSalesAttributed || 0);
+  el('stat-pending').textContent = formatCurrency(profile?.pendingCommissionAmount || 0);
+  el('stat-balance').textContent = formatCurrency(profile?.saldo || 0);
+}
+
+function showPortalClosedState() {
+  portalClosedCard.classList.remove('hidden');
+  contentGrid.classList.add('hidden');
+  logoutBtn.classList.add('hidden');
+  authCard.classList.add('hidden');
+  dashboardCard.classList.add('hidden');
+  linkCard.classList.add('hidden');
+  withdrawCard.classList.add('hidden');
+  withdrawalsCard.classList.add('hidden');
+  commissionsCard.classList.add('hidden');
+  hideLoading();
+}
+
+function refreshGeneratedLink() {
+  if (!currentAffiliateProfile || currentAffiliateProfile.status !== 'approved' || !currentAffiliateProfile.code) {
+    generatedLink.value = '';
+    return;
+  }
+  const selectedPath = customPathInput.value.trim() || productSelect.value || '/';
+  const normalizedPath = selectedPath.startsWith('/') ? selectedPath : `/${selectedPath}`;
+  generatedLink.value = `${window.location.origin}${normalizedPath}${normalizedPath.includes('?') ? '&' : '?'}ref=${currentAffiliateProfile.code}`;
+}
+
+function refreshWithdrawSummary(profile) {
+  if (!withdrawSummaryBox) return;
+  const minWithdraw = getMinWithdrawAmount();
+  const availableBalance = Number(profile?.saldo || 0);
+  const holdBalance = Number(profile?.holdBalance || 0);
+  const helper = !profile || profile.status !== 'approved'
+    ? 'Withdrawal baru bisa diajukan setelah akun affiliate kamu approved.'
+    : 'Nominal yang diajukan akan langsung dipindah ke status diproses sampai admin menyelesaikan payout.';
+  withdrawSummaryBox.innerHTML = `
+    <div class="aff-summary-grid">
+      <div class="aff-summary-item">
+        <span class="aff-summary-label">Saldo Tersedia</span>
+        <span class="aff-summary-value">${formatCurrency(availableBalance)}</span>
+      </div>
+      <div class="aff-summary-item">
+        <span class="aff-summary-label">Sedang Diproses</span>
+        <span class="aff-summary-value">${formatCurrency(holdBalance)}</span>
+      </div>
+      <div class="aff-summary-item">
+        <span class="aff-summary-label">Minimal Withdraw</span>
+        <span class="aff-summary-value">${formatCurrency(minWithdraw)}</span>
+      </div>
+    </div>
+    <div class="aff-summary-note">${helper}</div>
+  `;
+}
+
+function renderAffiliateState(profile) {
+  currentAffiliateProfile = profile;
+  updateStats(profile || {});
+  refreshWithdrawSummary(profile);
+  if (!currentUser) return;
+
+  welcomeText.textContent = `Masuk sebagai ${currentUser.email}`;
+  setStatusBadge(profile?.status || null);
+
+  if (!profile) {
+    statusTitle.textContent = affiliateSettings.registrationOpen ? 'Akun kamu belum terdaftar sebagai affiliate.' : 'Pendaftaran affiliate sedang ditutup admin.';
+    statusDescription.textContent = affiliateSettings.registrationOpen ? 'Klik tombol daftar untuk mengirim aplikasi affiliate ke admin.' : 'Kamu masih bisa login, tapi aplikasi baru sementara tidak menerima pendaftaran.';
+    applyBtn.classList.toggle('hidden', !affiliateSettings.registrationOpen);
+    applyBtn.disabled = !affiliateSettings.registrationOpen;
+    affiliateCodeBox.textContent = affiliateSettings.registrationOpen ? 'Setelah aplikasi approved, kode affiliate dan statistik kamu akan tampil di sini.' : 'Pendaftaran sedang ditutup. Tunggu admin membuka akses atau hubungi admin.';
+    linkCard.classList.add('hidden');
+    withdrawCard.classList.add('hidden');
+    withdrawalsCard.classList.add('hidden');
+    commissionsCard.classList.add('hidden');
+    return;
+  }
+
+  applyBtn.classList.add('hidden');
+  if (profile.status === 'pending') {
+    statusTitle.textContent = 'Aplikasi kamu sedang direview admin.';
+    statusDescription.textContent = `Diajukan: ${formatDate(profile.createdAt)}. Setelah disetujui, kode affiliate akan dibuat otomatis.`;
+    affiliateCodeBox.textContent = 'Status pending. Kode affiliate akan muncul setelah admin menekan approve di dashboard admin.';
+    linkCard.classList.add('hidden');
+    withdrawCard.classList.add('hidden');
+    withdrawalsCard.classList.add('hidden');
+  } else if (profile.status === 'approved') {
+    statusTitle.textContent = 'Akun affiliate aktif dan siap dipakai.';
+    statusDescription.textContent = 'Bagikan link referral kamu, kumpulkan saldo, lalu ajukan withdrawal sesuai nominal yang kamu mau.';
+    affiliateCodeBox.innerHTML = `<strong>Kode Affiliate:</strong> <span class="mono">${profile.code || '-'}</span><br><span class="tiny">Komisi default: ${Number(profile.commissionPercent || affiliateSettings.defaultCommissionPercent || 8)}%${profile.commissionFlat ? ` atau fix ${formatCurrency(profile.commissionFlat)}` : ''}</span><br><span class="tiny">Saldo tersedia ${formatCurrency(profile.saldo || 0)} | Diproses ${formatCurrency(profile.holdBalance || 0)}</span>`;
+    linkCard.classList.remove('hidden');
+    withdrawCard.classList.remove('hidden');
+    withdrawalsCard.classList.remove('hidden');
+  } else if (profile.status === 'rejected') {
+    statusTitle.textContent = 'Aplikasi affiliate belum disetujui.';
+    statusDescription.textContent = 'Hubungi admin jika ingin pengajuan ulang atau klarifikasi.';
+    affiliateCodeBox.textContent = 'Status rejected. Untuk keamanan, pengajuan ulang dibuka manual oleh admin.';
+    linkCard.classList.add('hidden');
+    withdrawCard.classList.add('hidden');
+    withdrawalsCard.classList.add('hidden');
+  }
+
+  commissionsCard.classList.remove('hidden');
+  refreshGeneratedLink();
+}
+
+async function loadProducts() {
+  try {
+    const snapshot = await getDocs(collection(db, 'products'));
+    productSelect.innerHTML = '<option value="">Pilih produk</option>';
+    snapshot.docs.forEach((docSnap) => {
+      const product = { id: docSnap.id, ...docSnap.data() };
+      const option = document.createElement('option');
+      option.value = product.slug ? `/detail-product.html?slug=${product.slug}` : `/detail-product.html?id=${product.id}`;
+      option.textContent = product.name || product.title || product.id;
+      productSelect.appendChild(option);
+    });
+  } catch (error) {
+    console.error('Failed to load products:', error);
+  }
+}
+
+async function loadCommissions() {
+  commissionsBody.innerHTML = '<tr><td colspan="4" class="tiny">Memuat komisi...</td></tr>';
+  if (!currentUser || !currentAffiliateProfile) {
+    commissionsBody.innerHTML = '<tr><td colspan="4" class="tiny">Belum ada komisi.</td></tr>';
+    return;
+  }
+
+  try {
+    const snapshot = await getDocs(query(collection(db, 'affiliate_commissions'), where('affiliate', '==', currentUser.uid)));
+    const commissions = snapshot.docs
+      .map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }))
+      .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+    if (!commissions.length) {
+      commissionsBody.innerHTML = '<tr><td colspan="4" class="tiny">Belum ada komisi untuk akun ini.</td></tr>';
+      return;
+    }
+
+    commissionsBody.innerHTML = commissions.map((item) => `
+      <tr>
+        <td data-label="Order"><div class="aff-cell-title">${item.orderId || item.id}</div><span class="aff-cell-sub">${formatDate(item.createdAt)}</span></td>
+        <td data-label="Produk"><div class="aff-cell-title">${item.productName || '-'}</div><span class="aff-cell-sub mono">${item.productId || '-'}</span></td>
+        <td data-label="Amount"><span class="aff-cell-amount mono">${formatCurrency(item.amount || 0)}</span></td>
+        <td data-label="Status"><span class="badge ${item.status === 'approved' || item.status === 'paid' ? 'approved' : item.status === 'rejected' ? 'rejected' : 'pending'}">${item.status || 'pending'}</span></td>
+      </tr>
+    `).join('');
+  } catch (error) {
+    console.error('Failed to load commissions:', error);
+    commissionsBody.innerHTML = `<tr><td colspan="4" class="tiny">${error?.code === 'permission-denied' ? 'Rules Firestore affiliate belum terdeploy. Publish firebase.rule lalu reload halaman.' : 'Gagal memuat komisi.'}</td></tr>`;
+  }
+}
+
+async function loadWithdrawals() {
+  if (!withdrawalBody) return;
+  withdrawalBody.innerHTML = '<tr><td colspan="5" class="tiny">Memuat withdrawal...</td></tr>';
+  if (!currentUser || !currentAffiliateProfile || currentAffiliateProfile.status !== 'approved') {
+    withdrawalBody.innerHTML = '<tr><td colspan="5" class="tiny">Belum ada withdrawal.</td></tr>';
+    return;
+  }
+
+  try {
+    const snapshot = await getDocs(query(collection(db, 'affiliate_withdrawals'), where('affiliate', '==', currentUser.uid)));
+    const withdrawals = snapshot.docs
+      .map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }))
+      .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+    if (!withdrawals.length) {
+      withdrawalBody.innerHTML = '<tr><td colspan="5" class="tiny">Belum ada request withdrawal.</td></tr>';
+      return;
+    }
+
+    withdrawalBody.innerHTML = withdrawals.map((item) => `
+      <tr>
+        <td data-label="Tanggal"><div class="aff-cell-title">${formatDate(item.createdAt)}</div></td>
+        <td data-label="Metode"><div class="aff-cell-title">${String(item.method || '-').toUpperCase()}</div></td>
+        <td data-label="Nomor"><span class="aff-cell-sub mono" style="margin-top:0">${item.phoneNumber || '-'}</span></td>
+        <td data-label="Amount"><span class="aff-cell-amount mono">${formatCurrency(item.amount || 0)}</span></td>
+        <td data-label="Status">${getWithdrawalBadge(item.status)}</td>
+      </tr>
+    `).join('');
+  } catch (error) {
+    console.error('Failed to load withdrawals:', error);
+    withdrawalBody.innerHTML = `<tr><td colspan="5" class="tiny">${error?.code === 'permission-denied' ? 'Rules Firestore withdrawal belum terdeploy. Publish firebase.rule lalu reload halaman.' : 'Gagal memuat withdrawal.'}</td></tr>`;
+  }
+}
+
+async function loadAffiliateProfile(user) {
+  try {
+    const snap = await getDoc(doc(db, 'affiliate_users', user.uid));
+    renderAffiliateState(snap.exists() ? snap.data() : null);
+    await Promise.all([loadCommissions(), loadWithdrawals()]);
+  } catch (error) {
+    console.error('Failed to load affiliate profile:', error);
+    renderAffiliateState(null);
+    if (error?.code === 'permission-denied') {
+      affiliateCodeBox.textContent = 'Rules Firestore affiliate belum terdeploy. Publish firebase.rule lalu reload halaman.';
+      showToast('Rules Firestore affiliate belum terdeploy.', 'error');
+    }
+  }
+}
+
+async function loadAffiliateSettings() {
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'affiliateConfig'));
+    affiliateSettings = snap.exists() ? { ...DEFAULT_SETTINGS, ...snap.data() } : { ...DEFAULT_SETTINGS };
+  } catch (error) {
+    console.error('Failed to load affiliate settings:', error);
+    affiliateSettings = { ...DEFAULT_SETTINGS };
+  }
+  applySettingsToUI();
+}
+
+async function handleApply() {
+  if (!currentUser) return;
+  if (!affiliateSettings.registrationOpen) {
+    showToast('Pendaftaran affiliate sedang ditutup admin.', 'error');
+    return;
+  }
+
+  applyBtn.disabled = true;
+  applyBtn.textContent = 'Mengirim...';
+  try {
+    await setDoc(doc(db, 'affiliate_users', currentUser.uid), {
+      firebase_uid: currentUser.uid,
+      email: currentUser.email,
+      status: 'pending',
+      saldo: 0,
+      holdBalance: 0,
+      totalClicks: 0,
+      totalSalesAttributed: 0,
+      pendingCommissionAmount: 0,
+      totalPaid: 0,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+    showToast('Aplikasi affiliate berhasil dikirim.', 'success');
+    await loadAffiliateProfile(currentUser);
+  } catch (error) {
+    console.error(error);
+    showToast(error.message || 'Gagal mengirim aplikasi affiliate.', 'error');
+  } finally {
+    applyBtn.disabled = false;
+    applyBtn.textContent = 'Daftar Affiliate';
+  }
+}
+
+function setAuthBusy(busy, mode = 'login') {
+  loginBtn.disabled = busy;
+  registerBtn.disabled = busy;
+  loginBtn.textContent = busy && mode === 'login' ? 'Memproses...' : 'Login';
+  registerBtn.textContent = busy && mode === 'register' ? 'Membuat Akun...' : 'Register';
+}
+
+function setWithdrawBusy(busy) {
+  if (!withdrawBtn) return;
+  withdrawBtn.disabled = busy;
+  withdrawBtn.textContent = busy ? 'Mengajukan...' : 'Ajukan Withdrawal';
+}
+
+function getAuthCredentials() {
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
+  if (!email) {
+    showToast('Masukkan email terlebih dahulu.', 'error');
+    return null;
+  }
+  if (!password) {
+    showToast('Masukkan password terlebih dahulu.', 'error');
+    return null;
+  }
+  if (password.length < 6) {
+    showToast('Password minimal 6 karakter.', 'error');
+    return null;
+  }
+  return { email, password };
+}
+
+function getWithdrawPayload() {
+  const amount = Number(withdrawAmountInput.value || 0);
+  const method = String(withdrawMethodInput.value || '').trim().toLowerCase();
+  const phoneNumber = normalizePhone(withdrawPhoneInput.value);
+  const minWithdraw = getMinWithdrawAmount();
+
+  if (!currentAffiliateProfile || currentAffiliateProfile.status !== 'approved') {
+    showToast('Withdrawal hanya tersedia untuk affiliate yang sudah approved.', 'error');
+    return null;
+  }
+  if (!amount || Number.isNaN(amount)) {
+    showToast('Masukkan nominal withdrawal yang valid.', 'error');
+    return null;
+  }
+  if (amount < minWithdraw) {
+    showToast(`Minimal withdrawal ${formatCurrency(minWithdraw)}.`, 'error');
+    return null;
+  }
+  if (amount > Number(currentAffiliateProfile.saldo || 0)) {
+    showToast('Saldo tersedia tidak cukup untuk nominal ini.', 'error');
+    return null;
+  }
+  if (!['dana', 'gopay', 'shopeepay'].includes(method)) {
+    showToast('Pilih metode withdrawal yang tersedia.', 'error');
+    return null;
+  }
+  if (!phoneNumber || phoneNumber.length < 9) {
+    showToast('Masukkan nomor tujuan yang valid.', 'error');
+    return null;
+  }
+  return { amount, method, phoneNumber };
+}
+
+async function handleLogin() {
+  const creds = getAuthCredentials();
+  if (!creds) return;
+  if (!affiliateSettings.portalEnabled) {
+    showToast('Portal affiliate sedang ditutup.', 'error');
+    return;
+  }
+
+  setAuthBusy(true, 'login');
+  try {
+    await signInWithEmailAndPassword(auth, creds.email, creds.password);
+    emailNote.textContent = `Berhasil login sebagai ${creds.email}`;
+    showToast('Login berhasil.', 'success');
+  } catch (error) {
+    console.error(error);
+    showToast(getAuthErrorMessage(error, 'login'), 'error');
+  } finally {
+    setAuthBusy(false, 'login');
+  }
+}
+
+async function handleRegister() {
+  const creds = getAuthCredentials();
+  if (!creds) return;
+  if (!affiliateSettings.portalEnabled) {
+    showToast('Portal affiliate sedang ditutup.', 'error');
+    return;
+  }
+  if (!affiliateSettings.registrationOpen) {
+    showToast('Pendaftaran affiliate sedang ditutup admin.', 'error');
+    return;
+  }
+
+  setAuthBusy(true, 'register');
+  try {
+    await createUserWithEmailAndPassword(auth, creds.email, creds.password);
+    emailNote.textContent = `Akun berhasil dibuat untuk ${creds.email}`;
+    showToast('Akun affiliate berhasil dibuat. Silakan lanjut daftar affiliate.', 'success');
+  } catch (error) {
+    console.error(error);
+    showToast(getAuthErrorMessage(error, 'register'), 'error');
+  } finally {
+    setAuthBusy(false, 'register');
+  }
+}
+
+async function handleWithdraw() {
+  const payload = getWithdrawPayload();
+  if (!payload || !currentUser) return;
+
+  setWithdrawBusy(true);
+  try {
+    const affiliateRef = doc(db, 'affiliate_users', currentUser.uid);
+    const withdrawalRef = doc(collection(db, 'affiliate_withdrawals'));
+    await runTransaction(db, async (transaction) => {
+      const affiliateSnap = await transaction.get(affiliateRef);
+      if (!affiliateSnap.exists()) throw new Error('Profil affiliate tidak ditemukan.');
+      const affiliateData = affiliateSnap.data();
+      if (affiliateData.status !== 'approved') throw new Error('Akun affiliate belum approved.');
+
+      const currentBalance = Number(affiliateData.saldo || 0);
+      const holdBalance = Number(affiliateData.holdBalance || 0);
+      if (payload.amount > currentBalance) throw new Error('Saldo tersedia tidak cukup.');
+
+      transaction.update(affiliateRef, {
+        saldo: currentBalance - payload.amount,
+        holdBalance: holdBalance + payload.amount,
+        updatedAt: serverTimestamp()
+      });
+      transaction.set(withdrawalRef, {
+        affiliate: currentUser.uid,
+        affiliateCode: affiliateData.code || '',
+        email: currentUser.email || affiliateData.email || '',
+        method: payload.method,
+        phoneNumber: payload.phoneNumber,
+        amount: payload.amount,
+        status: 'requested',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+    });
+
+    withdrawAmountInput.value = '';
+    withdrawPhoneInput.value = '';
+    showToast('Request withdrawal berhasil dikirim.', 'success');
+    await loadAffiliateProfile(currentUser);
+  } catch (error) {
+    console.error(error);
+    showToast(error.message || 'Gagal mengajukan withdrawal.', 'error');
+  } finally {
+    setWithdrawBusy(false);
+  }
+}
+
+loginBtn.addEventListener('click', handleLogin);
+registerBtn.addEventListener('click', handleRegister);
+applyBtn.addEventListener('click', handleApply);
+withdrawBtn?.addEventListener('click', handleWithdraw);
+logoutBtn.addEventListener('click', async () => {
+  await signOut(auth);
+  showToast('Berhasil logout.', 'info');
+});
+productSelect.addEventListener('change', refreshGeneratedLink);
+customPathInput.addEventListener('input', refreshGeneratedLink);
+copyLinkBtn.addEventListener('click', async () => {
+  if (!generatedLink.value) return;
+  try {
+    await navigator.clipboard.writeText(generatedLink.value);
+    showToast('Link referral berhasil disalin.', 'success');
+  } catch {
+    showToast('Gagal menyalin link referral.', 'error');
+  }
+});
+
+onAuthStateChanged(auth, async (user) => {
+  currentUser = user;
+  applySettingsToUI();
+  if (!affiliateSettings.portalEnabled) {
+    showPortalClosedState();
+    return;
+  }
+
+  portalClosedCard.classList.add('hidden');
+  contentGrid.classList.remove('hidden');
+  if (user) {
+    authCard.classList.add('hidden');
+    dashboardCard.classList.remove('hidden');
+    logoutBtn.classList.remove('hidden');
+    hideLoading();
+    await loadProducts();
+    await loadAffiliateProfile(user);
+  } else {
+    currentAffiliateProfile = null;
+    logoutBtn.classList.add('hidden');
+    authCard.classList.remove('hidden');
+    dashboardCard.classList.add('hidden');
+    linkCard.classList.add('hidden');
+    withdrawCard.classList.add('hidden');
+    withdrawalsCard.classList.add('hidden');
+    commissionsCard.classList.add('hidden');
+    emailNote.textContent = 'Belum ada aktivitas login.';
+    refreshWithdrawSummary(null);
+    hideLoading();
+  }
+});
+
+await loadAffiliateSettings();
+if (!affiliateSettings.portalEnabled) {
+  showPortalClosedState();
+}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
