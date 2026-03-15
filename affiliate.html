@@ -69,29 +69,36 @@
     .aff-cell-sub { display: block; margin-top: 4px; font-size: 12px; color: #94a3b8; word-break: break-word; }
     .aff-cell-amount { font-weight: 700; color: #f8fafc; white-space: nowrap; }
     .aff-summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; width: 100%; }
-    .aff-summary-item { border-radius: 16px; border: 1px solid rgba(255,255,255,.08); background: rgba(15,23,42,.52); padding: 12px 14px; }
+    .aff-summary-item { border-radius: 16px; border: 1px solid rgba(255,255,255,.08); background: rgba(15,23,42,.52); padding: 12px 14px; min-width: 0; }
     .aff-summary-label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #94a3b8; }
-    .aff-summary-value { display: block; margin-top: 6px; font-size: 18px; font-weight: 800; color: #f8fafc; }
-    .aff-summary-note { margin-top: 10px; font-size: 12px; color: #94a3b8; }
+    .aff-summary-value { display: block; margin-top: 6px; font-size: 18px; font-weight: 800; color: #f8fafc; line-height: 1.2; word-break: break-word; }
+    .aff-summary-note { display: block; width: 100%; margin-top: 12px; font-size: 12px; line-height: 1.65; color: #94a3b8; }
+    .aff-empty-row td { color: #94a3b8; }
     @media (max-width: 640px) {
       .aff-summary-grid { grid-template-columns: 1fr; }
       .aff-table { overflow: visible; border: 0; background: transparent; }
-      .aff-table table, .aff-table tbody { display: block; width: 100%; }
+      .aff-table table, .aff-table tbody { display: block; width: 100%; min-width: 100%; }
       .aff-table thead { display: none; }
       .aff-table tr { display: block; padding: 14px; border: 1px solid rgba(255,255,255,.08); border-radius: 18px; background: rgba(2,6,23,.34); }
       .aff-table tr + tr { margin-top: 12px; }
-      .aff-table td { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; width: 100%; padding: 8px 0; border-bottom: 0 !important; text-align: right; }
-      .aff-table td::before { content: attr(data-label); flex: 0 0 92px; text-align: left; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #94a3b8; }
-      .aff-table td > * { max-width: calc(100% - 106px); }
+      .aff-table td { display: grid; grid-template-columns: 84px minmax(0, 1fr); align-items: start; gap: 12px; width: 100%; padding: 8px 0; border-bottom: 0 !important; text-align: left; }
+      .aff-table td::before { content: attr(data-label); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #94a3b8; }
+      .aff-table td > * { min-width: 0; }
+      .aff-table td:not([colspan]) > * { justify-self: start; }
+      .aff-table td[colspan] { display: block; padding: 0; }
+      .aff-table td[colspan]::before { content: none; }
+      .aff-empty-row { padding: 16px !important; }
+      .aff-cell-title, .aff-cell-sub, .aff-cell-amount { word-break: break-word; }
       .aff-cell-sub { margin-top: 2px; }
       .aff-cell-amount { font-size: 16px; }
+      .badge { justify-self: start; }
     }
     .aff-field, .aff-select, .aff-textarea { width: 100%; min-height: 52px; border-radius: 16px; border: 1px solid rgba(255,255,255,.1); background: rgba(15,23,42,.55); color: #fff; padding: 14px 16px; font-size: 14px; transition: border-color .2s ease, box-shadow .2s ease, background .2s ease; }
     .aff-textarea { min-height: 104px; resize: vertical; }
     .aff-field:focus, .aff-select:focus, .aff-textarea:focus { outline: none; border-color: rgba(99,102,241,.7); box-shadow: 0 0 0 4px rgba(99,102,241,.12); background: rgba(15,23,42,.72); }
     .aff-select { appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: linear-gradient(45deg, transparent 50%, #e2e8f0 50%), linear-gradient(135deg, #e2e8f0 50%, transparent 50%); background-position: calc(100% - 22px) calc(50% - 3px), calc(100% - 16px) calc(50% - 3px); background-size: 6px 6px, 6px 6px; background-repeat: no-repeat; padding-right: 44px; color-scheme: dark; }
     .aff-select option { background: #0f172a; color: #e5eefb; }
-    .aff-summary { min-height: 92px; display: flex; align-items: flex-start; }
+    .aff-summary { min-height: 92px; display: block; }
     .aff-action { width: 100%; display: inline-flex; align-items: center; justify-content: center; }
     @media (min-width: 1024px) { .aff-main-grid { align-items: start; } .aff-sidebar { position: sticky; top: 24px; } }
   </style>
@@ -688,9 +695,9 @@ async function loadProducts() {
 }
 
 async function loadCommissions() {
-  commissionsBody.innerHTML = '<tr><td colspan="4" class="tiny">Memuat komisi...</td></tr>';
+  commissionsBody.innerHTML = '<tr class="aff-empty-row"><td colspan="4" class="tiny">Memuat komisi...</td></tr>';
   if (!currentUser || !currentAffiliateProfile) {
-    commissionsBody.innerHTML = '<tr><td colspan="4" class="tiny">Belum ada komisi.</td></tr>';
+    commissionsBody.innerHTML = '<tr class="aff-empty-row"><td colspan="4" class="tiny">Belum ada komisi.</td></tr>';
     return;
   }
 
@@ -701,7 +708,7 @@ async function loadCommissions() {
       .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 
     if (!commissions.length) {
-      commissionsBody.innerHTML = '<tr><td colspan="4" class="tiny">Belum ada komisi untuk akun ini.</td></tr>';
+      commissionsBody.innerHTML = '<tr class="aff-empty-row"><td colspan="4" class="tiny">Belum ada komisi untuk akun ini.</td></tr>';
       return;
     }
 
@@ -715,15 +722,15 @@ async function loadCommissions() {
     `).join('');
   } catch (error) {
     console.error('Failed to load commissions:', error);
-    commissionsBody.innerHTML = `<tr><td colspan="4" class="tiny">${error?.code === 'permission-denied' ? 'Rules Firestore affiliate belum terdeploy. Publish firebase.rule lalu reload halaman.' : 'Gagal memuat komisi.'}</td></tr>`;
+    commissionsBody.innerHTML = `<tr class="aff-empty-row"><td colspan="4" class="tiny">${error?.code === 'permission-denied' ? 'Rules Firestore affiliate belum terdeploy. Publish firebase.rule lalu reload halaman.' : 'Gagal memuat komisi.'}</td></tr>`;
   }
 }
 
 async function loadWithdrawals() {
   if (!withdrawalBody) return;
-  withdrawalBody.innerHTML = '<tr><td colspan="5" class="tiny">Memuat withdrawal...</td></tr>';
+  withdrawalBody.innerHTML = '<tr class="aff-empty-row"><td colspan="5" class="tiny">Memuat withdrawal...</td></tr>';
   if (!currentUser || !currentAffiliateProfile || currentAffiliateProfile.status !== 'approved') {
-    withdrawalBody.innerHTML = '<tr><td colspan="5" class="tiny">Belum ada withdrawal.</td></tr>';
+    withdrawalBody.innerHTML = '<tr class="aff-empty-row"><td colspan="5" class="tiny">Belum ada withdrawal.</td></tr>';
     return;
   }
 
@@ -734,7 +741,7 @@ async function loadWithdrawals() {
       .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 
     if (!withdrawals.length) {
-      withdrawalBody.innerHTML = '<tr><td colspan="5" class="tiny">Belum ada request withdrawal.</td></tr>';
+      withdrawalBody.innerHTML = '<tr class="aff-empty-row"><td colspan="5" class="tiny">Belum ada request withdrawal.</td></tr>';
       return;
     }
 
@@ -749,7 +756,7 @@ async function loadWithdrawals() {
     `).join('');
   } catch (error) {
     console.error('Failed to load withdrawals:', error);
-    withdrawalBody.innerHTML = `<tr><td colspan="5" class="tiny">${error?.code === 'permission-denied' ? 'Rules Firestore withdrawal belum terdeploy. Publish firebase.rule lalu reload halaman.' : 'Gagal memuat withdrawal.'}</td></tr>`;
+    withdrawalBody.innerHTML = `<tr class="aff-empty-row"><td colspan="5" class="tiny">${error?.code === 'permission-denied' ? 'Rules Firestore withdrawal belum terdeploy. Publish firebase.rule lalu reload halaman.' : 'Gagal memuat withdrawal.'}</td></tr>`;
   }
 }
 
@@ -1031,6 +1038,9 @@ if (!affiliateSettings.portalEnabled) {
 </script>
 </body>
 </html>
+
+
+
 
 
 
